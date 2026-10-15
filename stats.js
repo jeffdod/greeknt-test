@@ -296,7 +296,6 @@ function update(){
   if(f.refBad)c.textContent='I could not read that passage. Try a form like “Romans 8”, “John 1:18”, or “1 Cor 13”.';
   else c.textContent=out.length===0?'No notes match these choices.':fmt(out.length)+' note'+(out.length===1?'':'s')+' ('+pct(out.length/N.length)+' of all '+fmt(N.length)+') on '+fmt(new Set(out.map(function(i){return N[i][0];})).size)+(new Set(out.map(function(i){return N[i][0];})).size===1?' page.':' pages.');
   showMore();drawStrip(out);
-  try{history.replaceState(null,'',location.pathname+location.search+'#find');}catch(e){}
 }
 function init(){
   $('filters').addEventListener('submit',function(ev){ev.preventDefault();});
