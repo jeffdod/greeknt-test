@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Apparatus Across the Whole Text · The Greek New Testament According to the Byzantine Text</title>
+<meta name="description" content="How each of the eleven editions compares with the main text across the whole New Testament, with a tool to find every note by edition, book, and kind of difference.">
+<link rel="canonical" href="https://greeknt.org/stats.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Guardian Press">
+<meta property="og:title" content="The Apparatus Across the Whole Text">
+<meta property="og:description" content="How eleven editions compare with the Byzantine main text across the whole New Testament, and a tool to find every note.">
+<meta property="og:url" content="https://greeknt.org/stats.html">
+<meta property="og:image" content="https://greeknt.org/images/social-card.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=GFS+Didot&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="explorer.css">
+<link rel="stylesheet" href="stats.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="index.html"><b>Guardian</b> Press</a>
+    <nav class="nav" aria-label="Sections">
+      <a href="index.html">The edition</a>
+      <a href="variants.html">Fifty variants</a>
+      <a href="#chart">Chart</a>
+      <a href="#find">Find where</a>
+      <a href="errata.html">Errata</a>
+      <a class="nav-dl" href="index.html#get">Get the edition</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <div class="xhero">
+    <div class="wrap">
+      <h1>The apparatus across the whole text</h1>
+      <p class="lede">Every note in the Edition Apparatus, counted. See how each of the eleven editions compares with the main text in each part of the New Testament, then find the exact notes you are looking for.</p>
+      <p class="xnote"><b>Draft for review.</b> These figures were compiled by reading the printed notes in the PDF and checking that every page’s notes were found. They have not yet been checked against a hand count. A note records only a place where at least one edition differs from the main text, so these figures describe the apparatus, not the editions as a whole.</p>
+    </div>
+  </div>
+
+  <section id="chart">
+    <div class="wrap">
+      <div class="head">
+        <h2>How each edition compares with the main text</h2>
+        <p class="lede" id="chartlede"></p>
+      </div>
+      <div class="gkey fam-key" id="famkey"></div>
+      <div class="cgrid" id="cgrid"></div>
+      <details class="tablebox">
+        <summary>Show the figures as a table</summary>
+        <div class="gridwrap"><table class="agree" id="ctable"></table></div>
+      </details>
+      <p class="caveat" id="chartnote"></p>
+    </div>
+  </section>
+
+  <section id="find">
+    <div class="wrap">
+      <div class="head">
+        <h2>Find where</h2>
+        <p class="lede">Choose an edition, a book, or a kind of difference, and see every matching note with its page number. The strip shows where in the edition the matches fall.</p>
+      </div>
+      <form class="filters" id="filters">
+        <label>Edition
+          <select id="fEd"></select>
+        </label>
+        <label>What it does
+          <select id="fRel">
+            <option value="differs">Differs from the main text</option>
+            <option value="bracket">Brackets the main text</option>
+            <option value="split">Has a split line (ECM†)</option>
+          </select>
+        </label>
+        <label>Where
+          <select id="fWhere"></select>
+        </label>
+        <label>Kind of difference
+          <select id="fKind">
+            <option value="">Any</option>
+            <option value="omit">Omits words</option>
+            <option value="add">Adds words</option>
+            <option value="order">Changes the word order</option>
+            <option value="spell">Spelling or small form change</option>
+            <option value="other">Other wording</option>
+            <option value="bracket">Same words, in brackets or parentheses</option>
+          </select>
+        </label>
+        <label>Pattern among editions
+          <select id="fPat">
+            <option value="">Any</option>
+            <option value="critall">Critical editions agree</option>
+            <option value="critsplit">Critical editions divide</option>
+            <option value="byz">A Byzantine edition differs</option>
+            <option value="trcrit">TR joins a critical edition</option>
+          </select>
+        </label>
+        <label>Passage
+          <input id="fRef" type="text" placeholder="e.g. Romans 8 or John 1:18" autocomplete="off">
+        </label>
+        <label>Greek word or phrase
+          <input id="fGreek" type="text" placeholder="without accents, e.g. και" autocomplete="off" lang="grc">
+        </label>
+        <button type="button" class="btn btn-quiet" id="fReset">Clear all</button>
+      </form>
+      <div class="rhead">
+        <p id="rcount" aria-live="polite"></p>
+        <div id="pagechip"></div>
+      </div>
+      <div class="strip" id="strip" aria-label="Where the matching notes fall in the edition, page by page"></div>
+      <div class="stripscale" id="stripscale"></div>
+      <ol class="results" id="results"></ol>
+      <p class="more"><button type="button" class="btn btn-quiet" id="more" hidden>Show more</button></p>
+      <p class="caveat">An edition not named in a note reads the same as the main text. Accents, punctuation, movable nu, final sigma, and spacing in compound words are not recorded in the apparatus. Notes are printed with the readings stripped of accents, as in the edition. The kind of difference is worked out automatically by comparing the printed words. A reading that does more than one thing (for example, omits one word and adds another) is listed under each kind, so the kinds overlap and should not be added together. Treat “spelling or a small change of form” and “other wording” as a guide.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Guardian Press</span>
+    <span>The text of this edition is in the public domain.</span>
+  </div>
+</footer>
+
+<script src="notes-data.js"></script>
+<script src="stats.js"></script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fifty Variants and the Manuscript Timeline · The Greek New Testament According to the Byzantine Text</title>
+<meta name="description" content="Browse the fifty variants in the Manuscript Apparatus and see where each cited manuscript falls in time.">
+<link rel="canonical" href="https://greeknt.org/variants.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Guardian Press">
+<meta property="og:title" content="Fifty Variants and the Manuscript Timeline">
+<meta property="og:description" content="Browse the fifty variants in the Manuscript Apparatus of the Byzantine Greek New Testament, and see where each cited manuscript falls in time.">
+<meta property="og:url" content="https://greeknt.org/variants.html">
+<meta property="og:image" content="https://greeknt.org/images/social-card.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=GFS+Didot&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="explorer.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="index.html"><b>Guardian</b> Press</a>
+    <nav class="nav" aria-label="Sections">
+      <a href="index.html">The edition</a>
+      <a href="#variants">Fifty variants</a>
+      <a href="#grid">Edition grid</a>
+      <a href="#timeline">Manuscript timeline</a>
+      <a href="stats.html">Whole-text stats</a>
+      <a href="errata.html">Errata</a>
+      <a class="nav-dl" href="index.html#get">Get the edition</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <div class="xhero">
+    <div class="wrap">
+      <h1>The fifty variants</h1>
+      <p class="lede">The edition’s Manuscript Apparatus gives the evidence for fifty passages where the manuscripts differ in ways that matter. Here you can browse them one at a time, then see where each cited manuscript falls in history.</p>
+      <p class="xnote"><b>Draft for review.</b> The plain-English summaries on each card are written for this page and are not from the book. The readings, manuscripts, and edition notes are taken from the printed edition.</p>
+    </div>
+  </div>
+
+  <section id="variants">
+    <div class="wrap">
+      <div class="head">
+        <h2>Browse the variants</h2>
+        <p class="lede">Choose a passage to see the competing readings, the manuscripts cited for each, and how the eleven editions compare.</p>
+      </div>
+      <div class="controls" role="group" aria-label="Filter the variants">
+        <div class="seg" id="groupFilter" role="group" aria-label="Part of the New Testament"></div>
+        <div class="seg" id="kindFilter" role="group" aria-label="Kind of difference"></div>
+        <p class="count" id="vcount" aria-live="polite"></p>
+      </div>
+      <ul class="vgrid" id="vgrid"></ul>
+    </div>
+  </section>
+
+  <section id="grid">
+    <div class="wrap">
+      <div class="head">
+        <h2>Edition agreement grid</h2>
+        <p class="lede">One row for each of the fifty passages, one column for each of the eleven editions. Each cell shows how that edition handles the passage, compared with the main text of this edition.</p>
+      </div>
+      <div class="controls">
+        <label class="pick">Compare every edition with
+          <select id="gridRef"></select>
+        </label>
+        <div class="seg" id="gridGroup" role="group" aria-label="Part of the New Testament"></div>
+      </div>
+      <div class="gkey" id="gkey"></div>
+      <div class="gridwrap" tabindex="0" role="region" aria-label="Edition agreement grid, scrolls sideways on small screens">
+        <table class="agree" id="agree"></table>
+      </div>
+      <p class="caveat" id="gridnote"></p>
+    </div>
+  </section>
+
+  <section id="timeline">
+    <div class="wrap">
+      <div class="head">
+        <h2>Manuscript timeline</h2>
+        <p class="lede">All 125 manuscripts cited in the Manuscript Apparatus, arranged by the century given in Appendix D. Select one to see what it contains and which of the fifty variants cite it.</p>
+      </div>
+      <div class="controls tl-controls">
+        <span class="lbl">Contents:</span>
+        <div class="seg" id="contentFilter" role="group" aria-label="Contents"></div>
+        <label class="pick">Show the witnesses for
+          <select id="variantPick"></select>
+        </label>
+      </div>
+      <div class="legend" id="legend" hidden></div>
+      <div class="tl-layout">
+        <div class="tl" id="tl"></div>
+        <aside class="msinfo is-empty" id="msinfo" aria-live="polite">
+          <p class="empty">Select a manuscript to see its details.</p>
+        </aside>
+      </div>
+      <p class="caveat">Dates are those printed in Appendix D, taken from the <i>Liste</i> (Institute for New Testament Textual Research, Münster). A date belongs to the whole manuscript; a corrector’s hand can be later. Only papyri and uncials through the ninth century, plus selected minuscules through the tenth, are cited, so a manuscript’s absence from a reading says nothing about the wider tradition.</p>
+    </div>
+  </section>
+
+</main>
+
+<dialog id="vdialog" aria-labelledby="vtitle">
+  <div class="vd">
+    <div class="vd-bar">
+      <button type="button" class="vd-nav" id="vprev" aria-label="Previous variant">‹</button>
+      <button type="button" class="vd-nav" id="vnext" aria-label="Next variant">›</button>
+      <button type="button" class="vd-close" id="vclose" aria-label="Close">Close</button>
+    </div>
+    <div class="vd-body" id="vbody"></div>
+  </div>
+</dialog>
+
+<footer>
+  <div class="wrap">
+    <span>Guardian Press</span>
+    <span>The text of this edition is in the public domain.</span>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script src="explorer.js"></script>
+</body>
+</html>
