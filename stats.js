@@ -211,7 +211,7 @@ function renderItem(n){
   var ref=el('b',null,BOOKS[n[1]]+' '+n[2]);
   head.appendChild(ref);
   head.appendChild(document.createTextNode(' · '));
-  head.appendChild(el('span','pg','page '+n[0]));
+  var pgs=el('span','pg');pgs.appendChild(document.createTextNode('page '));pgs.appendChild(window.GNTPages.link(String(n[0]),n[0]));head.appendChild(pgs);
   head.appendChild(el('span','caller',' note '+n[3]));
   li.appendChild(head);
   var lem=el('div','lem');lem.appendChild(el('span','lab','Main text: '));var gr=el('span','gk',n[4]);gr.lang='grc';lem.appendChild(gr);li.appendChild(lem);

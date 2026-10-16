@@ -120,7 +120,7 @@ function openVariant(id){
   var v=V.filter(function(x){return x.id===id;})[0];if(!v)return;cur=v;
   var b=$('vbody');b.textContent='';
   b.appendChild(el('h3',null,v.ref)).id='vtitle';
-  b.appendChild(el('p','where','Page '+v.page+' of the edition · footnote “'+v.caller+'” · '+KIND[v.kind]));
+  var wh=el('p','where');wh.appendChild(document.createTextNode('Page '));wh.appendChild(window.GNTPages.link(String(v.page),v.page));wh.appendChild(document.createTextNode(' of the edition · footnote “'+v.caller+'” · '+KIND[v.kind]));b.appendChild(wh);
   b.appendChild(el('p','summary',v.what));
   b.appendChild(el('h4',null,'The readings and the manuscripts cited for each'));
   v.readings.forEach(function(r,i){
@@ -153,7 +153,7 @@ function openVariant(id){
     col.appendChild(ul);g.appendChild(col);
   });
   b.appendChild(g);
-  b.appendChild(el('p','edfoot',(v.complex?'This note uses special conventions; read the printed note on page '+v.page+' for the full detail. ':'')+'An edition shown as “same as the main text” is not named in the printed note, which lists only editions that differ.'));
+  var ef=el('p','edfoot');if(v.complex){ef.appendChild(document.createTextNode('This note uses special conventions; read the printed note on page '));ef.appendChild(window.GNTPages.link(String(v.page),v.page));ef.appendChild(document.createTextNode(' for the full detail. '));}ef.appendChild(document.createTextNode('An edition shown as “same as the main text” is not named in the printed note, which lists only editions that differ.'));b.appendChild(ef);
   var tl=el('p','tl-link');var a=el('button','btn btn-quiet','Show these witnesses on the timeline');a.type='button';
   a.addEventListener('click',function(){dlg.close();pickVariant(v.id);});tl.appendChild(a);b.appendChild(tl);
   var i=visible.indexOf(v);$('vprev').disabled=i<=0;$('vnext').disabled=i<0||i>=visible.length-1;
