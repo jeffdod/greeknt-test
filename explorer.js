@@ -131,7 +131,7 @@ function openVariant(id){
     rl.appendChild(el('b',null,r.label));
     box.appendChild(rl);
     if(r.expl)box.appendChild(el('p','keyline',r.expl));
-    if(!stat&&r.greek){var g=el('p','gk',r.greek);box.appendChild(g);}
+    if(!stat&&r.greek){var g=el('p','gk',r.greek);g.lang='grc';box.appendChild(g);}
     if(r.eds&&r.eds.length){box.appendChild(el('p','keyline','The printed note adds: '+r.eds.map(function(e){return e.replace('RP^mg','alternate reading in the Robinson–Pierpont margin').replace('RPmg','alternate reading in the Robinson–Pierpont margin');}).join(', ')+' ('+(r.eds.indexOf('CT')>=0?'agreement of the critical editions':'edition note')+').'));}
     var e=earliest(r);if(e&&!stat)box.appendChild(el('p','early',e));
     var chips=el('div','chips');
@@ -148,7 +148,7 @@ function openVariant(id){
     var col=el('div');col.appendChild(el('h5',null,f[0]));var ul=el('ul');
     f[1].forEach(function(e){var x=v.editions[e]||{s:'main'};var li=el('li',x.s);li.appendChild(el('b',null,e));
       var sp=el('span');var t=edText(x);
-      if(x.s==='differs'&&x.t&&x.t!=='om.'&&x.t.length<70){sp.appendChild(document.createTextNode('Reads: '));var gk=el('span','gk',x.t);sp.appendChild(gk);}else sp.textContent=t;
+      if(x.s==='differs'&&x.t&&x.t!=='om.'&&x.t.length<70){sp.appendChild(document.createTextNode('Reads: '));var gk=el('span','gk',x.t);gk.lang='grc';sp.appendChild(gk);}else sp.textContent=t;
       li.appendChild(sp);li.title=EDNAME[e];ul.appendChild(li);});
     col.appendChild(ul);g.appendChild(col);
   });
@@ -314,7 +314,7 @@ function renderGrid(){
   var ref=gs.ref;
   var rows=V.filter(function(v){return gs.group==='All'||v.group===gs.group;});
   var thead=el('thead');
-  var r1=el('tr');r1.appendChild(el('th','corner'));r1.firstChild.rowSpan=2;r1.firstChild.textContent='Passage';
+  var r1=el('tr');r1.appendChild(el('th','corner'));r1.firstChild.rowSpan=2;r1.firstChild.scope='col';r1.firstChild.textContent='Passage';
   FAMILY.forEach(function(f){var th=el('th','fam',f[0].replace(' editions',''));th.colSpan=f[1].length;th.scope='colgroup';r1.appendChild(th);});
   thead.appendChild(r1);
   var r2=el('tr');

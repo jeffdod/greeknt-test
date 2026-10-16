@@ -66,7 +66,7 @@ function agebar(){
   for(var c=3;c<=11;c++){
     var b=el('button','agecol cc'+c);b.type='button';b.dataset.c=c;
     b.setAttribute('aria-pressed',st.cent===String(c)?'true':'false');
-    b.title=(cs[c]||0)+' manuscripts from the '+ordinal(c)+' century';
+    b.title=(cs[c]||0)+' manuscripts from the '+ordinal(c)+' century';b.setAttribute('aria-label',(cs[c]||0)+' manuscripts from the '+ordinal(c)+' century. Select to filter the list.');
     var n=el('span','n',String(cs[c]||0));var bar=el('span','bar');bar.style.setProperty('--h',Math.round(((cs[c]||0)/max)*86)+'px');
     var r=el('span','r',ROMAN[c]);
     b.appendChild(n);b.appendChild(bar);b.appendChild(r);
@@ -141,14 +141,15 @@ function card(r){
   body.appendChild(me);
   var ci=el('div','cited');
   ci.appendChild(document.createTextNode('Cited in '+(x.u||0)+' of the 50 variants. '));
-  if(x.u){var a=el('a',null,'See where');a.href='variants.html#ms='+encodeURIComponent(m.ga);a.title='Open the Fifty variants page and pick this manuscript on the timeline';ci.appendChild(a);}
+  if(x.u){var a=el('a',null,'See where');a.href='variants.html#ms='+encodeURIComponent(m.ga);a.title='Open the Fifty variants page and pick this manuscript on the timeline';a.setAttribute('aria-label','See where '+(x.n||('GA '+m.ga.replace(/s$/,'')))+' is cited');ci.appendChild(a);}
   body.appendChild(ci);
   var lk=el('div','mlinks');
-  function link(txt,href,title){var a=el('a',null,txt);a.href=href;a.target='_blank';a.rel='noopener';if(title)a.title=title;lk.appendChild(a);}
+  var who=x.n||('GA '+m.ga.replace(/s$/,''));
+  function link(txt,href,title,more){var a=el('a',null,txt);a.href=href;a.target='_blank';a.rel='noopener';if(title)a.title=title;a.setAttribute('aria-label',txt+' for '+who+(more||'')+' (opens in a new tab)');lk.appendChild(a);}
   link('Liste entry',listeUrl(m),'Official record in the INTF Kurzgefaßte Liste (opens in a new tab)');
   link('Images (INTF)',imagesUrl(m),'Images and transcriptions in the INTF Virtual Manuscript Room, where available (opens in a new tab)');
   var sp=SPECIAL[m.ga];if(sp)link(sp[0],sp[1]);
-  var cb=el('button','linkbtn','Copy reference');cb.type='button';cb.title='Copy a citation for this manuscript';
+  var cb=el('button','linkbtn','Copy reference');cb.type='button';cb.title='Copy a citation for this manuscript';cb.setAttribute('aria-label','Copy reference for '+who);
   cb.addEventListener('click',function(){window.GNT_copy(refText(r),cb,'Copied');});
   lk.appendChild(cb);
   body.appendChild(lk);

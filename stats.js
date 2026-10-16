@@ -84,15 +84,15 @@ function buildChart(){
   });
   $('chartnote').innerHTML='Scale: the longest bar is '+Math.round(maxShare*100)+'%, and every panel uses the same scale. The Editio Critica Maior (ECM) is shown only where it exists: Mark, Acts, the Catholic Epistles, and Revelation. A note is counted once for an edition if the edition reads differently from the main text in any of the readings listed. Where ECM prints a split guiding line (ECM†), ECM is counted as differing only if neither of its two branches is the main text’s reading; the “ECM split” column of the table counts all such notes. This chart counts <em>printed notes</em>. It does not measure how close two texts are, because a note may concern one letter or a whole verse, and the apparatus does not record accents, punctuation, movable nu, final sigma, or spacing in compound words.';
   // table
-  var t=$('ctable'),h='<thead><tr><th class="corner">Part of the New Testament</th><th>Notes</th>';
-  SHOWN.forEach(function(e){h+='<th class="ed" title="'+EDNAME[e]+'">'+e+'</th>';});
-  h+='<th title="Notes where ECM prints a split guiding line">ECM split</th></tr></thead><tbody>';
+  var t=$('ctable'),h='<thead><tr><th class="corner" scope="col">Part of the New Testament</th><th scope="col">Notes</th>';
+  SHOWN.forEach(function(e){h+='<th scope="col" class="ed" title="'+EDNAME[e]+'">'+e+'</th>';});
+  h+='<th scope="col" title="Notes where ECM prints a split guiding line">ECM split</th></tr></thead><tbody>';
   var tot={n:0,ed:{},sp:0};SHOWN.forEach(function(e){tot.ed[e]=0;});
   ALLG.concat(['__all']).forEach(function(g){
     var s;
     if(g==='__all'){s={total:0,ed:{},split:0};SHOWN.forEach(function(e){s.ed[e]=0;});ALLG.forEach(function(x){s.total+=stats[x].total;s.split+=stats[x].split;SHOWN.forEach(function(e){s.ed[e]+=stats[x].ed[e];});});}
     else s=stats[g];
-    h+='<tr'+(g==='__all'?' class="book"':'')+'><th class="pass">'+(g==='__all'?'Whole New Testament':g)+'</th><td class="c">'+fmt(s.total)+'</td>';
+    h+='<tr'+(g==='__all'?' class="book"':'')+'><th class="pass" scope="row">'+(g==='__all'?'Whole New Testament':g)+'</th><td class="c">'+fmt(s.total)+'</td>';
     SHOWN.forEach(function(e){
       if(g!=='__all'&&!edApplies(e,g)){h+='<td class="c na">–</td>';return;}
       var den=s.total;
@@ -240,7 +240,7 @@ function drawStrip(hitsArr){
   var counts=new Array(W+1).fill(0),mx=0;
   hitsArr.forEach(function(i){var p=N[i][0];counts[p]++;if(counts[p]>mx)mx=counts[p];});
   var cv=s.firstChild&&s.firstChild.tagName==='CANVAS'?s.firstChild:null;
-  if(!cv){s.textContent='';cv=document.createElement('canvas');s.appendChild(cv);}
+  if(!cv){s.textContent='';cv=document.createElement('canvas');cv.setAttribute('role','img');cv.setAttribute('aria-label','Strip showing where the matching notes fall in the New Testament, from Matthew on the left to Revelation on the right. The same notes are listed below.');s.appendChild(cv);}
   var cssW=s.clientWidth||700,cssH=64,dpr=window.devicePixelRatio||1;
   cv.width=cssW*dpr;cv.height=cssH*dpr;cv.style.width=cssW+'px';cv.style.height=cssH+'px';
   var c=cv.getContext('2d');c.scale(dpr,dpr);c.clearRect(0,0,cssW,cssH);

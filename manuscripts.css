@@ -4,7 +4,7 @@
 
 /* Century colours */
 :root{
-  --c2:#b8892b;--c3:#c2662b;--c4:#a3281e;--c5:#7d2f5c;--c6:#4b3a8f;--c7:#2f5d9c;--c8:#1f7f86;--c9:#3f7a4a;--c10:#7a7f2a;--c11:#8c6a3a;--cx:#6a6f7a;
+  --c2:#8a6410;--c3:#a24f14;--c4:#a3281e;--c5:#7d2f5c;--c6:#4b3a8f;--c7:#2a5590;--c8:#17666c;--c9:#2f6a3b;--c10:#68691c;--c11:#7a5628;--cx:#565c68;
 }
 .cc2{--cc:var(--c2)}.cc3{--cc:var(--c3)}.cc4{--cc:var(--c4)}.cc5{--cc:var(--c5)}.cc6{--cc:var(--c6)}
 .cc7{--cc:var(--c7)}.cc8{--cc:var(--c8)}.cc9{--cc:var(--c9)}.cc10{--cc:var(--c10)}.cc11{--cc:var(--c11)}.cc0{--cc:var(--cx)}
@@ -45,7 +45,7 @@
 .mscard .band .kind{text-transform:uppercase;font-size:.8rem;letter-spacing:.1em;opacity:.92}
 .mscard .band .date{font-variant:small-caps;font-size:1.05rem}
 .mscard .top{display:flex;align-items:center;gap:14px;padding:14px 16px 4px}
-.mscard .glyph{flex:0 0 auto;min-width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--cc) 14%,#fbfaf6);border:2px solid var(--cc);color:var(--cc);font-family:"GFS Didot","EB Garamond",serif;font-size:1.9rem;line-height:1;padding:0 6px}
+.mscard .glyph{flex:0 0 auto;min-width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--cc) 10%,#fbfaf6);border:2px solid var(--cc);color:var(--cc);font-family:"GFS Didot","EB Garamond",serif;font-size:1.9rem;line-height:1;padding:0 6px}
 .mscard .glyph.long{font-size:1.25rem;border-radius:32px}
 .mscard .glyph sup{font-size:.55em}
 .mscard h3{margin:0;font-size:1.2rem;line-height:1.2;font-weight:500}
