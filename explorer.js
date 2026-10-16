@@ -293,7 +293,10 @@ function showOnTimeline(ga,vid){tlState.variant=vid;$('variantPick').value=vid;
 /* ---------- Edition agreement grid ---------- */
 var gs={ref:'main',group:'All'};
 var ALLEDS=['HF','PCK','PT','ECM','NA27','NA28','SBL','TH','WH','SCR','ST'];
-function ekey(v,e){var x=v.editions[e];if(!x)return null;if(x.s==='na')return null;return x.s==='differs'?'d:'+(x.t||'').trim():x.s;}
+/* Where two editions print a passage in the same brackets but handle it differently,
+   the difference is recorded here (checked by hand against the printed note). */
+var TREAT={'John 7:53–8:11':{WH:'double, placed after John 21:25 as an appendix'}};
+function ekey(v,e){var x=v.editions[e];if(!x)return null;if(x.s==='na')return null;var o=TREAT[v.ref];if(o&&o[e])return 't:'+o[e];return x.s==='differs'?'d:'+(x.t||'').trim():x.s;}
 function cellFor(v,e,ref){
   var x=v.editions[e]||{s:'main'};
   if(ref==='main'){
@@ -304,7 +307,6 @@ function cellFor(v,e,ref){
     if(x.s==='split')return ['bracket','split','Split guiding line'];
     return ['na','–','Not applicable in this book'];
   }
-  if(v.complex)return ['na','?','Special conventions in the printed note; not compared'];
   var a=ekey(v,e),b=ekey(v,ref);
   if(a===null||b===null)return ['na','–','Not applicable in this book'];
   return a===b?['same','=','Printed the same way as '+ref]:['differs','≠','Printed differently from '+ref];
@@ -342,8 +344,7 @@ function renderGrid(){
   tf.appendChild(tr);t.appendChild(tf);
   $('gkey').innerHTML='';
   [['same','=',ref==='main'?'Same as the main text':'Printed the same way'],['differs','≠',ref==='main'?'Reads differently':'Printed differently'],['bracket','[ ]','In brackets, double brackets, or split (doubtful or divided)'],['na','–','Not applicable here']].forEach(function(k){var s=el('span');var i=el('i','c '+k[0],k[1]);s.appendChild(i);s.appendChild(document.createTextNode(' '+k[2]));$('gkey').appendChild(s);});
-  var n=ref==='main'?'':' Passages whose printed note uses special conventions (marked “?”) are not compared edition-to-edition.';
-  $('gridnote').textContent='These counts cover only the fifty passages the editors chose as significant, and ECM is counted only where it applies (Mark, Acts, the Catholic Epistles, and Revelation). They are not a measure of how close any two editions are overall. An edition shown as “same” is simply not named in the printed note.'+n;
+  $('gridnote').textContent='These counts cover only the fifty passages the editors chose as significant, and ECM is counted only where it applies (Mark, Acts, the Catholic Epistles, and Revelation). They are not a measure of how close any two editions are overall. An edition shown as “same” is simply not named in the printed note.';
 }
 function initGrid(){
   var s=$('gridRef');var o=el('option',null,'the main text of this edition');o.value='main';s.appendChild(o);
