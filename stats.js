@@ -171,6 +171,7 @@ function matches(n,i,f){
   if(f.kind&&(f.rel==='differs'||f.rel==='either')){
     var ok=false,b=f.ed?BIT[f.ed]:0;
     n[5].forEach(function(r){if((!b||(r[0]&b))&&r[1]!=='txt'&&r[3].indexOf(f.kind)>=0)ok=true;});
+    if(f.kind==='bracket'&&(f.ed?bracketed(n,f.ed):n[6].length>0))ok=true;
     if(!ok)return false;
   }
   if(f.rel==='split'&&f.kind){var ok2=false;n[5].forEach(function(r){if(r[3].indexOf(f.kind)>=0)ok2=true;});if(!ok2)return false;}
