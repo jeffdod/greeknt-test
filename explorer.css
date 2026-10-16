@@ -173,3 +173,5 @@ sup sup{font-size:.8em;margin-left:1px}
 .seg button:disabled:not([aria-pressed="true"]){opacity:.4}
 .seg button:disabled:hover{background:transparent}
 .seg button:disabled[aria-pressed="true"]:hover{background:var(--rubric)}
+
+.edgrid .part{display:block;margin-top:3px}

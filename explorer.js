@@ -58,9 +58,9 @@ function nameInto(parent,m,k,minor){
 /* English words in a note (for, om., adds, before ...) are set in italic, as in the printed book */
 function plainInto(parent,txt,italic){
   if(!italic){parent.appendChild(document.createTextNode(txt));return;}
-  txt.split(/([a-z]{2,}\.?(?:\s+[a-z]{2,}\.?)*)/).forEach(function(q){
+  txt.split(/((?:Appendix\s+[A-Z]|[a-z]{2,}\.?)(?:\s+(?:Appendix\s+[A-Z]|[a-z]{2,}\.?))*)/).forEach(function(q){
     if(!q)return;
-    if(/^[a-z]{2,}/.test(q))parent.appendChild(el('i',null,q));
+    if(/^(?:Appendix|[a-z]{2,})/.test(q))parent.appendChild(el('i',null,q));
     else parent.appendChild(document.createTextNode(q));
   });
 }
@@ -164,12 +164,17 @@ function openVariant(id){
   b.appendChild(el('p','keyline','Reading ∗ = the original hand; a small number or ᶜ = a corrector; “vid” = the reading appears to be this; a name in parentheses = a minor difference within this reading. Manuscripts that cannot be read at this point are marked as such.'));
   /* editions */
   b.appendChild(el('h4',null,'How the eleven editions compare'));
+  if(v.parts)b.appendChild(el('p','keyline','The printed notes on this passage come in two parts: '+v.parts.join('; ')+'. Each edition is shown with its entry for both. A verse number in parentheses is the number that edition gives the verse; see Appendix C and the printed notes for the full picture.'));
   var g=el('div','edgrid');
   FAMILY.forEach(function(f){
     var col=el('div');col.appendChild(el('h5',null,f[0]));var ul=el('ul');
     f[1].forEach(function(e){var x=v.editions[e]||{s:'main'};var li=el('li',x.s);li.appendChild(el('b',null,e));
       var sp=el('span');var t=edText(x);
-      if(x.s==='differs'&&x.t&&x.t!=='om.'&&x.t.length<70){sp.appendChild(document.createTextNode('Reads: '));var gk=el('span','gk',x.t);gk.lang='grc';sp.appendChild(gk);}else sp.textContent=t;
+      if(v.parts&&x.s==='main'){sp.textContent='Same as the main text in both notes';}
+      else if(v.parts&&x.s==='differs'){
+        [['a',x.t],['b',x.t2]].forEach(function(p){var ln=el('span','part');ln.appendChild(el('b',null,'Note '+p[0]+': '));if(p[1])noteInto(ln,p[1],true);else ln.appendChild(document.createTextNode('same as the main text'));sp.appendChild(ln);});
+      }
+      else if(x.s==='differs'&&x.t&&x.t!=='om.'&&x.t.length<70){sp.appendChild(document.createTextNode('Reads: '));var gk=el('span','gk',x.t);gk.lang='grc';sp.appendChild(gk);}else sp.textContent=t;
       li.appendChild(sp);li.title=EDNAME[e];ul.appendChild(li);});
     col.appendChild(ul);g.appendChild(col);
   });
