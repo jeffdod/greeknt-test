@@ -181,10 +181,27 @@ dlg.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'){step(-1);}els
 
 /* ---------- Timeline ---------- */
 var tlState={content:{e:true,a:true,p:true,r:true},sel:null,variant:''};
+/* Which group of manuscripts a variant belongs to, from its book */
+function codeOf(v){
+  var b=v.ref.replace(/\s+\d.*$/,'');
+  if(/^(Matthew|Mark|Luke|John)$/.test(b))return 'e';
+  if(/^(Acts|James|1 Peter|2 Peter|1 John|2 John|3 John|Jude)$/.test(b))return 'a';
+  if(b==='Revelation')return 'r';
+  return 'p';
+}
+function chosenVariant(){return V.filter(function(x){return x.id===tlState.variant;})[0]||null;}
+/* the contents actually shown: the passage's own group when a variant is chosen, otherwise the visitor's choice */
+function activeContent(){
+  var v=chosenVariant();
+  if(!v)return tlState.content;
+  var o={e:false,a:false,p:false,r:false};o[codeOf(v)]=true;return o;
+}
 function renderContentFilter(){
   var host=$('contentFilter');host.textContent='';
+  var v=chosenVariant(),act=activeContent();
   ['e','a','p','r'].forEach(function(k){
-    var b=el('button',null,CODE_SHORT[k]);b.type='button';b.setAttribute('aria-pressed',tlState.content[k]?'true':'false');
+    var b=el('button',null,CODE_SHORT[k]);b.type='button';b.setAttribute('aria-pressed',act[k]?'true':'false');
+    if(v){b.disabled=true;b.title='Showing the manuscripts that contain '+CONTENT[codeOf(v)]+', where '+v.ref+' stands. Choose “(choose a variant)” to change this.';host.appendChild(b);return;}
     b.title='Manuscripts containing '+CONTENT[k];
     b.addEventListener('click',function(){tlState.content[k]=!tlState.content[k];if(!Object.keys(tlState.content).some(function(x){return tlState.content[x];}))tlState.content[k]=true;renderContentFilter();renderTimeline();});
     host.appendChild(b);
@@ -194,9 +211,9 @@ function renderPick(){
   var s=$('variantPick');s.textContent='';
   var o=el('option',null,'(choose a variant)');o.value='';s.appendChild(o);
   V.forEach(function(v){var o=el('option',null,v.ref);o.value=v.id;s.appendChild(o);});
-  s.addEventListener('change',function(){tlState.variant=s.value;renderTimeline();});
+  s.addEventListener('change',function(){tlState.variant=s.value;renderContentFilter();renderTimeline();});
 }
-function pickVariant(id){tlState.variant=id;$('variantPick').value=id;renderTimeline();document.getElementById('timeline').scrollIntoView({behavior:'smooth',block:'start'});}
+function pickVariant(id){tlState.variant=id;$('variantPick').value=id;renderContentFilter();renderTimeline();document.getElementById('timeline').scrollIntoView({behavior:'smooth',block:'start'});}
 function isCorr(f){f=f||[];if(f.indexOf('orig')>=0)return false;return f.some(function(x){return x==='corr'||/^corr\d+$/.test(x);});}
 function witnessMap(v){
   /* per manuscript: the reading of the manuscript itself (original hand or unmarked), and separately any corrector readings */
@@ -223,7 +240,7 @@ function renderTimeline(){
     var o3=el('span');var d3=el('i','dashed');o3.appendChild(d3);o3.appendChild(document.createTextNode(' Dashed outline: only a corrector is cited'));lg.appendChild(o3);
   }else lg.hidden=true;
   var groups={};
-  M.forEach(function(m){var show=m.c.split('').some(function(c){return tlState.content[c];});if(!show)return;(groups[century(m)]=groups[century(m)]||[]).push(m);});
+  var AC=activeContent();M.forEach(function(m){var show=m.c.split('').some(function(c){return AC[c];});if(!show)return;(groups[century(m)]=groups[century(m)]||[]).push(m);});
   Object.keys(groups).map(Number).sort(function(a,b){return a-b;}).forEach(function(c){
     var era=el('div','era');var h=el('h3',null,roman(c));h.appendChild(el('small',null,ord(c)+' century'));era.appendChild(h);
     var chips=el('div','chips');
@@ -297,7 +314,7 @@ function selectMs(ga){
   host.appendChild(ul);
   if(window.matchMedia('(max-width:980px)').matches)host.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-function showOnTimeline(ga,vid){tlState.variant=vid;$('variantPick').value=vid;
+function showOnTimeline(ga,vid){tlState.variant=vid;$('variantPick').value=vid;renderContentFilter();
   /* make sure the manuscript's content type is visible */
   var m=byGa[ga];if(!m.c.split('').some(function(c){return tlState.content[c];})){m.c.split('').forEach(function(c){tlState.content[c]=true;});renderContentFilter();}
   renderTimeline();document.getElementById('timeline').scrollIntoView({behavior:'smooth',block:'start'});selectMs(ga);}

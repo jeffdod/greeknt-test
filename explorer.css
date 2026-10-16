@@ -169,3 +169,7 @@ table.agree{border-collapse:separate;border-spacing:0;width:100%;min-width:760px
 
 /* a mark raised again from a raised number, as in 𝔓101vid */
 sup sup{font-size:.8em;margin-left:1px}
+.seg button:disabled{cursor:default}
+.seg button:disabled:not([aria-pressed="true"]){opacity:.4}
+.seg button:disabled:hover{background:transparent}
+.seg button:disabled[aria-pressed="true"]:hover{background:var(--rubric)}
