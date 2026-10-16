@@ -107,9 +107,11 @@
             <option value="omit">Omits words</option>
             <option value="add">Adds words</option>
             <option value="order">Changes the word order</option>
-            <option value="spell">Spelling or small form change</option>
-            <option value="other">Other wording</option>
+            <option value="diff">A different word</option>
+            <option value="elide">Elision</option>
+            <option value="form">Same word, different spelling or form</option>
             <option value="bracket">Same words, in brackets or parentheses</option>
+            <option value="other">No label (not classified)</option>
           </select>
         </label>
         <label>Pattern among editions
@@ -138,7 +140,7 @@
       <div class="stripscale" id="stripscale"></div>
       <ol class="results" id="results"></ol>
       <p class="more"><button type="button" class="btn btn-quiet" id="more" hidden>Show more</button></p>
-      <p class="caveat">An edition not named in a note reads the same as the main text. Accents, punctuation, movable nu, final sigma, and spacing in compound words are not recorded in the apparatus. Notes are printed with the readings stripped of accents, as in the edition. Page numbers are the numbers printed in the book. The kind of difference is worked out automatically by comparing the printed words. A reading that does more than one thing (for example, omits one word and adds another) is listed under each kind, so the kinds overlap and should not be added together. Treat “spelling or a small change of form” and “other wording” as a guide.</p>
+      <p class="caveat">An edition not named in a note reads the same as the main text. Accents, punctuation, movable nu, final sigma, and spacing in compound words are not recorded in the apparatus. Notes are printed with the readings stripped of accents, as in the edition. Page numbers are the numbers printed in the book. The kind of difference is worked out automatically by comparing the printed words. A reading that does more than one thing (for example, omits one word and adds another) is listed under each kind, so the kinds overlap and should not be added together. Words are matched to their dictionary entries using the Strong’s numbers of the Robinson–Pierce text, so “same word, different spelling or form” and “a different word” are only given when both words are recognised with certainty. Where the program could not be sure, the note is left with no label.</p>
     </div>
   </section>
 
