@@ -30,10 +30,16 @@ p{margin:0 0 1em}
 .topbar .wrap{display:flex;align-items:center;gap:24px;height:60px}
 .brand{font-variant:small-caps;letter-spacing:.06em;font-size:1.15rem;text-decoration:none;color:var(--ink);white-space:nowrap}
 .brand b{color:var(--rubric);font-weight:500}
-.nav{display:flex;gap:22px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+.nav{display:flex;gap:16px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
 .nav::-webkit-scrollbar{display:none}
-.nav a{color:var(--ink-soft);text-decoration:none;font-size:1.02rem;white-space:nowrap}
+.nav a{color:var(--ink-soft);text-decoration:none;font-size:.97rem;white-space:nowrap}
 .nav a:hover{color:var(--rubric)}
+@media (max-width:1320px){.nav a[href="#public-domain"]{display:none}}
+@media (max-width:1200px){.nav a[href="#appendices"]{display:none}}
+@media (max-width:1090px){.nav a[href="#samples"]{display:none}}
+@media (max-width:980px){.nav a[href="#explore"]{display:none}}
+@media (max-width:900px){.nav a[href="#grid"]{display:none}}
+@media (max-width:830px){.nav a[href="#timeline"]{display:none}}
 @media (max-width:720px){.nav a:not(.nav-dl){display:none}}
 
 /* ---------- Buttons ---------- */
