@@ -100,8 +100,12 @@ function renderList(){
 var dlg=$('vdialog'),cur=null;
 function earliest(r){
   var ws=sortWits(r.wits).filter(function(w){return byGa[w.ga];});
-  if(!ws.length)return '';
-  var m=byGa[ws[0].ga];return 'Earliest manuscript cited: '+label(m)+(sub(m)?' (GA '+sub(m)+')':'')+', '+dateText(m.date);
+  if(!ws.length)return null;
+  var m=byGa[ws[0].ga],p=el('p','early');
+  p.appendChild(document.createTextNode('Earliest manuscript cited: '));
+  nameInto(p,m,'');
+  p.appendChild(document.createTextNode((sub(m)?' (GA '+sub(m)+')':'')+', '+dateText(m.date)));
+  return p;
 }
 function chip(w,vid,ri){
   var m=byGa[w.ga];
@@ -141,7 +145,7 @@ function openVariant(id){
     if(r.expl)box.appendChild(el('p','keyline',r.expl));
     if(!stat&&r.greek){var g=el('p','gk',r.greek);g.lang='grc';box.appendChild(g);}
     if(r.eds&&r.eds.length){box.appendChild(el('p','keyline','The printed note adds: '+r.eds.map(function(e){return e.replace('RP^mg','alternate reading in the Robinson–Pierpont margin').replace('RPmg','alternate reading in the Robinson–Pierpont margin');}).join(', ')+' ('+(r.eds.indexOf('CT')>=0?'agreement of the critical editions':'edition note')+').'));}
-    var e=earliest(r);if(e&&!stat)box.appendChild(el('p','early',e));
+    var e=earliest(r);if(e&&!stat)box.appendChild(e);
     var chips=el('div','chips');
     sortWits(r.wits).forEach(function(w){chips.appendChild(chip(w,v.id,i));});
     box.appendChild(chips);
@@ -262,10 +266,11 @@ function selectMs(ga){
   var m=byGa[ga],host=$('msinfo');host.classList.remove('is-empty');host.textContent='';
   var h=el('h3');var hg=el('span','greek');nameInto(hg,m,'',false);h.appendChild(hg);host.appendChild(h);
   var dl=el('dl');
-  function row(k,v){dl.appendChild(el('dt',null,k));dl.appendChild(el('dd',null,v));}
+  function row(k,v){dl.appendChild(el('dt',null,k));var dd=el('dd');if(typeof v==='string')dd.textContent=v;else dd.appendChild(v);dl.appendChild(dd);}
+  function gaNode(ga){var f=document.createDocumentFragment();if(ga.charAt(0)==='\uD835'){f.appendChild(document.createTextNode(ga.slice(0,2)));f.appendChild(el('sup','mk',ga.slice(2)));}else f.appendChild(document.createTextNode(ga));return f;}
   var xi=MI[m.ga]||{};
   if(xi.n)row('Name',xi.n);
-  row('GA number',m.ga);row('Letter',m.w||'—');
+  row('GA number',gaNode(m.ga));row('Letter',m.w||'—');
   row('Contains',m.c.split('').map(function(x){return CONTENT[x];}).join('; '));
   row('Date',dateText(m.date));
   if(xi.lib||xi.city)row('Kept at',(xi.lib||'')+(xi.city?', '+xi.city:'')+(xi.ctry&&xi.ctry!==xi.city?' ('+xi.ctry+')':'')+(xi.sh?' · '+xi.sh:''));

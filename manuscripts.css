@@ -47,7 +47,7 @@
 .mscard .top{display:flex;align-items:center;gap:14px;padding:14px 16px 4px}
 .mscard .glyph{flex:0 0 auto;min-width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--cc) 10%,#fbfaf6);border:2px solid var(--cc);color:var(--cc);font-family:"GFS Didot","EB Garamond",serif;font-size:1.9rem;line-height:1;padding:0 6px}
 .mscard .glyph.long{font-size:1.25rem;border-radius:32px}
-.mscard .glyph sup{font-size:.55em}
+.mscard .glyph sup{font-size:.6em;position:relative;top:-.55em;vertical-align:baseline;line-height:0;align-self:center}
 .mscard h3{margin:0;font-size:1.2rem;line-height:1.2;font-weight:500}
 .mscard h3 small{display:block;font-size:.9rem;color:var(--ink-soft);font-weight:400;margin-top:2px}
 .mscard .body{padding:6px 16px 16px;display:flex;flex-direction:column;gap:10px;flex:1}

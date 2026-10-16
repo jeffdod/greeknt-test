@@ -99,6 +99,7 @@ function list(){
   });
   return out;
 }
+function gaNode(ga){var f=document.createDocumentFragment();if(ga.charAt(0)==='\uD835'){f.appendChild(document.createTextNode(ga.slice(0,2)));var s=document.createElement('sup');s.className='mk';s.textContent=ga.slice(2);f.appendChild(s);}else f.appendChild(document.createTextNode(ga));return f;}
 /* ---- card ---- */
 function card(r){
   var m=r.m,x=r.x;
@@ -113,8 +114,9 @@ function card(r){
   top.appendChild(gl);
   var h=el('h3');
   if(x.n)h.appendChild(document.createTextNode(x.n));
-  else h.appendChild(document.createTextNode(m.w&&!m.supp?('Manuscript '+m.w):'GA '+m.ga));
-  var sm=el('small',null,'GA '+m.ga+(m.w&&r.kind!=='p'?' · letter '+m.w:''));
+  else if(m.w&&!m.supp)h.appendChild(document.createTextNode('Manuscript '+m.w));
+  else{h.appendChild(document.createTextNode('GA '));h.appendChild(gaNode(m.ga));}
+  var sm=el('small',null,'GA ');sm.appendChild(gaNode(m.ga));if(m.w&&r.kind!=='p')sm.appendChild(document.createTextNode(' · letter '+m.w));
   h.appendChild(sm);
   top.appendChild(h);c.appendChild(top);
   var body=el('div','body');
