@@ -74,6 +74,49 @@
     </div>
   </section>
 
+  <section id="report">
+    <div class="wrap">
+      <div class="report-box">
+        <h2>Report an issue</h2>
+        <p>Found a mistake in the book or a problem with this website? Tell us and we will look into it. Please give the page number or the book, chapter and verse so we can find it quickly.</p>
+        <form class="report-form" action="https://api.staticforms.dev/submit" method="POST">
+          <input type="hidden" name="apiKey" value="sf_045cfa5e1a54699b06727d41">
+          <input type="hidden" name="subject" value="greeknt.org issue report">
+          <input type="hidden" name="redirectTo" value="https://greeknt.org/thank-you.html">
+          <div class="hp" aria-hidden="true"><label>Leave this field empty <input type="text" name="honeypot" tabindex="-1" autocomplete="off"></label></div>
+
+          <div class="field">
+            <label for="rf-kind">What kind of issue?</label>
+            <select id="rf-kind" name="issue_type">
+              <option>Error in the Greek text</option>
+              <option>Error in the manuscript apparatus</option>
+              <option>Error in an appendix</option>
+              <option>Problem with this website</option>
+              <option>Something else</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="rf-where">Where? <span class="opt">(page number, or book, chapter and verse)</span></label>
+            <input id="rf-where" type="text" name="location" maxlength="200">
+          </div>
+          <div class="field">
+            <label for="rf-msg">What is wrong?</label>
+            <textarea id="rf-msg" name="message" rows="6" required></textarea>
+          </div>
+          <div class="field">
+            <label for="rf-name">Your name <span class="opt">(optional)</span></label>
+            <input id="rf-name" type="text" name="name" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="rf-email">Your email <span class="opt">(optional, only if you would like a reply)</span></label>
+            <input id="rf-email" type="email" name="email" autocomplete="email">
+          </div>
+          <button class="btn btn-primary" type="submit">Send report</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <footer>
