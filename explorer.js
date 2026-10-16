@@ -293,13 +293,9 @@ function showOnTimeline(ga,vid){tlState.variant=vid;$('variantPick').value=vid;
 /* ---------- Edition agreement grid ---------- */
 var gs={ref:'main',group:'All'};
 var ALLEDS=['HF','PCK','PT','ECM','NA27','NA28','SBL','TH','WH','SCR','ST'];
-/* Where two editions print a passage in the same brackets but handle it differently,
-   the difference is recorded here (checked by hand against the printed note). */
-var TREAT={'John 7:53–8:11':{WH:'double, placed after John 21:25 as an appendix'}};
-function ekey(v,e){var x=v.editions[e];if(!x)return null;if(x.s==='na')return null;var o=TREAT[v.ref];if(o&&o[e])return 't:'+o[e];return x.s==='differs'?'d:'+(x.t||'').trim():x.s;}
 function cellFor(v,e,ref){
   var x=v.editions[e]||{s:'main'};
-  if(ref==='main'){
+  {
     if(x.s==='main')return ['same','=','Same as the main text'];
     if(x.s==='differs')return ['differs','≠','Reads differently'+(x.t?': '+(x.t==='om.'?'omits it':x.t):'')];
     if(x.s==='bracket')return ['bracket','[ ]','Prints it in brackets'];
@@ -307,9 +303,6 @@ function cellFor(v,e,ref){
     if(x.s==='split')return ['bracket','split','Split guiding line'];
     return ['na','–','Not applicable in this book'];
   }
-  var a=ekey(v,e),b=ekey(v,ref);
-  if(a===null||b===null)return ['na','–','Not applicable in this book'];
-  return a===b?['same','=','Printed the same way as '+ref]:['differs','≠','Printed differently from '+ref];
 }
 function renderGrid(){
   var t=$('agree');t.textContent='';
@@ -347,9 +340,6 @@ function renderGrid(){
   $('gridnote').textContent='These counts cover only the fifty passages the editors chose as significant, and ECM is counted only where it applies (Mark, Acts, the Catholic Epistles, and Revelation). They are not a measure of how close any two editions are overall. An edition shown as “same” is simply not named in the printed note.';
 }
 function initGrid(){
-  var s=$('gridRef');var o=el('option',null,'the main text of this edition');o.value='main';s.appendChild(o);
-  ALLEDS.forEach(function(e){var o=el('option',null,e+' ('+EDNAME[e]+')');o.value=e;s.appendChild(o);});
-  s.addEventListener('change',function(){gs.ref=s.value;renderGrid();});
   var g=$('gridGroup');
   function sg(){g.textContent='';['All','Gospels','Acts','Letters','Revelation'].forEach(function(k){var b=el('button',null,k);b.type='button';b.setAttribute('aria-pressed',gs.group===k?'true':'false');b.addEventListener('click',function(){gs.group=k;sg();renderGrid();});g.appendChild(b);});}
   sg();renderGrid();
