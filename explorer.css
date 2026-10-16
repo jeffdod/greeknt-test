@@ -166,3 +166,6 @@ table.agree{border-collapse:separate;border-spacing:0;width:100%;min-width:760px
 
 #msinfo .more{margin:10px 0 0;font-size:.98rem}
 #msinfo .more a{color:var(--rubric)}
+
+/* a mark raised again from a raised number, as in 𝔓101vid */
+sup sup{font-size:.8em;margin-left:1px}

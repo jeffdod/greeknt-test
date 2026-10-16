@@ -43,8 +43,16 @@ function nameInto(parent,m,k,minor){
   if(minor)parent.appendChild(document.createTextNode('('));
   var pap=m.ga.charAt(0)==='\uD835';
   parent.appendChild(document.createTextNode(pap?'\uD835\uDD13':(m.supp&&m.w?m.w.slice(0,-1):label(m))));
-  var t=(pap?m.ga.slice(2):'')+(m.supp?'s':'')+(k||'');
-  if(t)parent.appendChild(el('sup','mk',t));
+  if(pap){
+    /* 𝔓 + raised number; any mark such as vid is raised again, relative to the number */
+    var num=el('sup','mk',m.ga.slice(2));
+    var mk=((m.supp?'s':'')+(k||'')).replace(/^\s+/,'');
+    if(mk)num.appendChild(el('sup','mk',mk));
+    parent.appendChild(num);
+  }else{
+    var t=(m.supp?'s':'')+(k||'');
+    if(t)parent.appendChild(el('sup','mk',t));
+  }
   if(minor)parent.appendChild(document.createTextNode(')'));
 }
 function noteInto(parent,text){
