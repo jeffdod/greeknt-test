@@ -55,12 +55,21 @@ function nameInto(parent,m,k,minor){
   }
   if(minor)parent.appendChild(document.createTextNode(')'));
 }
-function noteInto(parent,text){
+/* English words in a note (for, om., adds, before ...) are set in italic, as in the printed book */
+function plainInto(parent,txt,italic){
+  if(!italic){parent.appendChild(document.createTextNode(txt));return;}
+  txt.split(/([a-z]{2,}\.?(?:\s+[a-z]{2,}\.?)*)/).forEach(function(q){
+    if(!q)return;
+    if(/^[a-z]{2,}/.test(q))parent.appendChild(el('i',null,q));
+    else parent.appendChild(document.createTextNode(q));
+  });
+}
+function noteInto(parent,text,italic){
   text.split(/(\^(?:\(?[0-9A-Za-zᶜ∗,]+\)?,?)+|∗)/).forEach(function(p){
     if(!p)return;
     if(p.charAt(0)==='^')parent.appendChild(el('sup','mk',p.slice(1)));
     else if(p==='∗')parent.appendChild(el('sup','mk','∗'));
-    else parent.appendChild(document.createTextNode(p));
+    else plainInto(parent,p,italic);
   });
 }
 function sortWits(ws){return ws.slice().sort(function(a,b){var A=byGa[a.ga],B=byGa[b.ga];return (A?A.mid:9999)-(B?B.mid:9999)||(a.ga<b.ga?-1:1);});}
@@ -149,7 +158,7 @@ function openVariant(id){
     var chips=el('div','chips');
     sortWits(r.wits).forEach(function(w){chips.appendChild(chip(w,v.id,i));});
     box.appendChild(chips);
-    if(r.notes&&r.notes.length){var ul=el('ul','notes');r.notes.forEach(function(n){var li=el('li');li.appendChild(document.createTextNode('Note on '));noteInto(li,n.who);li.appendChild(document.createTextNode(': '));noteInto(li,n.note);ul.appendChild(li);});box.appendChild(ul);}
+    if(r.notes&&r.notes.length){var ul=el('ul','notes');r.notes.forEach(function(n){var li=el('li');li.appendChild(document.createTextNode('Note on '));noteInto(li,n.who);li.appendChild(document.createTextNode(': '));noteInto(li,n.note,true);ul.appendChild(li);});box.appendChild(ul);}
     b.appendChild(box);
   });
   b.appendChild(el('p','keyline','Reading ∗ = the original hand; a small number or ᶜ = a corrector; “vid” = the reading appears to be this; a name in parentheses = a minor difference within this reading. Manuscripts that cannot be read at this point are marked as such.'));
