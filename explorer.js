@@ -260,7 +260,7 @@ function selectMs(ga){
   row('GA number',m.ga);row('Letter',m.w||'—');
   row('Contains',m.c.split('').map(function(x){return CONTENT[x];}).join('; '));
   row('Date',dateText(m.date));
-  if(xi.lib||xi.city)row('Kept at',(xi.lib||'')+(xi.city?', '+xi.city:'')+(xi.ctry?' ('+xi.ctry+')':'')+(xi.sh?' · '+xi.sh:''));
+  if(xi.lib||xi.city)row('Kept at',(xi.lib||'')+(xi.city?', '+xi.city:'')+(xi.ctry&&xi.ctry!==xi.city?' ('+xi.ctry+')':'')+(xi.sh?' · '+xi.sh:''));
   host.appendChild(dl);
   var more=el('p','more');var ma=el('a',null,'See this manuscript on the manuscripts page →');ma.href='manuscripts.html#ms-'+m.ga;more.appendChild(ma);host.appendChild(more);
   var cites=[];

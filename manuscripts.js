@@ -29,6 +29,23 @@ function search(r){
 rows.forEach(function(r){r.s=search(r);});
 
 var st={q:'',type:'',cont:'',cent:'',sort:'ga'};
+var SPECIAL={'01':['Codex Sinaiticus digital edition','https://www.codexsinaiticus.org/'],
+  '03':['Vatican Library digital copy','https://digi.vatlib.it/view/MSS_Vat.gr.1209'],
+  '05':['Cambridge Digital Library','https://cudl.lib.cam.ac.uk/view/MS-NN-00002-00041'],
+  '05s':['Cambridge Digital Library','https://cudl.lib.cam.ac.uk/view/MS-NN-00002-00041']};
+function docId(m){
+  var g=m.ga.replace(/s$/,'');
+  if(g.charAt(0)==='\uD835')return 10000+parseInt(g.slice(2),10);
+  if(g.charAt(0)==='0')return 20000+parseInt(g,10);
+  return 30000+parseInt(g,10);
+}
+function listeUrl(m){return 'https://ntvmr.uni-muenster.de/liste?docid='+docId(m);}
+function imagesUrl(m){return 'https://ntvmr.uni-muenster.de/manuscript-workspace?docID='+docId(m);}
+function refText(r){
+  var m=r.m,x=r.x,t='GA '+m.ga.replace(/s$/,'')+(x.n?' ('+x.n+')':'');
+  if(x.lib||x.city)t+=', '+(x.lib||'')+(x.city?', '+x.city:'')+(x.sh?', '+x.sh:'');
+  return t+'. Kurzgefaßte Liste, INTF Münster: '+listeUrl(m);
+}
 
 /* ---- summary ---- */
 function summary(){
@@ -108,7 +125,7 @@ function card(r){
   body.appendChild(tags);
   var w=el('div','where'+(x.lib||x.city?'':' unk'));
   if(x.lib||x.city){
-    w.appendChild(document.createTextNode((x.lib||'')+(x.city?', '+x.city:'')+(x.ctry?' ('+x.ctry+')':'')));
+    w.appendChild(document.createTextNode((x.lib||'')+(x.city?', '+x.city:'')+(x.ctry&&x.ctry!==x.city?' ('+x.ctry+')':'')));
     if(x.sh){w.appendChild(document.createTextNode(' '));w.appendChild(el('span','sh','· '+x.sh));}
   } else w.textContent='Present location not recorded here.';
   body.appendChild(w);
@@ -126,14 +143,35 @@ function card(r){
   ci.appendChild(document.createTextNode('Cited in '+(x.u||0)+' of the 50 variants. '));
   if(x.u){var a=el('a',null,'See where');a.href='variants.html#ms='+encodeURIComponent(m.ga);a.title='Open the Fifty variants page and pick this manuscript on the timeline';ci.appendChild(a);}
   body.appendChild(ci);
+  var lk=el('div','mlinks');
+  function link(txt,href,title){var a=el('a',null,txt);a.href=href;a.target='_blank';a.rel='noopener';if(title)a.title=title;lk.appendChild(a);}
+  link('Liste entry',listeUrl(m),'Official record in the INTF Kurzgefaßte Liste (opens in a new tab)');
+  link('Images (INTF)',imagesUrl(m),'Images and transcriptions in the INTF Virtual Manuscript Room, where available (opens in a new tab)');
+  var sp=SPECIAL[m.ga];if(sp)link(sp[0],sp[1]);
+  var cb=el('button','linkbtn','Copy reference');cb.type='button';cb.title='Copy a citation for this manuscript';
+  cb.addEventListener('click',function(){window.GNT_copy(refText(r),cb,'Copied');});
+  lk.appendChild(cb);
+  body.appendChild(lk);
   c.appendChild(body);
   return c;
+}
+var PM={q:'q',type:'ftype',cont:'fcont',cent:'fcent',sort:'fsort'};
+function writeUrl(){
+  if(!window.history||!history.replaceState)return;
+  var p=new URLSearchParams();
+  Object.keys(PM).forEach(function(k){if(st[k]&&!(k==='sort'&&st[k]==='ga'))p.set(k,st[k]);});
+  var qs=p.toString();
+  try{history.replaceState(null,'',location.pathname+(qs?'?'+qs:'')+location.hash);}catch(e){}
+}
+function readUrl(){
+  var p=new URLSearchParams(location.search);
+  Object.keys(PM).forEach(function(k){if(p.has(k)){st[k]=p.get(k);var f=$(PM[k]==='q'?'q':PM[k]);if(f)f.value=st[k];}});
 }
 function paint(){
   var out=list(),host=$('msgrid');host.textContent='';
   out.forEach(function(r){host.appendChild(card(r));});
   if(!out.length)host.appendChild(el('p','empty','No manuscript matches those choices.'));
-  $('mscount').textContent='Showing '+out.length+' of '+rows.length+' manuscripts.';
+  $('mscount').firstChild.nodeValue='Showing '+out.length+' of '+rows.length+' manuscripts. ';writeUrl();
 }
 function bind(){
   for(var c=3;c<=11;c++){var o=el('option',null,ROMAN[c]+' century');o.value=c;$('fcent').appendChild(o);}
@@ -144,6 +182,7 @@ function bind(){
   $('fcent').addEventListener('change',function(){st.cent=this.value;paint();agebar();});
   $('fsort').addEventListener('change',function(){st.sort=this.value;paint();});
 }
-summary();bind();agebar();paint();
+summary();bind();readUrl();agebar();paint();
+(function(){var b=$('mshare');if(b)b.addEventListener('click',function(){writeUrl();window.GNT_copy(location.href,b,'Link copied');});})();
 if(location.hash&&location.hash.indexOf('#ms-')===0){var t=document.getElementById(decodeURIComponent(location.hash.slice(1)));if(t){t.classList.add('hit');t.scrollIntoView({block:'center'});}}
 })();

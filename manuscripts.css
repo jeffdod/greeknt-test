@@ -73,3 +73,10 @@
 .legend h2{font-size:1.4rem;margin:0 0 10px}
 .legend ul{padding-left:1.2em;margin:0}
 .legend li{margin:0 0 8px}
+
+/* Links on cards */
+.mlinks{display:flex;flex-wrap:wrap;gap:4px 14px;border-top:1px solid var(--rule);padding-top:10px;font-size:.92rem}
+.mlinks a,.linkbtn{color:var(--rubric);text-decoration:underline;text-underline-offset:2px}
+.linkbtn{font:inherit;background:none;border:0;padding:0;cursor:pointer}
+.linkbtn:hover,.mlinks a:hover{color:var(--rubric-dark)}
+.count .linkbtn{margin-left:14px;font-size:.98rem}

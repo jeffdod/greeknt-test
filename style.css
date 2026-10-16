@@ -45,8 +45,8 @@ p{margin:0 0 1em}
 @media (max-width:1380px){.nav a[href="#appendices"]{display:none}}
 @media (max-width:1250px){.nav a[href="#samples"]{display:none}}
 @media (max-width:1130px){.nav a[href="#explore"]{display:none}}
-@media (max-width:1000px){.nav a[href="#grid"]{display:none}}
-@media (max-width:930px){.nav a[href="#timeline"]{display:none}}
+@media (max-width:1040px){.nav a[href="#grid"]{display:none}}
+@media (max-width:1040px){.nav a[href="#timeline"]{display:none}}
 .navmenu{display:none;margin-left:auto;position:relative}
 .navmenu summary{list-style:none;cursor:pointer;font-size:1rem;color:var(--rubric);border:1px solid var(--rubric);border-radius:3px;padding:.3em .9em;user-select:none}
 .navmenu summary::-webkit-details-marker{display:none}
@@ -54,7 +54,7 @@ p{margin:0 0 1em}
 .navmenu-list{position:absolute;right:0;top:calc(100% + 12px);min-width:220px;background:#f4f1ea;border:1px solid var(--rule);box-shadow:0 8px 24px rgba(30,40,55,.18);padding:6px 0;display:flex;flex-direction:column}
 .navmenu-list a{padding:.65em 1.2em;color:var(--ink);text-decoration:none;font-size:1.05rem}
 .navmenu-list a:hover{background:rgba(138,42,30,.07);color:var(--rubric)}
-@media (max-width:780px){.nav{display:none}.navmenu{display:block}}
+@media (max-width:860px){.nav{display:none}.navmenu{display:block}}
 
 /* ---------- Buttons ---------- */
 .btn{display:inline-block;font:inherit;font-size:1.08rem;padding:.6em 1.3em;border-radius:3px;text-decoration:none;cursor:pointer;border:1px solid var(--rubric);transition:background .15s,color .15s}

@@ -1,0 +1,23 @@
+/* Print styles (linked with media="print") */
+@page{margin:18mm 16mm}
+html{font-size:11pt}
+body{background:#fff!important;color:#000}
+.topbar,.navmenu,.nav,footer .wrap span+span,#msfilters,.msfilters,#filters,.filters,.btn,.linkbtn,#fShare,#fReset,#more,.agebar-wrap,.arrow,dialog,.sumstrip+.agebar-wrap,.fifty-link,.explore-ui,#lightbox,.cite-copy{display:none!important}
+a{color:inherit;text-decoration:none}
+.prose a[href^="http"]::after,.cite-text a[href^="http"]::after{content:" (" attr(href) ")";font-size:.85em;color:#444}
+section{padding:18pt 0!important;border-bottom:0!important}
+.wrap{max-width:none!important;padding:0!important}
+.xhero{background:none!important;padding:0 0 10pt!important}
+h1,h2,h3{break-after:avoid;color:#000}
+h2{font-size:17pt}
+p,li{orphans:3;widows:3}
+.msgrid{display:block!important}
+.mscard,.erratum,.cite-row,.card,.vcard{break-inside:avoid;box-shadow:none!important;transform:none!important;margin-bottom:10pt}
+.mscard{border:1px solid #999!important}
+.mscard .band{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.mscard .meter .fill,.etag,.bar{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.mlinks{display:none!important}
+.results li,.chartrow{break-inside:avoid}
+.gridwrap,table{break-inside:avoid;max-width:100%}
+img{max-width:100%!important;break-inside:avoid}
+.cite-row{border:1px solid #999!important}

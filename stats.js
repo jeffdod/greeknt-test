@@ -296,7 +296,21 @@ function update(){
   var c=$('rcount');
   if(f.refBad)c.textContent='I could not read that passage. Try a form like “Romans 8”, “John 1:18”, or “1 Cor 13”.';
   else c.textContent=out.length===0?'No notes match these choices.':fmt(out.length)+' note'+(out.length===1?'':'s')+' ('+pct(out.length/N.length)+' of all '+fmt(N.length)+') on '+fmt(new Set(out.map(function(i){return N[i][0];})).size)+(new Set(out.map(function(i){return N[i][0];})).size===1?' page.':' pages.');
-  showMore();drawStrip(out);
+  showMore();drawStrip(out);writeUrl();
+}
+var URLMAP={ed:'fEd',rel:'fRel',where:'fWhere',kind:'fKind',pat:'fPat',ref:'fRef',greek:'fGreek'};
+var URLDEF={rel:'differs'};
+function writeUrl(){
+  if(!window.history||!history.replaceState)return;
+  var p=new URLSearchParams();
+  Object.keys(URLMAP).forEach(function(k){var v=$(URLMAP[k]).value;if(v&&v!==(URLDEF[k]||''))p.set(k,v);});
+  var qs=p.toString();
+  try{history.replaceState(null,'',location.pathname+(qs?'?'+qs+'#find':''));}catch(e){}
+}
+function readUrl(){
+  var p=new URLSearchParams(location.search),any=false;
+  Object.keys(URLMAP).forEach(function(k){if(p.has(k)){$(URLMAP[k]).value=p.get(k);any=true;}});
+  return any;
 }
 function init(){
   $('filters').addEventListener('submit',function(ev){ev.preventDefault();});
@@ -308,7 +322,11 @@ function init(){
   });
   $('more').addEventListener('click',showMore);
   var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){drawStrip(hits);},150);});
+  var sh=$('fShare');
+  if(sh)sh.addEventListener('click',function(){writeUrl();window.GNT_copy(location.href,sh,'Link copied');});
+  var had=readUrl();
   update();
+  if(had){var fd=$('find');if(fd)fd.scrollIntoView();}
 }
 init();
 })();

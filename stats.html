@@ -14,12 +14,13 @@
 <meta property="og:title" content="The Apparatus Across the Whole Text">
 <meta property="og:description" content="How eleven editions compare with the Byzantine main text across the whole New Testament, and a tool to find every note.">
 <meta property="og:url" content="https://greeknt.org/stats.html">
-<meta property="og:image" content="https://greeknt.org/images/social-card.jpg">
+<meta property="og:image" content="https://greeknt.org/images/social-stats.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preload" href="fonts/EBGaramond-Regular.woff" as="font" type="font/woff" crossorigin>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="explorer.css">
 <link rel="stylesheet" href="stats.css">
+<link rel="stylesheet" href="print.css" media="print">
 </head>
 <body>
 
@@ -32,6 +33,7 @@
       <a href="#chart">Chart</a>
       <a href="#find">Find where</a>
       <a href="manuscripts.html">Manuscripts</a>
+      <a href="about.html">About</a>
       <a href="errata.html">Errata</a>
       <a class="nav-dl" href="index.html#get">Get the edition</a>
     </nav>
@@ -43,6 +45,7 @@
         <a href="#chart">Chart</a>
         <a href="#find">Find where</a>
         <a href="manuscripts.html">Manuscripts</a>
+        <a href="about.html">About</a>
         <a href="errata.html">Errata</a>
         <a href="index.html#get">Get the edition</a>
       </nav>
@@ -124,6 +127,7 @@
           <input id="fGreek" type="text" placeholder="without accents, e.g. και" autocomplete="off" lang="grc">
         </label>
         <button type="button" class="btn btn-quiet" id="fReset">Clear all</button>
+        <button type="button" class="btn btn-quiet" id="fShare">Copy link to this search</button>
       </form>
       <div class="rhead">
         <p id="rcount" aria-live="polite"></p>
@@ -147,6 +151,7 @@
 </footer>
 
 <script src="notes-data.js"></script>
+<script src="copy.js"></script>
 <script src="stats.js"></script>
 <script src="menu.js"></script>
 </body>
