@@ -8,7 +8,7 @@ var CODE_SHORT={e:'Gospels',a:'Acts / Catholic',p:'Paul / Hebrews',r:'Revelation
 var KIND={passage:'Whole verses or passages',phrase:'Words or phrases',wording:'Different wording'};
 var KIND_TAG={passage:'Passage',phrase:'Phrase',wording:'Wording'};
 var FAMILY=[['Byzantine editions',['HF','PCK','PT']],['Critical editions',['ECM','NA27','NA28','SBL','TH','WH']],['Textus Receptus editions',['SCR','ST']]];
-var EDNAME={HF:'Hodges & Farstad',PCK:'Pickering',PT:'Patriarchal Text',ECM:'Editio Critica Maior',NA27:'Nestle–Aland 27',NA28:'Nestle–Aland 28',SBL:'SBL',TH:'Tyndale House',WH:'Westcott–Hort',SCR:'Scrivener',ST:'Stephanus'};
+var EDNAME={HF:'Hodges & Farstad',PCK:'Pickering',PT:'Antoniades (Patriarchal Text)',ECM:'Editio Critica Maior',NA27:'Nestle–Aland 27',NA28:'Nestle–Aland 28',SBL:'SBL',TH:'Tyndale House',WH:'Westcott–Hort',SCR:'Scrivener',ST:'Stephanus'};
 var SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';
 function $(id){return document.getElementById(id);}
 function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
