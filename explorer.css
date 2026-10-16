@@ -163,3 +163,6 @@ table.agree{border-collapse:separate;border-spacing:0;width:100%;min-width:760px
 
 .tl .m.unav{background:repeating-linear-gradient(135deg,var(--vellum) 0 5px,#dcd8cc 5px 7px);border-style:dotted;border-color:var(--ink-soft);color:var(--ink-soft)}
 .legend i.unavi{width:14px;height:14px;border:1px dotted var(--ink-soft);background:repeating-linear-gradient(135deg,var(--vellum) 0 3px,#dcd8cc 3px 5px);display:inline-block;border-radius:2px}
+
+#msinfo .more{margin:10px 0 0;font-size:.98rem}
+#msinfo .more a{color:var(--rubric)}

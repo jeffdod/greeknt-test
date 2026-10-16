@@ -13,6 +13,8 @@ var SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';
 function $(id){return document.getElementById(id);}
 function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
 function roman(n){return ['','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'][n];}
+var MI=window.GNT_MSINFO||{};
+function msName(m){var x=MI[m.ga];return x&&x.n?x.n+' — ':'';}
 function century(m){return Math.ceil(m.mid/100);}
 function ord(n){var s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
 function label(m){return m.ga.charAt(0)==='\uD835'?m.ga:(m.w||m.ga);}
@@ -101,7 +103,7 @@ function chip(w,vid,ri){
   var gl=el('span','gl');nameInto(gl,m,w.k,minor);b.appendChild(gl);
   var s=sub(m);if(s)b.appendChild(el('small',null,s));
   b.appendChild(el('small',null,m.date));
-  b.title=(label(m)+(s?' (GA '+s+')':'')+', '+m.date+(mk.t?'. '+mk.t:'')+'. Select to see it on the timeline.');
+  b.title=(msName(m)+label(m)+(s?' (GA '+s+')':'')+', '+m.date+(mk.t?'. '+mk.t:'')+'. Select to see it on the timeline.');
   b.addEventListener('click',function(){dlg.close();showOnTimeline(m.ga,vid);});
   return b;
 }
@@ -253,10 +255,14 @@ function selectMs(ga){
   var h=el('h3');var hg=el('span','greek');nameInto(hg,m,'',false);h.appendChild(hg);host.appendChild(h);
   var dl=el('dl');
   function row(k,v){dl.appendChild(el('dt',null,k));dl.appendChild(el('dd',null,v));}
+  var xi=MI[m.ga]||{};
+  if(xi.n)row('Name',xi.n);
   row('GA number',m.ga);row('Letter',m.w||'—');
   row('Contains',m.c.split('').map(function(x){return CONTENT[x];}).join('; '));
   row('Date',dateText(m.date));
+  if(xi.lib||xi.city)row('Kept at',(xi.lib||'')+(xi.city?', '+xi.city:'')+(xi.ctry?' ('+xi.ctry+')':'')+(xi.sh?' · '+xi.sh:''));
   host.appendChild(dl);
+  var more=el('p','more');var ma=el('a',null,'See this manuscript on the manuscripts page →');ma.href='manuscripts.html#ms-'+m.ga;more.appendChild(ma);host.appendChild(more);
   var cites=[];
   V.forEach(function(v){v.readings.forEach(function(r,i){r.wits.forEach(function(w){if(w.ga===ga){cites.push({v:v,i:i,f:w.f,k:w.k});}});});});
   var seen={};cites=cites.filter(function(c){var k=c.v.id+'|'+c.i;if(seen[k])return false;seen[k]=1;return true;});
@@ -351,4 +357,5 @@ function initGrid(){
 initGrid();
 renderSeg();renderList();renderContentFilter();renderPick();renderTimeline();
 if(location.hash&&location.hash.indexOf('#v=')===0){openVariant(location.hash.slice(3));}
+if(location.hash&&location.hash.indexOf('#ms=')===0){var g0=decodeURIComponent(location.hash.slice(4));if(byGa[g0]){selectMs(g0);document.getElementById('timeline').scrollIntoView({block:'start'});}}
 })();
