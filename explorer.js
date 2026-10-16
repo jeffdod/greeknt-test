@@ -292,7 +292,7 @@ function selectMs(ga){
   row('Date',dateText(m.date));
   if(xi.lib||xi.city)row('Kept at',(xi.lib||'')+(xi.city?', '+xi.city:'')+(xi.ctry&&xi.ctry!==xi.city?' ('+xi.ctry+')':'')+(xi.sh?' · '+xi.sh:''));
   host.appendChild(dl);
-  var more=el('p','more');var ma=el('a',null,'See this manuscript on the manuscripts page →');ma.href='manuscripts.html#ms-'+m.ga;more.appendChild(ma);host.appendChild(more);
+  var more=el('p','more');var ma=el('a',null,'Open full entry →');ma.href='manuscripts.html#ms-'+m.ga;more.appendChild(ma);host.appendChild(more);
   var cites=[];
   V.forEach(function(v){v.readings.forEach(function(r,i){r.wits.forEach(function(w){if(w.ga===ga){cites.push({v:v,i:i,f:w.f,k:w.k});}});});});
   var seen={};cites=cites.filter(function(c){var k=c.v.id+'|'+c.i;if(seen[k])return false;seen[k]=1;return true;});
