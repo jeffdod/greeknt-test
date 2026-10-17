@@ -1,6 +1,5 @@
 /* Manuscripts page */
 .sr{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
-.mshero{background:linear-gradient(135deg,rgba(138,42,30,.10),rgba(47,93,124,.10) 55%,rgba(77,107,74,.10))}
 
 /* Century colors */
 :root{

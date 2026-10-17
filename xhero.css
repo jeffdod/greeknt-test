@@ -1,0 +1,9 @@
+/* Inner-page opening: compact version of the home page band */
+.xhero{background:radial-gradient(900px 340px at 82% 0%,#26364a 0%,#141c26 70%);color:#f3f1ea;padding:52px 0 44px;border-bottom:0;position:relative}
+.xhero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,transparent,#cdb072 18%,#cdb072 82%,transparent);opacity:.55}
+.xhero h1{color:#fbf9f3}
+.xhero .lede{color:#d3d6db;max-width:62ch}
+.xhero a{color:#cdb072}
+.xhero a:hover{color:#fff}
+@media (max-width:640px){.xhero{padding:36px 0 32px}}
+@media print{.xhero,.xhero h1,.xhero .lede,.xhero a{color:#000!important}.xhero::after{display:none}}
