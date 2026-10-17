@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Variant Search · The Greek New Testament According to the Byzantine Text</title>
+<meta name="description" content="Find every note in the Edition Apparatus by edition, passage, kind of difference, or Greek word, and download the results as a spreadsheet.">
+<link rel="canonical" href="https://greeknt.org/search.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Guardian Press">
+<meta property="og:title" content="Variant Search">
+<meta property="og:description" content="Find every note in the Edition Apparatus by edition, passage, kind of difference, or Greek word.">
+<meta property="og:url" content="https://greeknt.org/search.html">
+<meta property="og:image" content="https://greeknt.org/images/social-stats.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="fonts/EBGaramond-Regular.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="explorer.css">
+<link rel="stylesheet" href="stats.css">
+<link rel="stylesheet" href="pageviewer.css">
+<link rel="stylesheet" href="print.css" media="print">
+</head>
+<body>
+<a class="skip" href="#top">Skip to main content</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="index.html"><b>Guardian</b> Press</a>
+    <nav class="nav" aria-label="Sections">
+      <a href="index.html">The edition</a>
+      <a href="variants.html">Fifty variants</a>
+      <a href="stats.html">Stats</a>
+      <a href="search.html">Variant search</a>
+      <a href="manuscripts.html">Manuscripts</a>
+      <a href="about.html">About</a>
+      <a href="errata.html">Errata</a>
+      <a class="nav-dl" href="index.html#get">Get the edition</a>
+    </nav>
+    <details class="navmenu">
+      <summary>Menu</summary>
+      <nav class="navmenu-list" aria-label="Menu">
+        <a href="index.html">The edition</a>
+        <a href="variants.html">Fifty variants</a>
+        <a href="stats.html">Stats</a>
+        <a href="search.html">Variant search</a>
+        <a href="manuscripts.html">Manuscripts</a>
+        <a href="about.html">About</a>
+        <a href="errata.html">Errata</a>
+        <a href="index.html#get">Get the edition</a>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<main id="top">
+
+  <div class="xhero">
+    <div class="wrap">
+      <h1>Variant search</h1>
+      <p class="lede">Choose an edition, a passage, a kind of difference, or a Greek word, and see every matching note in the Edition Apparatus with its page number. The strip shows where in the edition the matches fall. For the totals instead, see the <a href="stats.html">stats</a>.</p>
+    </div>
+  </div>
+
+  <section id="find">
+    <div class="wrap">
+      <div class="head">
+        <h2>Choose what to look for</h2>
+      </div>
+      <form class="filters" id="filters">
+        <label>Edition
+          <select id="fEd"></select>
+        </label>
+        <label>What it does
+          <select id="fRel">
+            <option value="differs">Differs from the main text</option>
+            <option value="bracket">Brackets or chevrons the main text</option>
+            <option value="either">Differs or brackets the main text</option>
+            <option value="split">Has a split line (ECM†)</option>
+          </select>
+        </label>
+        <label>Where
+          <select id="fWhere"></select>
+        </label>
+        <label>Kind of difference
+          <select id="fKind">
+            <option value="">Any</option>
+            <option value="omit">Omits words</option>
+            <option value="add">Adds words</option>
+            <option value="order">Changes the word order</option>
+            <option value="diff">A different word</option>
+            <option value="elide">Elision</option>
+            <option value="form">Same word, different spelling or form</option>
+            <option value="bracket">Same words, in brackets, chevrons, or parentheses</option>
+            <option value="other">No label (not classified)</option>
+          </select>
+        </label>
+        <label>Pattern among editions
+          <select id="fPat">
+            <option value="">Any</option>
+            <option value="critall">Critical editions agree</option>
+            <option value="critsplit">Critical editions divide</option>
+            <option value="byz">A Byzantine edition differs</option>
+            <option value="trcrit">TR joins a critical edition</option>
+          </select>
+        </label>
+        <label>Passage
+          <input id="fRef" type="text" placeholder="e.g. Romans 8 or John 1:18" autocomplete="off">
+        </label>
+        <label class="wide">Greek word or phrase
+          <input id="fGreek" type="text" placeholder="accents optional, e.g. και" autocomplete="off" lang="grc" data-beta aria-describedby="fGreekHint">
+          <small class="fhint" id="fGreekHint">Type Greek or CCAT beta code, such as lo/gos, and it turns into Greek as you type. To search for Latin text such as om., put it in double quotation marks: "om." και.</small>
+        </label>
+        <button type="button" class="btn btn-quiet" id="fReset">Clear all</button>
+        <button type="button" class="btn btn-quiet" id="fShare">Copy link to this search</button>
+        <button type="button" class="btn btn-quiet" id="fCsv" title="Download every matching note as a spreadsheet file (CSV)">Download results as CSV</button>
+      </form>
+      <div class="rhead">
+        <p id="rcount" aria-live="polite"></p>
+        <div id="pagechip"></div>
+      </div>
+      <div class="strip" id="strip" aria-label="Where the matching notes fall in the edition, page by page"></div>
+      <div class="stripscale" id="stripscale"></div>
+      <ol class="results" id="results"></ol>
+      <p class="more"><button type="button" class="btn btn-quiet" id="more" hidden>Show more</button></p>
+      <p class="caveat">An edition not named in a note reads the same as the main text. Accents, punctuation, movable nu, final sigma, and spacing in compound words are not recorded in the apparatus. A note records only a place where at least one edition differs from the main text, so these figures describe the apparatus, not the editions as a whole. Readings appear exactly as the edition prints them. Most are printed without accents; where the edition prints a reading with accents, the accents are kept. Page numbers are the numbers printed in the book. The kind of difference is worked out automatically by comparing the printed words. A reading that does more than one thing (for example, omits one word and adds another) is listed under each kind, so the kinds overlap and should not be added together. Words are matched to their dictionary entries using the Strong’s numbers of the Robinson-Pierpont text, so “same word, different spelling or form” and “a different word” are only given when both words are recognized with certainty. Where the program could not be sure, the note is left with no label. The CSV download contains every matching note, not only the ones shown on the page, with one row for each reading, one row for each case where an edition prints the main-text reading in brackets, and one row where ECM prints a split guiding line.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Guardian Press</span>
+    <span>The text of this edition is in the public domain.</span>
+  </div>
+</footer>
+
+<script src="notes-data.js"></script>
+<script src="copy.js"></script>
+<script src="pageviewer.js"></script>
+<script src="greekinput.js"></script>
+<script src="stats.js"></script>
+<script src="menu.js"></script>
+<script data-goatcounter="https://greeknt.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

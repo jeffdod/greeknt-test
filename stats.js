@@ -75,9 +75,7 @@ function buildChart(){
       var v=el('span','cval',pct(sh));
       row.appendChild(nm);row.appendChild(tr);row.appendChild(v);
       row.addEventListener('click',function(){
-        $('fEd').value=e;$('fRel').value='differs';$('fWhere').value='g:'+g;$('fKind').value='';$('fPat').value='';$('fRef').value='';$('fGreek').value='';
-        update(true);
-        $('find').scrollIntoView({behavior:'smooth'});
+        location.href='search.html?ed='+encodeURIComponent(e)+'&where='+encodeURIComponent('g:'+g)+'#find';
       });
       p.appendChild(row);
     });
@@ -347,8 +345,10 @@ function readUrl(){
   return any;
 }
 function init(){
-  $('filters').addEventListener('submit',function(ev){ev.preventDefault();});
-  buildKey();buildChart();buildFilters();stripHover();
+  if($('filters'))$('filters').addEventListener('submit',function(ev){ev.preventDefault();});
+  if($('cgrid')){buildKey();buildChart();}
+  if(!$('filters'))return;
+  buildFilters();stripHover();
   ['fEd','fRel','fWhere','fKind','fPat'].forEach(function(id){$(id).addEventListener('change',function(){update();});});
   var tm;['fRef','fGreek'].forEach(function(id){$(id).addEventListener('input',function(){clearTimeout(tm);tm=setTimeout(update,200);});});
   $('fReset').addEventListener('click',function(){
@@ -363,5 +363,6 @@ function init(){
   update();
   if(had){var fd=$('find');if(fd)fd.scrollIntoView();}
 }
-init();
+/* Old shared links pointed at stats.html?...#find; send them to the search page. */
+if(!$('filters')&&(/[?&](ed|rel|where|kind|pat|ref|greek)=/.test(location.search)||location.hash==='#find')){location.replace('search.html'+location.search+(location.hash==='#find'?'#find':''));}else init();
 })();
