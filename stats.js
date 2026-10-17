@@ -209,6 +209,11 @@ function tag(e){
   if(e==='RPmg'){var t=el('span','etag f-byz','RP');t.appendChild(el('sup',null,'mg'));t.title='Robinson-Pierpont, alternate Byzantine reading';return t;}
   return el('span','etag f-'+(FAM[e]||'crit'),e==='ECMs'?'ECM†':e);
 }
+/* A note that is also one of the fifty variants (data.js) gets a pointer to it. Notes match by book, printed page and note letter. */
+var SPEC={};
+if(window.GNT_DATA&&window.GNT_DATA.variants){window.GNT_DATA.variants.forEach(function(v){
+  var bk=BOOKS.indexOf(v.ref.replace(/ \d+:.*$/,''));if(bk>=0)SPEC[bk+'/'+v.page+'/'+v.caller]=v;
+});}
 function edsOf(mask){return EDS.filter(function(e){return mask&BIT[e];});}
 function renderItem(n){
   var li=el('li','res');
@@ -238,6 +243,15 @@ function renderItem(n){
     li.appendChild(d);
   });
   if(n[7])li.appendChild(el('div','rd br',null)).appendChild(el('span','kd','ECM prints a split guiding line here (ECM†).'));
+  var sv=SPEC[n[1]+'/'+n[0]+'/'+n[3]];
+  if(sv){
+    var sp=el('div','specnote');
+    sp.appendChild(el('b',null,'One of the fifty variants. '));
+    sp.appendChild(document.createTextNode(sv.what+' '));
+    var la=el('a',null,'See the manuscript evidence');la.href='variants.html#v='+sv.id;
+    sp.appendChild(la);
+    li.appendChild(sp);
+  }
   return li;
 }
 function drawStrip(hitsArr){
