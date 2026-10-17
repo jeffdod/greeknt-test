@@ -14,6 +14,20 @@ function $(id){return document.getElementById(id);}
 function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
 function roman(n){return ['','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'][n];}
 var MI=window.GNT_MSINFO||{};
+/* INTF Münster document numbers, as used on the manuscripts page */
+function docId(m){var g=m.ga.replace(/s$/,'');if(g.charAt(0)==='\uD835')return 10000+parseInt(g.slice(2),10);if(g.charAt(0)==='0')return 20000+parseInt(g,10);return 30000+parseInt(g,10);}
+function listeUrl(m){return 'https://ntvmr.uni-muenster.de/liste?docid='+docId(m);}
+function imagesUrl(m){return 'https://ntvmr.uni-muenster.de/manuscript-workspace?docID='+docId(m);}
+/* Extra places to see particular manuscripts online, as on the manuscripts page */
+var SPECIAL={'01':['Codex Sinaiticus digital edition','https://www.codexsinaiticus.org/'],
+  '03':['Vatican Library digital copy','https://digi.vatlib.it/view/MSS_Vat.gr.1209'],
+  '05':['Cambridge Digital Library','https://cudl.lib.cam.ac.uk/view/MS-NN-00002-00041'],
+  '05s':['Cambridge Digital Library','https://cudl.lib.cam.ac.uk/view/MS-NN-00002-00041']};
+function refText(m){
+  var x=MI[m.ga]||{},t='GA '+m.ga.replace(/s$/,'')+(x.n?' ('+x.n+')':'');
+  if(x.lib||x.city)t+=', '+(x.lib||'')+(x.city?', '+x.city:'')+(x.sh?', '+x.sh:'');
+  return t+'. Kurzgefaßte Liste, INTF Münster: '+listeUrl(m);
+}
 function msName(m){var x=MI[m.ga];return x&&x.n?x.n+' — ':'';}
 function century(m){return Math.ceil(m.mid/100);}
 function ord(n){var s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
@@ -319,7 +333,14 @@ function selectMs(ga){
   row('Date',dateText(m.date));
   if(xi.lib||xi.city)row('Kept at',(xi.lib||'')+(xi.city?', '+xi.city:'')+(xi.ctry&&xi.ctry!==xi.city?' ('+xi.ctry+')':'')+(xi.sh?' · '+xi.sh:''));
   host.appendChild(dl);
-  var more=el('p','more');var ma=el('a',null,'Open full entry →');ma.href='manuscripts.html#ms-'+m.ga;more.appendChild(ma);host.appendChild(more);
+  var more=el('p','more');var ma=el('a',null,'View card');ma.href='manuscripts.html#ms-'+m.ga;more.appendChild(ma);host.appendChild(more);
+  var ext=el('p','more ext'),who=(MI[m.ga]&&MI[m.ga].n)||('GA '+m.ga.replace(/s$/,''));
+  [['Liste entry',listeUrl(m),'Official record in the INTF Kurzgefaßte Liste'],['Images (INTF)',imagesUrl(m),'Images and transcriptions in the INTF Virtual Manuscript Room, where available']].forEach(function(l){
+    var la=el('a',null,l[0]);la.href=l[1];la.target='_blank';la.rel='noopener';la.title=l[2]+' (opens in a new tab)';la.setAttribute('aria-label',l[0]+' for '+who+' (opens in a new tab)');ext.appendChild(la);});
+  var sp=SPECIAL[m.ga];if(sp){var sa=el('a',null,sp[0]);sa.href=sp[1];sa.target='_blank';sa.rel='noopener';sa.title=sp[0]+' (opens in a new tab)';sa.setAttribute('aria-label',sp[0]+' for '+who+' (opens in a new tab)');ext.appendChild(sa);}
+  var cb=el('button','linkbtn','Copy reference');cb.type='button';cb.title='Copy a citation for this manuscript';cb.setAttribute('aria-label','Copy reference for '+who);
+  cb.addEventListener('click',function(){window.GNT_copy(refText(m),cb,'Copied');});ext.appendChild(cb);
+  host.appendChild(ext);
   var cites=[];
   V.forEach(function(v){v.readings.forEach(function(r,i){r.wits.forEach(function(w){if(w.ga===ga){cites.push({v:v,i:i,f:w.f,k:w.k});}});});});
   var seen={};cites=cites.filter(function(c){var k=c.v.id+'|'+c.i;if(seen[k])return false;seen[k]=1;return true;});

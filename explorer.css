@@ -166,6 +166,10 @@ table.agree{border-collapse:separate;border-spacing:0;width:100%;min-width:760px
 
 #msinfo .more{margin:10px 0 0;font-size:.98rem}
 #msinfo .more a{color:var(--rubric)}
+#msinfo .linkbtn{font:inherit;background:none;border:0;padding:0;cursor:pointer;color:var(--rubric);text-decoration:underline;text-underline-offset:2px}
+#msinfo .linkbtn:hover{color:var(--rubric-dark)}
+.cite-ta{position:fixed;left:-9999px;top:0}
+#msinfo .more.ext{margin-top:4px;display:flex;flex-wrap:wrap;gap:2px 14px}
 
 /* a mark raised again from a raised number, as in 𝔓101vid */
 sup sup{font-size:.8em;margin-left:1px}
