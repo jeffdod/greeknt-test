@@ -113,7 +113,7 @@ section:last-of-type{border-bottom:0}
 .panel .card{background:var(--vellum);border-left:3px solid var(--rubric);padding:28px 30px;min-height:230px}
 .panel .card h3{color:var(--rubric);margin-bottom:10px}
 .panel .card p{margin:0 0 .8em}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
 .chip{font:inherit;font-size:.95rem;background:transparent;border:1px solid var(--rule);color:var(--ink-soft);padding:.25em .8em;border-radius:20px;cursor:pointer}
 .chip:hover{border-color:var(--rubric);color:var(--rubric)}
 .chip.on{background:var(--ink);color:var(--vellum);border-color:var(--ink)}
