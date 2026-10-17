@@ -41,12 +41,11 @@ p{margin:0 0 1em}
 .nav::-webkit-scrollbar{display:none}
 .nav a{color:var(--ink-soft);text-decoration:none;font-size:.97rem;white-space:nowrap}
 .nav a:hover{color:var(--rubric)}
-.nav a[href="#public-domain"]{display:none}
-@media (max-width:1380px){.nav a[href="#appendices"]{display:none}}
+.nav a[href="#public-domain"],.nav a[href="#appendices"]{display:none}
 @media (max-width:1250px){.nav a[href="#samples"]{display:none}}
 @media (max-width:1130px){.nav a[href="#explore"]{display:none}}
-@media (max-width:1040px){.nav a[href="#grid"]{display:none}}
-@media (max-width:1040px){.nav a[href="#timeline"]{display:none}}
+@media (max-width:1060px){.nav a[href="#grid"]{display:none}}
+@media (max-width:1060px){.nav a[href="#timeline"]{display:none}}
 .navmenu{display:none;margin-left:auto;position:relative}
 .navmenu summary{list-style:none;cursor:pointer;font-size:1rem;color:var(--rubric);border:1px solid var(--rubric);border-radius:3px;padding:.3em .9em;user-select:none}
 .navmenu summary::-webkit-details-marker{display:none}
