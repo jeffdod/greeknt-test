@@ -134,6 +134,8 @@ function parseRef(s){
   return {book:bi,ch:m[2]?m[2]:null,vs:m[3]?m[3]:null};
 }
 function norm(s){return s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/ς/g,'σ').replace(/\s+/g,' ').trim();}
+/* Greek pieces (typed as Unicode or beta code) and quoted Latin pieces must each occur in the note */
+function greekPieces(v){var p=window.GNTGreek?window.GNTGreek.pieces(v):{greek:[v],latin:[]};return p.greek.concat(p.latin).map(norm).filter(Boolean);}
 var SEARCH=N.map(function(n){
   var t=[n[4]];n[5].forEach(function(r){t.push(r[1]);});
   return norm(t.join(' | '));
@@ -159,7 +161,7 @@ function matches(n,i,f){
       if(f.ref.vs&&cm[2]!==f.ref.vs)return false;
     }
   }
-  if(f.greek&&SEARCH[i].indexOf(f.greek)<0)return false;
+  for(var gi=0;gi<f.greek.length;gi++)if(SEARCH[i].indexOf(f.greek[gi])<0)return false;
   if(f.rel==='split'){ if(!n[7])return false; }
   else if(f.rel==='bracket'){
     if(f.ed){if(!bracketed(n,f.ed))return false;} else if(!n[6].length)return false;
@@ -203,7 +205,7 @@ var BOOKSTART=[];BOOKS.forEach(function(_,bi){var m=1e9;N.forEach(function(n){if
 
 function getFilters(){
   var rf=parseRef($('fRef').value);
-  return {ed:$('fEd').value,rel:$('fRel').value,where:$('fWhere').value,kind:$('fKind').value,pat:$('fPat').value,ref:rf&&!rf.bad?rf:null,refBad:!!(rf&&rf.bad),greek:norm($('fGreek').value)};
+  return {ed:$('fEd').value,rel:$('fRel').value,where:$('fWhere').value,kind:$('fKind').value,pat:$('fPat').value,ref:rf&&!rf.bad?rf:null,refBad:!!(rf&&rf.bad),greek:greekPieces($('fGreek').value)};
 }
 function tag(e){
   if(e==='RPmg'){var t=el('span','etag f-byz','RP');t.appendChild(el('sup',null,'mg'));t.title='Robinson-Pierpont, alternate Byzantine reading';return t;}

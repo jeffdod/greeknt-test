@@ -4,7 +4,8 @@
      accents      ) smooth   ( rough   / acute   \\ grave   = circumflex   + diaeresis   | iota subscript
      capitals     * before the letter, with any breathing or accent between, as in *)ihsou=s
      final sigma  typed as s; it becomes a final sigma at the end of a word (s2 and s1 also work)
-   Accents are written as combining characters and then composed (NFC), so lo/gos becomes λόγος. */
+   Accents are written as combining characters and then composed (NFC), so lo/gos becomes λόγος.
+   Latin text goes in double quotation marks and is left as typed, as in "om." και. */
 (function () {
   var LETTER = { a: 'α', b: 'β', g: 'γ', d: 'δ', e: 'ε', z: 'ζ', h: 'η', q: 'θ', i: 'ι', k: 'κ', l: 'λ', m: 'μ', n: 'ν',
     c: 'ξ', o: 'ο', p: 'π', r: 'ρ', s: 'σ', t: 'τ', u: 'υ', f: 'φ', x: 'χ', y: 'ψ', w: 'ω', v: 'ϝ' };
@@ -20,8 +21,11 @@
   function marksOf(run) { var o = ''; for (var i = 0; i < run.length; i++) o += MARK[run.charAt(i)] || ''; return o; }
   function letter(ch, upper) { var g = LETTER[ch.toLowerCase()]; if (!g) return ch; return upper ? g.toUpperCase() : g; }
 
-  /* final: true when the text ends the word (for example when the box loses focus) */
-  function toGreek(s, final) {
+  /* Text in double quotation marks is Latin and is left alone, as in "om." και.
+     An opening quotation mark with no closing one protects the rest of the text. */
+  var QUOTE = /(["\u201C\u201D])/;
+
+  function convert(s, final) {
     if (!/[A-Za-z*σ)(\/\\=+|]/.test(s)) return s;
     s = s.replace(/[sS]2/g, 'ς').replace(/[sS]1/g, 'σ');
     s = s.replace(RE_CAP, function (m, marks, ch) { return letter(ch, true) + marksOf(marks); });
@@ -31,6 +35,30 @@
     s = s.replace(RE_FINAL, 'ς');
     if (final) s = s.replace(RE_FINAL_END, 'ς');
     return s;
+  }
+
+  /* final: true when the text ends the word (for example when the box loses focus) */
+  function toGreek(s, final) {
+    var parts = s.split(QUOTE), out = '', inQuote = false;
+    for (var i = 0; i < parts.length; i++) {
+      var p = parts[i];
+      if (i % 2 === 1) { out += p; inQuote = !inQuote; continue; }
+      out += inQuote ? p : convert(p, final || i < parts.length - 1);
+    }
+    return out;
+  }
+
+  /* Splits a search text into the Greek pieces and the quoted Latin pieces, ready for matching */
+  function pieces(s) {
+    var parts = s.split(QUOTE), greek = [], latin = [], inQuote = false;
+    for (var i = 0; i < parts.length; i++) {
+      var p = parts[i];
+      if (i % 2 === 1) { inQuote = !inQuote; continue; }
+      p = inQuote ? p : convert(p, true);
+      p = p.replace(/\s+/g, ' ').trim();
+      if (p) (inQuote ? latin : greek).push(p);
+    }
+    return { greek: greek, latin: latin };
   }
 
   function attach(box) {
@@ -53,5 +81,5 @@
 
   var boxes = document.querySelectorAll('input[data-beta]');
   for (var i = 0; i < boxes.length; i++) attach(boxes[i]);
-  window.GNTGreek = { toGreek: toGreek };
+  window.GNTGreek = { toGreek: toGreek, pieces: pieces };
 })();
