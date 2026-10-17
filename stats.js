@@ -303,7 +303,33 @@ function update(){
   var c=$('rcount');
   if(f.refBad)c.textContent='I could not read that passage. Try a form like “Romans 8”, “John 1:18”, or “1 Cor 13”.';
   else c.textContent=out.length===0?'No notes match these choices.':fmt(out.length)+' note'+(out.length===1?'':'s')+' ('+pct(out.length/N.length)+' of all '+fmt(N.length)+') on '+fmt(new Set(out.map(function(i){return N[i][0];})).size)+(new Set(out.map(function(i){return N[i][0];})).size===1?' page.':' pages.');
+  $('fCsv').disabled=!out.length;
   showMore();drawStrip(out);writeUrl();
+}
+/* ---------- CSV download ---------- */
+function csvCell(v){return '"'+String(v).replace(/"/g,'""')+'"';}
+function csvRows(idx){
+  var rows=[['Book','Reference','Note','Printed page','Main text','Row type','Reading','Editions','Kind of difference']];
+  idx.forEach(function(i){
+    var n=N[i],base=[BOOKS[n[1]],n[2],n[3],n[0],n[4]];
+    n[5].forEach(function(r){
+      var kk=r[3].filter(function(k){return k!=='special'&&k!=='other';}).map(function(k){return KINDS[k];});
+      rows.push(base.concat(['reading',r[1]==='txt'?'(reads the main text)':r[1],edsOf(r[0]).map(function(e){return e==='ECMs'?'ECM†':e;}).join('; '),r[1]==='txt'?'':kk.join('; ')]));
+    });
+    n[6].forEach(function(b){
+      rows.push(base.concat(['main text printed in '+(b[0]===2?'double brackets':b[0]===3?'chevrons':'brackets'),'',edsOf(b[1]).join('; '),'']));
+    });
+    if(n[7])rows.push(base.concat(['ECM split guiding line','','ECM†','']));
+  });
+  return rows;
+}
+function downloadCsv(){
+  if(!hits.length)return;
+  var text='\uFEFF'+csvRows(hits).map(function(r){return r.map(csvCell).join(',');}).join('\r\n')+'\r\n';
+  var blob=new Blob([text],{type:'text/csv;charset=utf-8'});
+  var url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='greek-nt-notes.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
 }
 var URLMAP={ed:'fEd',rel:'fRel',where:'fWhere',kind:'fKind',pat:'fPat',ref:'fRef',greek:'fGreek'};
 var URLDEF={rel:'differs'};
@@ -329,6 +355,7 @@ function init(){
   });
   $('more').addEventListener('click',showMore);
   var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){drawStrip(hits);},150);});
+  $('fCsv').addEventListener('click',downloadCsv);
   var sh=$('fShare');
   if(sh)sh.addEventListener('click',function(){writeUrl();window.GNT_copy(location.href,sh,'Link copied');});
   var had=readUrl();
