@@ -307,11 +307,12 @@ function update(){
   showMore();drawStrip(out);writeUrl();
 }
 /* ---------- CSV download ---------- */
+/* The Reference column includes the book name (Matthew 6:1) so that Excel keeps it as text; a bare 6:1 would be turned into a time of day. */
 function csvCell(v){return '"'+String(v).replace(/"/g,'""')+'"';}
 function csvRows(idx){
   var rows=[['Book','Reference','Note','Printed page','Main text','Row type','Reading','Editions','Kind of difference']];
   idx.forEach(function(i){
-    var n=N[i],base=[BOOKS[n[1]],n[2],n[3],n[0],n[4]];
+    var n=N[i],base=[BOOKS[n[1]],BOOKS[n[1]]+' '+n[2],n[3],n[0],n[4]];
     n[5].forEach(function(r){
       var kk=r[3].filter(function(k){return k!=='special'&&k!=='other';}).map(function(k){return KINDS[k];});
       rows.push(base.concat(['reading',r[1]==='txt'?'(reads the main text)':r[1],edsOf(r[0]).map(function(e){return e==='ECMs'?'ECM†':e;}).join('; '),r[1]==='txt'?'':kk.join('; ')]));
