@@ -9,7 +9,7 @@ var SHOWN=['HF','PCK','PT','ECM','NA27','NA28','SBL','TH','WH','SCR','ST'];
 var FAM={HF:'byz',PCK:'byz',PT:'byz',ECM:'crit',NA27:'crit',NA28:'crit',SBL:'crit',TH:'crit',WH:'crit',SCR:'tr',ST:'tr'};
 var FAMNAME={byz:'Byzantine editions',crit:'Critical editions',tr:'Textus Receptus editions'};
 var FAMCOL={byz:'var(--r3)',crit:'var(--r1)',tr:'var(--r2)'};
-var EDNAME={HF:'Hodges–Farstad',PCK:'Pickering',PT:'Antoniades (Patriarchal Text)',ECM:'Editio Critica Maior',NA27:'Nestle-Aland 27',NA28:'Nestle-Aland 28',SBL:'SBL Greek New Testament',TH:'Tyndale House',WH:'Westcott–Hort',SCR:'Scrivener',ST:'Stephanus'};
+var EDNAME={HF:'Hodges-Farstad',PCK:'Pickering',PT:'Antoniades (Patriarchal Text)',ECM:'Editio Critica Maior',NA27:'Nestle-Aland 27',NA28:'Nestle-Aland 28',SBL:'SBL Greek New Testament',TH:'Tyndale House',WH:'Westcott-Hort',SCR:'Scrivener',ST:'Stephanus'};
 var OPTNAME={PCK:'Pickering',PT:'Antoniades Patriarchal Text',SBL:'SBL Greek NT'};
 var KINDS={bracket:'only brackets or parentheses differ',omit:'omits words',add:'adds words',order:'changes the word order',diff:'a different word',elide:'elision',form:'same word, different spelling or form',other:'no label',special:'descriptive note'};
 var $=function(id){return document.getElementById(id);};
@@ -206,7 +206,7 @@ function getFilters(){
   return {ed:$('fEd').value,rel:$('fRel').value,where:$('fWhere').value,kind:$('fKind').value,pat:$('fPat').value,ref:rf&&!rf.bad?rf:null,refBad:!!(rf&&rf.bad),greek:norm($('fGreek').value)};
 }
 function tag(e){
-  if(e==='RPmg'){var t=el('span','etag f-byz','RP');t.appendChild(el('sup',null,'mg'));t.title='Robinson–Pierpont, alternate Byzantine reading';return t;}
+  if(e==='RPmg'){var t=el('span','etag f-byz','RP');t.appendChild(el('sup',null,'mg'));t.title='Robinson-Pierpont, alternate Byzantine reading';return t;}
   return el('span','etag f-'+(FAM[e]||'crit'),e==='ECMs'?'ECM†':e);
 }
 function edsOf(mask){return EDS.filter(function(e){return mask&BIT[e];});}

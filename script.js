@@ -19,7 +19,7 @@ const spots = [
   {key:"marker",  box:[70,573,81,584], cls:"small"}
 ];
 const parts = {
-  text:    {name:"Main text", html:"<p>The Greek text of the Robinson–Pierpont Byzantine Textform 2026. It reads cleanly on its own; all the notes wait at the bottom of the page.</p>"},
+  text:    {name:"Main text", html:"<p>The Greek text of the Robinson-Pierpont Byzantine Textform 2026. It reads cleanly on its own; all the notes wait at the bottom of the page.</p>"},
   verse:   {name:"Verse numbers", html:"<p>Small numbers in the text mark where each verse begins. Here you can see verses 23, 24 and 25 of Matthew 1.</p>"},
   chapter: {name:"Chapter number", html:"<p>A large number in the margin marks the start of a new chapter. Here, Matthew 2 begins.</p>"},
   marker:  {name:"Footnote letters", zoom:["text","edition","manuscript"], html:"<p>A small letter sits just before any words that have a note. The note with the same letter in the footnotes explains what other editions read.</p><p>The letter <i>e</i> in 1:25, before <span class='greek'>τὸν υἱὸν αὐτῆς τὸν πρωτότοκον</span>, matches note <i>e</i> in the Edition Apparatus. Because this is also one of the fifty selected variants, the same letter <i>e</i> appears again in the Manuscript Apparatus below it.</p>"},
@@ -74,7 +74,7 @@ const samples = [
   {src:"images/matthew-1-23.jpg", title:"Matthew 1:23–2:9, with both apparatuses"},
   {src:"images/john-1.jpg",       title:"The opening of John"},
   {src:"images/1-john-5.jpg",     title:"1 John 5, with manuscript evidence for 5:7–8"},
-  {src:"images/appendix-a.jpg",   title:"Appendix A: Robinson–Pierpont edition changes"},
+  {src:"images/appendix-a.jpg",   title:"Appendix A: Robinson-Pierpont edition changes"},
   {src:"images/appendix-d.jpg",   title:"Appendix D: List of cited manuscripts"}
 ];
 const track=document.getElementById('track'), dots=document.getElementById('dots'), cap=document.getElementById('sampleCaption');

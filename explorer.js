@@ -8,7 +8,7 @@ var CODE_SHORT={e:'Gospels',a:'Acts / Catholic',p:'Paul / Hebrews',r:'Revelation
 var KIND={passage:'Whole verses or passages',phrase:'Words or phrases',wording:'Different wording'};
 var KIND_TAG={passage:'Passage',phrase:'Phrase',wording:'Wording'};
 var FAMILY=[['Byzantine editions',['HF','PCK','PT']],['Critical editions',['ECM','NA27','NA28','SBL','TH','WH']],['Textus Receptus editions',['SCR','ST']]];
-var EDNAME={HF:'Hodges & Farstad',PCK:'Pickering',PT:'Antoniades (Patriarchal Text)',ECM:'Editio Critica Maior',NA27:'Nestle–Aland 27',NA28:'Nestle–Aland 28',SBL:'SBL',TH:'Tyndale House',WH:'Westcott–Hort',SCR:'Scrivener',ST:'Stephanus'};
+var EDNAME={HF:'Hodges & Farstad',PCK:'Pickering',PT:'Antoniades (Patriarchal Text)',ECM:'Editio Critica Maior',NA27:'Nestle-Aland 27',NA28:'Nestle-Aland 28',SBL:'SBL',TH:'Tyndale House',WH:'Westcott-Hort',SCR:'Scrivener',ST:'Stephanus'};
 var SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';
 function $(id){return document.getElementById(id);}
 function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
@@ -172,7 +172,7 @@ function openVariant(id){
     box.appendChild(rl);
     if(r.expl)box.appendChild(el('p','keyline',r.expl));
     if(!stat&&r.greek){var g=el('p','gk',r.greek);g.lang='grc';box.appendChild(g);}
-    if(r.eds&&r.eds.length){box.appendChild(el('p','keyline','The printed note adds: '+r.eds.map(function(e){return e.replace('RP^mg','the alternate Byzantine reading (Robinson–Pierpont)').replace('RPmg','the alternate Byzantine reading (Robinson–Pierpont)');}).join(', ')+' ('+(r.eds.indexOf('CT')>=0?'agreement of the critical editions':'edition note')+').'));}
+    if(r.eds&&r.eds.length){box.appendChild(el('p','keyline','The printed note adds: '+r.eds.map(function(e){return e.replace('RP^mg','the alternate Byzantine reading (Robinson-Pierpont)').replace('RPmg','the alternate Byzantine reading (Robinson-Pierpont)');}).join(', ')+' ('+(r.eds.indexOf('CT')>=0?'agreement of the critical editions':'edition note')+').'));}
     var e=earliest(r);if(e&&!stat)box.appendChild(e);
     var chips=el('div','chips');
     sortWits(r.wits).forEach(function(w){chips.appendChild(chip(w,v.id,i));});
@@ -203,7 +203,7 @@ function openVariant(id){
     var u2=el('ul'),x2=v.editions.RPmg,l2=el('li',x2.s);var b2=el('b',null,'RP');b2.appendChild(el('sup',null,'mg'));l2.appendChild(b2);
     var s2=el('span');
     if(x2.s==='differs'&&x2.t&&x2.t!=='om.'){s2.appendChild(document.createTextNode('Reads: '));var k2=el('span','gk',x2.t);k2.lang='grc';s2.appendChild(k2);}else s2.textContent=edText(x2);
-    l2.appendChild(s2);l2.title='Robinson–Pierpont, alternate Byzantine reading';u2.appendChild(l2);c2.appendChild(u2);g2.appendChild(c2);b.appendChild(g2);
+    l2.appendChild(s2);l2.title='Robinson-Pierpont, alternate Byzantine reading';u2.appendChild(l2);c2.appendChild(u2);g2.appendChild(c2);b.appendChild(g2);
   }
   var ef=el('p','edfoot');if(v.complex){ef.appendChild(document.createTextNode('This note uses special conventions; read the printed note on page '));ef.appendChild(window.GNTPages.link(String(v.page),v.page));ef.appendChild(document.createTextNode(' for the full detail. '));}ef.appendChild(document.createTextNode('An edition shown as “same as the main text” is not named in the printed note, which lists only editions that differ.'));b.appendChild(ef);
   var tl=el('p','tl-link');var a=el('button','btn btn-quiet','Show these witnesses on the timeline');a.type='button';
