@@ -50,8 +50,11 @@ function nameInto(parent,m,k,minor){
     if(mk)num.appendChild(el('sup','mk',mk));
     parent.appendChild(num);
   }else{
+    /* a corrector mark (c, a number, or the star) is raised once; any "vid" after it is raised again, relative to that mark */
     var t=(m.supp?'s':'')+(k||'');
-    if(t)parent.appendChild(el('sup','mk',t));
+    var mv=/^(.+?)\s*vid$/.exec(t);
+    if(mv){var base=el('sup','mk',mv[1]);base.appendChild(el('sup','mk','vid'));parent.appendChild(base);}
+    else if(t)parent.appendChild(el('sup','mk',t));
   }
   if(minor)parent.appendChild(document.createTextNode(')'));
 }
