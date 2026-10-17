@@ -43,8 +43,9 @@ N.forEach(function(n){
   SHOWN.forEach(function(e){if(edApplies(e,g)&&differs(n,e))s.ed[e]++;});
   if(n[7])s.split++;
 });
-var maxShare=0;
-ALLG.forEach(function(g){SHOWN.forEach(function(e){if(edApplies(e,g))maxShare=Math.max(maxShare,stats[g].ed[e]/stats[g].total);});});
+var maxShare=0,maxEd='',maxG='';
+ALLG.forEach(function(g){SHOWN.forEach(function(e){if(edApplies(e,g)){var q=stats[g].ed[e]/stats[g].total;if(q>maxShare){maxShare=q;maxEd=e;maxG=g;}}});});
+var maxVal=maxShare;
 maxShare=Math.ceil(maxShare*20)/20;
 
 function buildKey(){
@@ -82,7 +83,8 @@ function buildChart(){
     });
     grid.appendChild(p);
   });
-  $('chartnote').innerHTML='Scale: the longest bar is '+Math.round(maxShare*100)+'%, and every panel uses the same scale. The Editio Critica Maior (ECM) is shown only where it exists: Mark, Acts, the Catholic Epistles, and Revelation. A note is counted once for an edition if the edition reads differently from the main text in any of the readings listed. Where ECM prints a split guiding line (ECM†), ECM is counted as differing only if neither of its two branches is the main text’s reading; the “ECM split” column of the table counts all such notes. This chart counts <em>printed notes</em>. It does not measure how close two texts are, because a note may concern one letter or a whole verse, and the apparatus does not record accents, punctuation, movable nu, final sigma, or spacing in compound words.';
+  $('chartnote').innerHTML='Scale: every panel uses the same scale, which runs from 0% to '+Math.round(maxShare*100)+'%. The longest bar is '+maxEd+' in '+maxG+', at '+pct(maxVal)+'. The Editio Critica Maior (ECM) is shown only where it exists: Mark, Acts, the Catholic Epistles, and Revelation. A note is counted once for an edition if the edition reads differently from the main text in any of the readings listed. Where ECM prints a split guiding line (ECM†), ECM is counted as differing only if neither of its two branches is the main text’s reading. The bars count <em>printed notes</em>. They do not measure how close two texts are, because a note may concern one letter or a whole verse, and the apparatus does not record accents, punctuation, movable nu, final sigma, or spacing in compound words.';
+  $('tablenote').innerHTML='Each figure is the number of notes in which the edition reads differently from the main text, with its share of that part’s notes beneath it. In the “Whole New Testament” row, the ECM share is out of the notes in the books where ECM exists. The “ECM split” column counts every note where ECM prints a split guiding line (ECM†).';
   // table
   var t=$('ctable'),h='<thead><tr><th class="corner" scope="col">Part of the New Testament</th><th scope="col">Notes</th>';
   SHOWN.forEach(function(e){h+='<th scope="col" class="ed" title="'+EDNAME[e]+'">'+e+'</th>';});
