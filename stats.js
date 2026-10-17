@@ -232,7 +232,7 @@ function renderItem(n){
     var d=el('div','rd br');
     var tags=el('span','tags');edsOf(b[1]).forEach(function(e){tags.appendChild(tag(e));});
     d.appendChild(tags);
-    d.appendChild(el('span','kd','print the main-text reading in '+(b[0]===2?'double brackets':'brackets')));
+    d.appendChild(el('span','kd','print the main-text reading in '+(b[0]===2?'double brackets':b[0]===3?'chevrons (« »)':'brackets')));
     li.appendChild(d);
   });
   if(n[7])li.appendChild(el('div','rd br',null)).appendChild(el('span','kd','ECM prints a split guiding line here (ECM†).'));

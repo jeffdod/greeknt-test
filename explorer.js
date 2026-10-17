@@ -136,6 +136,7 @@ function edText(x){
   if(x.s==='na')return 'Not applicable in this book';
   if(x.s==='bracket')return 'Prints it in brackets';
   if(x.s==='double')return 'Prints it in double brackets';
+  if(x.s==='chevron')return 'Prints it in chevrons (« »)';
   if(x.s==='split')return 'Split guiding line';
   if(x.s==='differs'){var t=x.t||'';return t==='om.'?'Omits it':(t.length<70?'Reads: ':'Reads a longer form')+(t.length<70?t:'');}
   return '';
@@ -354,6 +355,7 @@ function cellFor(v,e,ref){
     if(x.s==='differs')return ['differs','≠','Reads differently'+(x.t?': '+(x.t==='om.'?'omits it':x.t):'')];
     if(x.s==='bracket')return ['bracket','[ ]','Prints it in brackets'];
     if(x.s==='double')return ['bracket','[[ ]]','Prints it in double brackets'];
+    if(x.s==='chevron')return ['bracket','« »','Prints it in chevrons (« »)'];
     if(x.s==='split')return ['bracket','split','Split guiding line'];
     return ['na','–','Not applicable in this book'];
   }
@@ -390,7 +392,7 @@ function renderGrid(){
   ALLEDS.forEach(function(e){var td=el('td','tot');td.textContent=counted[e]?totals[e]+' of '+counted[e]:'–';if(e===ref)td.classList.add('refcol');tr.appendChild(td);});
   tf.appendChild(tr);t.appendChild(tf);
   $('gkey').innerHTML='';
-  [['same','=',ref==='main'?'Same as the main text':'Printed the same way'],['differs','≠',ref==='main'?'Reads differently':'Printed differently'],['bracket','[ ]','In brackets, double brackets, or split (doubtful or divided)'],['na','–','Not applicable here']].forEach(function(k){var s=el('span');var i=el('i','c '+k[0],k[1]);s.appendChild(i);s.appendChild(document.createTextNode(' '+k[2]));$('gkey').appendChild(s);});
+  [['same','=',ref==='main'?'Same as the main text':'Printed the same way'],['differs','≠',ref==='main'?'Reads differently':'Printed differently'],['bracket','[ ]','In brackets, double brackets, chevrons, or split (doubtful or divided)'],['na','–','Not applicable here']].forEach(function(k){var s=el('span');var i=el('i','c '+k[0],k[1]);s.appendChild(i);s.appendChild(document.createTextNode(' '+k[2]));$('gkey').appendChild(s);});
   $('gridnote').textContent='These counts cover only the fifty passages the editors chose as significant, and ECM is counted only where it applies (Mark, Acts, the Catholic Epistles, and Revelation). They are not a measure of how close any two editions are overall. An edition shown as “same” is simply not named in the printed note.';
 }
 function initGrid(){
