@@ -272,6 +272,9 @@ function renderTimeline(){
   var host=$('tl');host.textContent='';
   var v=V.filter(function(x){return x.id===tlState.variant;})[0];
   var map=v?witnessMap(v):null;
+  var pn=$('variantPage');pn.textContent='';
+  if(v){pn.hidden=false;pn.appendChild(document.createTextNode('Printed on page '));pn.appendChild(window.GNTPages.link(String(v.page),v.page));}
+  else pn.hidden=true;
   var lg=$('legend');lg.textContent='';
   if(v){lg.hidden=false;lg.appendChild(el('span',null,v.ref+':'));
     v.readings.forEach(function(r,i){if(!r.wits.length||(!r.greek&&r.status))return;var s=el('span');s.style.setProperty('--c',COLORS[i%COLORS.length]);s.appendChild(el('i'));s.appendChild(document.createTextNode((i===0?'Main text: ':'Reading '+(i+1)+': ')+r.label));lg.appendChild(s);});

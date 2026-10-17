@@ -181,3 +181,5 @@ sup sup{font-size:.8em;margin-left:1px}
 .edgrid .part{display:block;margin-top:3px}
 .edgrid.rpm{grid-template-columns:minmax(0,1fr);margin-top:14px}
 @media (min-width:821px){.edgrid.rpm{grid-template-columns:repeat(3,1fr)}}
+
+.tl-controls .pagenote{font-size:1rem;color:var(--ink-soft)}
