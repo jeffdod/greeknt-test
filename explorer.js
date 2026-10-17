@@ -230,6 +230,12 @@ function codeOf(v){
   if(b==='Revelation')return 'r';
   return 'p';
 }
+/* Changing the contents buttons or the variant starts the timeline afresh, so the details panel is emptied */
+function clearMs(){
+  tlState.sel=null;
+  var host=$('msinfo');host.classList.add('is-empty');host.textContent='';
+  host.appendChild(el('p','empty','Select a manuscript to see its details.'));
+}
 function chosenVariant(){return V.filter(function(x){return x.id===tlState.variant;})[0]||null;}
 /* the contents actually shown: the passage's own group when a variant is chosen, otherwise the visitor's choice */
 function activeContent(){
@@ -244,7 +250,7 @@ function renderContentFilter(){
     var b=el('button',null,CODE_SHORT[k]);b.type='button';b.setAttribute('aria-pressed',act[k]?'true':'false');
     if(v){b.disabled=true;b.title='Showing the manuscripts that contain '+CONTENT[codeOf(v)]+', where '+v.ref+' stands. Choose “(choose a variant)” to change this.';host.appendChild(b);return;}
     b.title='Manuscripts containing '+CONTENT[k];
-    b.addEventListener('click',function(){tlState.content[k]=!tlState.content[k];if(!Object.keys(tlState.content).some(function(x){return tlState.content[x];}))tlState.content[k]=true;renderContentFilter();renderTimeline();});
+    b.addEventListener('click',function(){tlState.content[k]=!tlState.content[k];if(!Object.keys(tlState.content).some(function(x){return tlState.content[x];}))tlState.content[k]=true;clearMs();renderContentFilter();renderTimeline();});
     host.appendChild(b);
   });
 }
@@ -252,9 +258,9 @@ function renderPick(){
   var s=$('variantPick');s.textContent='';
   var o=el('option',null,'(choose a variant)');o.value='';s.appendChild(o);
   V.forEach(function(v){var o=el('option',null,v.ref);o.value=v.id;s.appendChild(o);});
-  s.addEventListener('change',function(){tlState.variant=s.value;renderContentFilter();renderTimeline();});
+  s.addEventListener('change',function(){tlState.variant=s.value;clearMs();renderContentFilter();renderTimeline();});
 }
-function pickVariant(id){tlState.variant=id;$('variantPick').value=id;renderContentFilter();renderTimeline();document.getElementById('timeline').scrollIntoView({behavior:'smooth',block:'start'});}
+function pickVariant(id){clearMs();tlState.variant=id;$('variantPick').value=id;renderContentFilter();renderTimeline();document.getElementById('timeline').scrollIntoView({behavior:'smooth',block:'start'});}
 function isCorr(f){f=f||[];if(f.indexOf('orig')>=0)return false;return f.some(function(x){return x==='corr'||/^corr\d+$/.test(x);});}
 function witnessMap(v){
   /* per manuscript: the reading of the manuscript itself (original hand or unmarked), and separately any corrector readings */
