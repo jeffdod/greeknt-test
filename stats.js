@@ -11,7 +11,7 @@ var FAMNAME={byz:'Byzantine editions',crit:'Critical editions',tr:'Textus Recept
 var FAMCOL={byz:'var(--r3)',crit:'var(--r1)',tr:'var(--r2)'};
 var EDNAME={HF:'Hodges-Farstad',PCK:'Pickering',PT:'Antoniades (Patriarchal Text)',ECM:'Editio Critica Maior',NA27:'Nestle-Aland 27',NA28:'Nestle-Aland 28',SBL:'SBL Greek New Testament',TH:'Tyndale House',WH:'Westcott-Hort',SCR:'Scrivener',ST:'Stephanus'};
 var OPTNAME={PCK:'Pickering',PT:'Antoniades Patriarchal Text',SBL:'SBL Greek NT'};
-var KINDS={bracket:'only brackets or parentheses differ',omit:'omits words',add:'adds words',order:'changes the word order',diff:'a different word',elide:'elision',form:'same word, different spelling or form',other:'no label',special:'descriptive note'};
+var KINDS={bracket:'only brackets or parentheses differ',omit:'omits words',add:'adds words',order:'changes the word order',diff:'a different word',elide:'elision',krasis:'krasis, two words written as one',form:'same word, different spelling or form',other:'no label',special:'descriptive note'};
 var $=function(id){return document.getElementById(id);};
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
 function fmt(n){return n.toLocaleString('en-US');}
