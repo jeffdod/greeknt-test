@@ -128,7 +128,8 @@
           <input id="fRef" type="text" placeholder="e.g. Romans 8 or John 1:18" autocomplete="off">
         </label>
         <label>Greek word or phrase
-          <input id="fGreek" type="text" placeholder="accents optional, e.g. και" autocomplete="off" lang="grc">
+          <input id="fGreek" type="text" placeholder="accents optional, e.g. και" autocomplete="off" lang="grc" data-beta aria-describedby="fGreekHint">
+          <small class="hint" id="fGreekHint">Type Greek, or CCAT beta code such as lo/gos, which turns into Greek as you type.</small>
         </label>
         <button type="button" class="btn btn-quiet" id="fReset">Clear all</button>
         <button type="button" class="btn btn-quiet" id="fShare">Copy link to this search</button>
@@ -157,6 +158,7 @@
 <script src="notes-data.js"></script>
 <script src="copy.js"></script>
 <script src="pageviewer.js"></script>
+<script src="greekinput.js"></script>
 <script src="stats.js"></script>
 <script src="menu.js"></script>
 <script data-goatcounter="https://greeknt.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>

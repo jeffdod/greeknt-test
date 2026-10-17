@@ -46,3 +46,5 @@
 .gkey i.swatch{display:inline-block;width:14px;height:14px;border:0;min-width:0;padding:0}
 .sw-byz{background:var(--r3)}.sw-crit{background:var(--r1)}.sw-tr{background:var(--r2)}
 .etag sup{font-size:.7em;line-height:0;margin-left:1px}
+
+.filters .hint{font-size:.85rem;line-height:1.35;max-width:24rem}
