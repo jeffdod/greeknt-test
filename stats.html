@@ -127,13 +127,13 @@
         <label>Passage
           <input id="fRef" type="text" placeholder="e.g. Romans 8 or John 1:18" autocomplete="off">
         </label>
-        <label>Greek word or phrase
+        <label class="wide">Greek word or phrase
           <input id="fGreek" type="text" placeholder="accents optional, e.g. και" autocomplete="off" lang="grc" data-beta aria-describedby="fGreekHint">
+          <small class="fhint" id="fGreekHint">Type Greek or CCAT beta code, such as lo/gos, and it turns into Greek as you type. To search for Latin text such as om., put it in double quotation marks: "om." και.</small>
         </label>
         <button type="button" class="btn btn-quiet" id="fReset">Clear all</button>
         <button type="button" class="btn btn-quiet" id="fShare">Copy link to this search</button>
       </form>
-      <p class="fhint" id="fGreekHint">In Greek word or phrase, type Greek or CCAT beta code, such as lo/gos, and it turns into Greek as you type. To search for Latin text such as om., put it in double quotation marks: "om." και.</p>
       <div class="rhead">
         <p id="rcount" aria-live="polite"></p>
         <div id="pagechip"></div>

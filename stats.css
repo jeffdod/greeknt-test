@@ -48,4 +48,5 @@
 .sw-byz{background:var(--r3)}.sw-crit{background:var(--r1)}.sw-tr{background:var(--r2)}
 .etag sup{font-size:.7em;line-height:0;margin-left:1px}
 
-.fhint{margin:10px 0 0;font-size:.9rem;line-height:1.45;color:var(--ink-soft);max-width:46rem}
+.filters .wide{grid-column:1/-1}
+.filters .fhint{font-size:.9rem;line-height:1.45;color:var(--ink-soft)}
