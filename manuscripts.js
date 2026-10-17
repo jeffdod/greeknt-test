@@ -90,7 +90,7 @@ function list(){
     if(s==='cited')return (b.x.u||0)-(a.x.u||0)||a.i-b.i;
     if(s==='agree'||s==='differ'){
       var A=a.pct==null?-1:a.pct,B=b.pct==null?-1:b.pct;
-      /* favour larger samples when percentages tie */
+      /* favor larger samples when percentages tie */
       var d=(s==='agree'?B-A:A-B);
       if(a.pct==null||b.pct==null){if(a.pct==null&&b.pct!=null)return 1;if(b.pct==null&&a.pct!=null)return -1;}
       return d||(b.x.own||0)-(a.x.own||0)||a.i-b.i;

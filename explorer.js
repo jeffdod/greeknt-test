@@ -286,7 +286,7 @@ function renderTimeline(){
     v.readings.forEach(function(r,i){if(!r.wits.length||(!r.greek&&r.status))return;var s=el('span');s.style.setProperty('--c',COLORS[i%COLORS.length]);s.appendChild(el('i'));s.appendChild(document.createTextNode((i===0?'Main text: ':'Reading '+(i+1)+': ')+r.label));lg.appendChild(s);});
     var op=el('span');op.appendChild(document.createTextNode('Faded: not cited for this variant'));lg.appendChild(op);
     var o2=el('span');var d2=el('i','cdot');d2.style.setProperty('--c','var(--ink-soft)');o2.appendChild(d2);o2.appendChild(document.createTextNode(' Small square: a corrector’s reading, when it differs from the manuscript’s own'));lg.appendChild(o2);
-    var o4=el('span');var d4=el('i','unavi');o4.appendChild(d4);o4.appendChild(document.createTextNode(' Grey with dots: inaccessible or unreadable here'));lg.appendChild(o4);
+    var o4=el('span');var d4=el('i','unavi');o4.appendChild(d4);o4.appendChild(document.createTextNode(' Gray with dots: inaccessible or unreadable here'));lg.appendChild(o4);
     var o3=el('span');var d3=el('i','dashed');o3.appendChild(d3);o3.appendChild(document.createTextNode(' Dashed outline: only a corrector is cited'));lg.appendChild(o3);
   }else lg.hidden=true;
   var groups={};
