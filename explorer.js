@@ -194,11 +194,12 @@ function openVariant(id){
   var ef=el('p','edfoot');if(v.complex){ef.appendChild(document.createTextNode('This note uses special conventions; read the printed note on page '));ef.appendChild(window.GNTPages.link(String(v.page),v.page));ef.appendChild(document.createTextNode(' for the full detail. '));}ef.appendChild(document.createTextNode('An edition shown as “same as the main text” is not named in the printed note, which lists only editions that differ.'));b.appendChild(ef);
   var tl=el('p','tl-link');var a=el('button','btn btn-quiet','Show these witnesses on the timeline');a.type='button';
   a.addEventListener('click',function(){dlg.close();pickVariant(v.id);});tl.appendChild(a);b.appendChild(tl);
-  var i=visible.indexOf(v);$('vprev').disabled=i<=0;$('vnext').disabled=i<0||i>=visible.length-1;
+  $('vprev').disabled=$('vnext').disabled=visible.length<2;
   if(!dlg.open)dlg.showModal();
   $('vbody').scrollTop=0;
 }
-function step(d){var i=visible.indexOf(cur)+d;if(i>=0&&i<visible.length)openVariant(visible[i].id);}
+/* the arrows wrap: Previous on the first variant goes to the last, Next on the last goes to the first */
+function step(d){var n=visible.length;if(!n)return;var c=visible.indexOf(cur);var i=c<0?(d>0?0:n-1):(c+d+n)%n;openVariant(visible[i].id);}
 $('vprev').addEventListener('click',function(){step(-1);});
 $('vnext').addEventListener('click',function(){step(1);});
 $('vclose').addEventListener('click',function(){dlg.close();});
