@@ -15,7 +15,7 @@
 .hero .note a{color:var(--gilt-lt)}
 .hero .byline{font-size:.98rem;color:#8f98a5;margin:18px 0 0;font-variant:small-caps;letter-spacing:.04em}
 .specimen{margin:0}
-.sheet{background:#f3f1ea;padding:0;border-radius:8px;box-shadow:0 30px 60px -24px rgba(0,0,0,.65),0 0 0 1px rgba(205,176,114,.35);aspect-ratio:1500/576;overflow:hidden;position:relative}
+.sheet{background:#f3f1ea;padding:0;border-radius:5px;box-shadow:0 30px 60px -24px rgba(0,0,0,.65),0 0 0 1px rgba(205,176,114,.35);aspect-ratio:1500/576;overflow:hidden;position:relative}
 .sheet img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 97%}
 .specimen figcaption{margin-top:18px;font-size:1.04rem;color:#c4c9d1;line-height:1.55;max-width:56ch}
 .specimen figcaption b{color:#f3f1ea;font-weight:500}
