@@ -153,7 +153,7 @@ function openVariant(id){
     box.appendChild(rl);
     if(r.expl)box.appendChild(el('p','keyline',r.expl));
     if(!stat&&r.greek){var g=el('p','gk',r.greek);g.lang='grc';box.appendChild(g);}
-    if(r.eds&&r.eds.length){box.appendChild(el('p','keyline','The printed note adds: '+r.eds.map(function(e){return e.replace('RP^mg','alternate reading in the Robinson–Pierpont margin').replace('RPmg','alternate reading in the Robinson–Pierpont margin');}).join(', ')+' ('+(r.eds.indexOf('CT')>=0?'agreement of the critical editions':'edition note')+').'));}
+    if(r.eds&&r.eds.length){box.appendChild(el('p','keyline','The printed note adds: '+r.eds.map(function(e){return e.replace('RP^mg','the alternate Byzantine reading (Robinson–Pierpont)').replace('RPmg','the alternate Byzantine reading (Robinson–Pierpont)');}).join(', ')+' ('+(r.eds.indexOf('CT')>=0?'agreement of the critical editions':'edition note')+').'));}
     var e=earliest(r);if(e&&!stat)box.appendChild(e);
     var chips=el('div','chips');
     sortWits(r.wits).forEach(function(w){chips.appendChild(chip(w,v.id,i));});
@@ -180,11 +180,11 @@ function openVariant(id){
   });
   b.appendChild(g);
   if(v.editions.RPmg){
-    var g2=el('div','edgrid rpm'),c2=el('div');c2.appendChild(el('h5',null,'Main-text margin (RPmg)'));
-    var u2=el('ul'),x2=v.editions.RPmg,l2=el('li',x2.s);l2.appendChild(el('b',null,'RPmg'));
+    var g2=el('div','edgrid rpm'),c2=el('div');var h2=el('h5',null,'Alternate Byzantine reading (RP');h2.appendChild(el('sup',null,'mg'));h2.appendChild(document.createTextNode(')'));c2.appendChild(h2);
+    var u2=el('ul'),x2=v.editions.RPmg,l2=el('li',x2.s);var b2=el('b',null,'RP');b2.appendChild(el('sup',null,'mg'));l2.appendChild(b2);
     var s2=el('span');
     if(x2.s==='differs'&&x2.t&&x2.t!=='om.'){s2.appendChild(document.createTextNode('Reads: '));var k2=el('span','gk',x2.t);k2.lang='grc';s2.appendChild(k2);}else s2.textContent=edText(x2);
-    l2.appendChild(s2);l2.title='Robinson–Pierpont, alternate reading in the margin';u2.appendChild(l2);c2.appendChild(u2);g2.appendChild(c2);b.appendChild(g2);
+    l2.appendChild(s2);l2.title='Robinson–Pierpont, alternate Byzantine reading';u2.appendChild(l2);c2.appendChild(u2);g2.appendChild(c2);b.appendChild(g2);
   }
   var ef=el('p','edfoot');if(v.complex){ef.appendChild(document.createTextNode('This note uses special conventions; read the printed note on page '));ef.appendChild(window.GNTPages.link(String(v.page),v.page));ef.appendChild(document.createTextNode(' for the full detail. '));}ef.appendChild(document.createTextNode('An edition shown as “same as the main text” is not named in the printed note, which lists only editions that differ.'));b.appendChild(ef);
   var tl=el('p','tl-link');var a=el('button','btn btn-quiet','Show these witnesses on the timeline');a.type='button';

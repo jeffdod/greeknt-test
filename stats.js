@@ -203,7 +203,10 @@ function getFilters(){
   var rf=parseRef($('fRef').value);
   return {ed:$('fEd').value,rel:$('fRel').value,where:$('fWhere').value,kind:$('fKind').value,pat:$('fPat').value,ref:rf&&!rf.bad?rf:null,refBad:!!(rf&&rf.bad),greek:norm($('fGreek').value)};
 }
-function tag(e){return el('span','etag f-'+(FAM[e]||'crit'),e==='ECMs'?'ECM†':e);}
+function tag(e){
+  if(e==='RPmg'){var t=el('span','etag f-byz','RP');t.appendChild(el('sup',null,'mg'));t.title='Robinson–Pierpont, alternate Byzantine reading';return t;}
+  return el('span','etag f-'+(FAM[e]||'crit'),e==='ECMs'?'ECM†':e);
+}
 function edsOf(mask){return EDS.filter(function(e){return mask&BIT[e];});}
 function renderItem(n){
   var li=el('li','res');
