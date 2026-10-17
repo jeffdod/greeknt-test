@@ -131,6 +131,7 @@ function chip(w,vid,ri){
   b.addEventListener('click',function(){dlg.close();showOnTimeline(m.ga,vid);});
   return b;
 }
+function bsuffix(x){return x.b===2?', printed in double brackets':x.b===1?', printed in brackets':x.b===3?', printed in chevrons (« »)':'';}
 function edText(x){
   if(x.s==='main')return 'Same as the main text';
   if(x.s==='na')return 'Not applicable in this book';
@@ -138,7 +139,7 @@ function edText(x){
   if(x.s==='double')return 'Prints it in double brackets';
   if(x.s==='chevron')return 'Prints it in chevrons (« »)';
   if(x.s==='split')return 'Split guiding line';
-  if(x.s==='differs'){var t=x.t||'';return t==='om.'?'Omits it':(t.length<70?'Reads: ':'Reads a longer form')+(t.length<70?t:'');}
+  if(x.s==='differs'){var t=x.t||'';return t==='om.'?'Omits it':(t.length<70?'Reads: ':'Reads a longer form')+(t.length<70?t:'')+bsuffix(x);}
   return '';
 }
 function openVariant(id){
@@ -178,7 +179,7 @@ function openVariant(id){
       else if(v.parts&&x.s==='differs'){
         [['a',x.t],['b',x.t2]].forEach(function(p){var ln=el('span','part');ln.appendChild(el('b',null,'Note '+p[0]+': '));if(p[1])noteInto(ln,p[1],true);else ln.appendChild(document.createTextNode('same as the main text'));sp.appendChild(ln);});
       }
-      else if(x.s==='differs'&&x.t&&x.t!=='om.'&&x.t.length<70){sp.appendChild(document.createTextNode('Reads: '));var gk=el('span','gk',x.t);gk.lang='grc';sp.appendChild(gk);}else sp.textContent=t;
+      else if(x.s==='differs'&&x.t&&x.t!=='om.'&&x.t.length<70){sp.appendChild(document.createTextNode('Reads: '));var gk=el('span','gk',x.t);gk.lang='grc';sp.appendChild(gk);if(x.b)sp.appendChild(document.createTextNode(bsuffix(x)));}else sp.textContent=t;
       li.appendChild(sp);li.title=EDNAME[e];ul.appendChild(li);});
     col.appendChild(ul);g.appendChild(col);
   });
@@ -352,7 +353,7 @@ function cellFor(v,e,ref){
   var x=v.editions[e]||{s:'main'};
   {
     if(x.s==='main')return ['same','=','Same as the main text'];
-    if(x.s==='differs')return ['differs','≠','Reads differently'+(x.t?': '+(x.t==='om.'?'omits it':x.t):'')];
+    if(x.s==='differs')return ['differs','≠','Reads differently'+(x.t?': '+(x.t==='om.'?'omits it':x.t):'')+bsuffix(x)];
     if(x.s==='bracket')return ['bracket','[ ]','Prints it in brackets'];
     if(x.s==='double')return ['bracket','[[ ]]','Prints it in double brackets'];
     if(x.s==='chevron')return ['bracket','« »','Prints it in chevrons (« »)'];
