@@ -238,7 +238,7 @@ function evidenceCsv(v){
     var ws=wSort(r.wits||[]).map(wName).join('; ');
     var nt=(r.notes||[]).map(function(n){return 'Note on '+noteCsv(n.who)+': '+noteCsv(n.note);}).join('; ');
     return head+(ws?' | '+ws:'')+(nt?' | '+nt:'');
-  }).join('\n');
+  }).join(' ‖ \n');
 }
 function edsOf(mask){return EDS.filter(function(e){return mask&BIT[e];});}
 function renderItem(n){
