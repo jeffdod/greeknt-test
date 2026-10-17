@@ -189,3 +189,19 @@ sup sup{font-size:.8em;margin-left:1px}
 .tl-controls .pickwrap label{min-height:44px;display:flex;align-items:center}
 .tl-controls .pickwrap .pagenote{grid-column:2}
 .tl-controls .pagenote{font-size:.95rem;color:var(--ink-soft)}
+
+/* Phones: button groups become an even grid instead of wrapping unevenly */
+@media (max-width:640px){
+.controls{display:block}
+.controls .seg{margin-bottom:14px}
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;border-bottom-width:0}
+.seg button{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:.6em .4em;background:var(--vellum);min-height:44px}
+.seg button:nth-child(3n){border-right:0}
+.seg button:hover{background:#ebe3d8}
+.seg button[aria-pressed="true"],.seg button[aria-pressed="true"]:hover{background:var(--rubric)}
+.seg button:disabled:hover{background:var(--vellum)}
+#groupFilter button:last-child,#gridGroup button:last-child{grid-column:span 2;border-right:0}
+#kindFilter,#contentFilter{grid-template-columns:repeat(2,minmax(0,1fr))}
+#kindFilter button,#contentFilter button{border-right:1px solid var(--rule)}
+#kindFilter button:nth-child(2n),#contentFilter button:nth-child(2n){border-right:0}
+}
