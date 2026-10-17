@@ -56,7 +56,7 @@ function buildKey(){
 }
 function buildChart(){
   var total=N.length;
-  $('chartlede').textContent='The Edition Apparatus has '+fmt(total)+' notes. For each part of the New Testament, each bar shows the share of that part’s notes in which the edition reads differently from the main text. A longer bar means the edition is named in more of the notes.';
+  $('chartlede').textContent='The Edition Apparatus has '+fmt(total)+' notes. For each part of the New Testament, each bar shows the share of that part’s notes in which the edition reads differently from the main text. A longer bar means the edition is named in more of the notes, so it differs from the main text more often.';
   var grid=$('cgrid');
   ALLG.forEach(function(g){
     var s=stats[g],p=el('div','cpanel');
