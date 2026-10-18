@@ -218,8 +218,8 @@ function buildRP(){
       g.appendChild(a);
     });
     $('rnote').textContent=withRev
-      ?'Revelation alone holds '+fmt(per[REV])+' of the '+fmt(tot)+' notes ('+pct(per[REV]/tot)+'). Switch it off to compare the other books at a readable scale. Longer books have more notes of every kind, so compare the percentages as well as the bars.'
-      :'With Revelation left out, the other books hold '+fmt(tot-per[REV])+' of the '+fmt(tot)+' notes. The bars are scaled to the longest one shown. Longer books have more notes of every kind, so compare the percentages as well as the bars.';
+      ?'Revelation alone holds '+fmt(per[REV])+' of the '+fmt(tot)+' notes ('+pct(per[REV]/tot)+'). Switch it off to compare the other books at a readable scale. The bars show how many notes have an alternate reading. The percentage shows how common they are within each book. A long book can have the longest bar and still a low percentage.'
+      :'With Revelation left out, the other books hold '+fmt(tot-per[REV])+' of the '+fmt(tot)+' notes. The bars are scaled to the longest one shown.';
   }
   $('rpRev').addEventListener('change',drawBooks);
   drawBooks();
