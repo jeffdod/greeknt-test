@@ -215,7 +215,7 @@ function buildBack(back,c,r){
   });
   wrap.appendChild(ul);back.appendChild(wrap);
   var foot=el('div','bfoot');
-  var bk=el('button','linkbtn','\u2039 Back to card');bk.type='button';bk.addEventListener('click',function(){flipTo(c,r,false);});foot.appendChild(bk);
+  var bk=el('button','linkbtn','\u2039 Back to front');bk.type='button';bk.addEventListener('click',function(){flipTo(c,r,false);});foot.appendChild(bk);
   var tl=el('a',null,'Show on the timeline');tl.href='variants.html#ms='+encodeURIComponent(r.m.ga);tl.title='Open the Fifty variants page and pick this manuscript on the timeline';foot.appendChild(tl);
   back.appendChild(foot);
   back.addEventListener('keydown',function(e){if(e.key==='Escape'){e.stopPropagation();flipTo(c,r,false);}});

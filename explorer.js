@@ -145,8 +145,9 @@ function chip(w,vid,ri){
   b.appendChild(el('small',null,m.date));
   b.title=(msName(m)+label(m)+(s?' (GA '+s+')':'')+', '+m.date+(mk.t?'. '+mk.t:'')+'. Select to see it on the timeline.');
   b.addEventListener('click',function(){
-    if(!onVariantsPage){location.href='variants.html#ms='+encodeURIComponent(m.ga)+'&v='+vid;return;}
-    skipBack=true;dlg.close();hist('pushState',{gnt:'ms',ga:m.ga,vid:vid},'#ms='+encodeURIComponent(m.ga));showOnTimeline(m.ga,vid);});
+    if(!onVariantsPage){leaveTo('variants.html#ms='+encodeURIComponent(m.ga)+'&v='+vid);return;}
+    /* the pop-up's history step becomes the timeline's, so Back never returns to the pop-up */
+    skipBack=true;dlg.close();hist('replaceState',{gnt:'ms',ga:m.ga,vid:vid},'#ms='+encodeURIComponent(m.ga));showOnTimeline(m.ga,vid);});
   return b;
 }
 function bsuffix(x){return x.b===2?', printed in double brackets':x.b===1?', printed in brackets':x.b===3?', printed in chevrons (« »)':'';}
@@ -165,6 +166,22 @@ function edText(x){
 var fromHistory=false,skipBack=false;
 function hist(how,state,hash){try{history[how](state,'',location.pathname+location.search+hash);}catch(e){}}
 function closeQuietly(){if(dlg.open){skipBack=true;dlg.close();}}
+/* Leaving for another page from the pop-up: first take the pop-up's history step away, then go,
+   so that Back from the new page returns to the screen the pop-up was opened on. */
+function leaveTo(url){
+  if(!(history.state&&history.state.gnt==='v')){location.href=url;return;}
+  var done=false;
+  function go(){if(done)return;done=true;window.removeEventListener('popstate',go);location.href=url;}
+  window.addEventListener('popstate',go);
+  skipBack=true;if(dlg.open)dlg.close();
+  history.back();
+  setTimeout(go,800);
+}
+/* If the page is left, or restored from the browser's memory, with the pop-up open, forget the pop-up */
+window.addEventListener('pagehide',function(){
+  if(dlg.open&&history.state&&history.state.gnt==='v'){try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}}
+});
+window.addEventListener('pageshow',function(e){if(e.persisted)closeQuietly();});
 dlg.addEventListener('close',function(){
   if(skipBack){skipBack=false;return;}
   if(history.state&&history.state.gnt==='v'){try{history.back();}catch(e){}}
@@ -228,8 +245,8 @@ function openVariant(id){
   var ef=el('p','edfoot');if(v.complex){ef.appendChild(document.createTextNode('This note uses special conventions; read the printed note on page '));ef.appendChild(window.GNTPages.link(String(v.page),v.page));ef.appendChild(document.createTextNode(' for the full detail. '));}ef.appendChild(document.createTextNode('An edition shown as “same as the main text” is not named in the printed note, which lists only editions that differ.'));b.appendChild(ef);
   var tl=el('p','tl-link');var a=el('button','btn btn-quiet','Show these witnesses on the timeline');a.type='button';
   a.addEventListener('click',function(){
-    if(!onVariantsPage){location.href='variants.html#tl='+v.id;return;}
-    skipBack=true;dlg.close();hist('pushState',{gnt:'tl',vid:v.id},'#tl='+v.id);pickVariant(v.id);});tl.appendChild(a);b.appendChild(tl);
+    if(!onVariantsPage){leaveTo('variants.html#tl='+v.id);return;}
+    skipBack=true;dlg.close();hist('replaceState',{gnt:'tl',vid:v.id},'#tl='+v.id);pickVariant(v.id);});tl.appendChild(a);b.appendChild(tl);
   $('vprev').disabled=$('vnext').disabled=visible.length<2;
   if(!dlg.open)dlg.showModal();
   $('vbody').scrollTop=0;
