@@ -453,6 +453,8 @@ function initGrid(){
 
 initGrid();
 renderSeg();renderList();renderContentFilter();renderPick();renderTimeline();
-if(location.hash&&location.hash.indexOf('#v=')===0){var v0=location.hash.slice(3);hist('replaceState',null,'');replaceFirst=/[?&]from=manuscripts(&|$)/.test(location.search)&&/manuscripts\.html/.test(document.referrer);openVariant(v0);}
+if(location.hash&&location.hash.indexOf('#v=')===0){var v0=location.hash.slice(3);hist('replaceState',null,'');var msFlag='';try{msFlag=sessionStorage.getItem('gnt-from-ms');sessionStorage.removeItem('gnt-from-ms');}catch(e){}
+  /* arrived by a passage link on a manuscript card: closing the popup should go back to that card */
+  replaceFirst=/[?&]from=manuscripts(&|$)/.test(location.search)&&history.length>1&&(msFlag==='1'||/\/manuscripts(\.html)?([?#]|$)/.test(document.referrer));openVariant(v0);}
 if(location.hash&&location.hash.indexOf('#ms=')===0){var g0=decodeURIComponent(location.hash.slice(4));if(byGa[g0]){selectMs(g0);document.getElementById('timeline').scrollIntoView({block:'start'});}}
 })();

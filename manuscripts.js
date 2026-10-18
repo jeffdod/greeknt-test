@@ -208,6 +208,7 @@ function buildBack(back,c,r){
     var a=el('a',null,ct.v.ref);a.href='variants.html?from=manuscripts#v='+ct.v.id;a.title='Open this variant. Closing it brings you back to this card.';
     li.appendChild(a);ul.appendChild(li);
   });
+  ul.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('a')){try{sessionStorage.setItem('gnt-from-ms','1');}catch(x){}}});
   wrap.appendChild(ul);back.appendChild(wrap);
   var foot=el('div','bfoot');
   var bk=el('button','linkbtn','\u2039 Back to card');bk.type='button';bk.addEventListener('click',function(){flipTo(c,r,false);});foot.appendChild(bk);
