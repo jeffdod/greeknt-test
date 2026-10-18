@@ -64,6 +64,7 @@
 .sumbar,.ktrack{display:flex;height:34px;background:rgba(31,42,54,.06);overflow:hidden}
 .seg{display:flex;align-items:center;justify-content:center;min-width:2px;height:100%;color:#fff;font-size:.9rem;font-variant-numeric:tabular-nums;text-decoration:none;box-shadow:inset -1px 0 0 rgba(255,255,255,.55);overflow:hidden}
 .seg.k-mixed,.seg.k-form{color:var(--ink)}
+.seg>span{white-space:nowrap}
 .seg:hover,.seg:focus-visible{filter:brightness(1.12);outline-offset:-3px}
 .sumkey{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
 .sumkey li{font-size:1rem;line-height:1.45}

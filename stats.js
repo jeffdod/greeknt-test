@@ -161,7 +161,7 @@ function buildSummary(){
     a.style.width=(sh*100)+'%';
     a.title=p.name+': '+fmt(c)+' notes ('+pct(sh)+'). List them.';
     a.setAttribute('aria-label',p.name+': '+fmt(c)+' notes, '+pct(sh)+'. List them.');
-    if(sh>=.08)a.appendChild(el('span',null,pct(sh)));
+    a.appendChild(el('span',null,pct(sh)));
     bar.appendChild(a);
     var li=el('li');li.appendChild(el('i','swatch '+p.cls));
     var b=el('b',null,p.name+': ');li.appendChild(b);
@@ -193,7 +193,7 @@ function buildKinds(){
       a.style.width=(sh*100)+'%';
       a.title=EDNAME[r.e]+' — '+x.name+': '+fmt(c)+' of '+fmt(r.t)+' differences ('+pct(sh)+'). List them.';
       a.setAttribute('aria-label',r.e+', '+x.name+': '+fmt(c)+' of '+fmt(r.t)+', '+pct(sh)+'. List them.');
-      if(sh>=(window.matchMedia('(max-width:640px)').matches?.14:.09))a.appendChild(el('span',null,Math.round(sh*100)+'%'));
+      a.appendChild(el('span',null,Math.round(sh*100)+'%'));
       tr.appendChild(a);
     });
     row.appendChild(nm);row.appendChild(tr);row.appendChild(el('span','kn',fmt(r.t)));
@@ -211,6 +211,12 @@ function buildKinds(){
   $('ktable').innerHTML=h+'</tbody>';
 }
 
+/* Show a segment's percentage only when it fits inside the segment */
+function fitLabels(){
+  var segs=document.querySelectorAll('.seg > span');
+  for(var i=0;i<segs.length;i++)segs[i].hidden=false;
+  for(var j=0;j<segs.length;j++){var sp=segs[j];if(sp.parentNode.clientWidth<sp.offsetWidth+8)sp.hidden=true;}
+}
 /* ---------- where the notes fall ---------- */
 var CHAPS=[28,16,24,21,28,16,16,13,6,6,4,4,5,3,6,4,3,1,13,5,5,3,5,1,1,1,22];
 function buildDensity(){
@@ -548,7 +554,7 @@ function readUrl(){
 }
 function init(){
   if($('filters'))$('filters').addEventListener('submit',function(ev){ev.preventDefault();});
-  if($('cgrid')){buildKey();buildChart();buildDensity();buildSummary();buildKinds();}
+  if($('cgrid')){buildKey();buildChart();buildDensity();buildSummary();buildKinds();fitLabels();window.addEventListener('load',fitLabels);window.addEventListener('resize',fitLabels);}
   if(!$('filters'))return;
   buildFilters();stripHover();
   ['fEd','fRel','fWhere','fKind','fPat'].forEach(function(id){$(id).addEventListener('change',function(){if(id==='fKind'||id==='fRel'||id==='fPat')CAT='';update();});});
