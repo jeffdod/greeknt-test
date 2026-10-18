@@ -264,3 +264,11 @@ details.fifty[open] summary::before{content:"−"}
   .panel .card{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border-left:0;padding:16px 20px 22px}
 }
 @media (max-width:860px) and (prefers-reduced-motion:reduce){.panel,.panel.open{transition:none}}
+
+/* How to read a page: clearer outlines on phones, where there is no hover to reveal them */
+@media (max-width:860px){
+  .hot{border:1.5px solid rgba(138,42,30,.85);background:rgba(138,42,30,.12);box-shadow:0 0 0 1px rgba(255,255,255,.75)}
+  .hot.big{border-color:rgba(138,42,30,.55);background:rgba(138,42,30,.05)}
+  .hot.on{background:rgba(140,115,67,.32);border:2px solid var(--gilt)}
+  .hot.big.on{background:rgba(140,115,67,.2);border-color:var(--gilt)}
+}
