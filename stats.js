@@ -127,48 +127,9 @@ function catFor(n,ed){
   for(var i=0;i<n[5].length;i++){var r=n[5][i];if((r[0]&b)&&r[1]!=='txt')return catOf(r);}
   return 'mixed';
 }
-/* One label per note: spelling only, wording changes, or neither (only brackets or descriptive notes) */
-function noteCat(n){
-  var any=false,words=false;
-  for(var i=0;i<n[5].length;i++){
-    var r=n[5][i];if(r[1]==='txt'||r[3].indexOf('special')>=0)continue;
-    any=true;
-    var c=catOf(r),ks=r[3];
-    if(c==='form')continue;
-    if(ks.length===1&&ks[0]==='bracket')continue;
-    words=true;
-  }
-  return !any?'N:other':words?'N:word':'N:spell';
-}
 function searchUrl(o){
   var p=[];Object.keys(o).forEach(function(k){if(o[k])p.push(k+'='+encodeURIComponent(o[k]));});
   return 'search.html?'+p.join('&')+'#find';
-}
-function buildSummary(){
-  var cnt={'N:spell':0,'N:word':0,'N:other':0};
-  N.forEach(function(n){cnt[noteCat(n)]++;});
-  var tot=N.length;
-  var parts=[
-    {k:'N:spell',cls:'k-form',name:'Spelling or form only',txt:'Every difference is the same word spelled or inflected another way.'},
-    {k:'N:word',cls:'k-word',name:'Changes the wording',txt:'At least one reading omits, adds, replaces, or reorders words.'},
-    {k:'N:other',cls:'k-mixed',name:'Brackets or other',txt:'Only brackets, parentheses, or a descriptive note.'}
-  ];
-  $('sumlede').textContent='Of the '+fmt(tot)+' notes, '+pct(cnt['N:spell']/tot)+' record only a different spelling or form of the same word. '+pct(cnt['N:word']/tot)+' involve a change in the wording itself. Select a segment to list its notes.';
-  var bar=$('sumbar'),key=$('sumkey');
-  parts.forEach(function(p){
-    var c=cnt[p.k],sh=c/tot;
-    var a=el('a','seg '+p.cls);a.href=searchUrl({cat:p.k});
-    a.style.width=(sh*100)+'%';
-    a.title=p.name+': '+fmt(c)+' notes ('+pct(sh)+'). List them.';
-    a.setAttribute('aria-label',p.name+': '+fmt(c)+' notes, '+pct(sh)+'. List them.');
-    a.appendChild(el('span',null,pct(sh)));
-    bar.appendChild(a);
-    var li=el('li');li.appendChild(el('i','swatch '+p.cls));
-    var b=el('b',null,p.name+': ');li.appendChild(b);
-    li.appendChild(document.createTextNode(fmt(c)+' notes ('+pct(sh)+'). '+p.txt));
-    key.appendChild(li);
-  });
-  $('sumnote').textContent='A note is placed by all of its readings together. If even one reading changes the wording, the note counts as changing the wording.';
 }
 function buildKinds(){
   var rows=[];
@@ -325,13 +286,10 @@ function matches(n,i,f){
   }
   if(f.rel==='split'&&f.kind){var ok2=false;n[5].forEach(function(r){if(r[3].indexOf(f.kind)>=0)ok2=true;});if(!ok2)return false;}
   if(f.cat){
-    if(f.cat.charAt(0)==='N'){if(noteCat(n)!==f.cat)return false;}
-    else {
-      var b2=f.ed?BIT[f.ed]:0,okc=false,seen=false;
-      n[5].forEach(function(r){if(r[1]!=='txt'&&(!b2||(r[0]&b2))){seen=true;if(catOf(r)===f.cat)okc=true;}});
-      if(!seen&&f.ed&&f.cat==='mixed')okc=true;
-      if(!okc)return false;
-    }
+    var b2=f.ed?BIT[f.ed]:0,okc=false,seen=false;
+    n[5].forEach(function(r){if(r[1]!=='txt'&&(!b2||(r[0]&b2))){seen=true;if(catOf(r)===f.cat)okc=true;}});
+    if(!seen&&f.ed&&f.cat==='mixed')okc=true;
+    if(!okc)return false;
   }
   if(f.pat){
     var cs=criticalSet(n),st;
@@ -504,7 +462,7 @@ function update(){
   if(f.refBad)c.textContent='I could not read that passage. Try a form like “Romans 8”, “John 1:18”, or “1 Cor 13”.';
   else c.textContent=out.length===0?'No notes match these choices.':fmt(out.length)+' note'+(out.length===1?'':'s')+' ('+pct(out.length/N.length)+' of all '+fmt(N.length)+') on '+fmt(new Set(out.map(function(i){return N[i][0];})).size)+(new Set(out.map(function(i){return N[i][0];})).size===1?' page.':' pages.');
   $('catnote').hidden=!(CAT&&!f.refBad);
-  if(CAT)$('catnote').textContent=CAT.charAt(0)==='N'?('Showing only notes counted as “'+({'N:spell':'Spelling or form only','N:word':'Changes the wording','N:other':'Brackets or other'})[CAT]+'” on the Stats page. Change any other choice above to see them all.'):('Showing only readings whose one kind of difference is “'+CATNAME[CAT]+'”, as counted on the Stats page. Change any other choice above to see them all.');
+  if(CAT)$('catnote').textContent='Showing only readings whose one kind of difference is “'+CATNAME[CAT]+'”, as counted on the Stats page. Change any other choice above to see them all.';
   $('fCsv').disabled=!out.length;
   showMore();drawStrip(out);writeUrl();
 }
@@ -549,12 +507,12 @@ function writeUrl(){
 function readUrl(){
   var p=new URLSearchParams(location.search),any=false;
   Object.keys(URLMAP).forEach(function(k){if(p.has(k)){$(URLMAP[k]).value=p.get(k);any=true;}});
-  if(p.has('cat')&&/^(N:(spell|word|other)|form|omit|add|diff|order|mixed)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;}
+  if(p.has('cat')&&/^(form|omit|add|diff|order|mixed)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;}
   return any;
 }
 function init(){
   if($('filters'))$('filters').addEventListener('submit',function(ev){ev.preventDefault();});
-  if($('cgrid')){buildKey();buildChart();buildDensity();buildSummary();buildKinds();fitLabels();window.addEventListener('load',fitLabels);window.addEventListener('resize',fitLabels);}
+  if($('cgrid')){buildKey();buildChart();buildDensity();buildKinds();fitLabels();window.addEventListener('load',fitLabels);window.addEventListener('resize',fitLabels);}
   if(!$('filters'))return;
   buildFilters();stripHover();
   ['fEd','fRel','fWhere','fKind','fPat'].forEach(function(id){$(id).addEventListener('change',function(){if(id==='fKind'||id==='fRel'||id==='fPat')CAT='';update();});});

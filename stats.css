@@ -58,17 +58,13 @@
 .specnote b{color:var(--ink);font-weight:600}
 
 /* ---- Where the notes fall, spelling or substance, kinds by edition ---- */
-.k-form{background:#9aa9b6}.k-omit{background:#8a2a1e}.k-add{background:#b9803c}.k-diff{background:#3f5670}.k-order{background:#5f8060}.k-mixed{background:#cdc6b3}.k-word{background:#8a2a1e}
-.khead{margin-top:48px}
-.swatch.k-form,.swatch.k-omit,.swatch.k-add,.swatch.k-diff,.swatch.k-order,.swatch.k-mixed,.swatch.k-word{display:inline-block;width:14px;height:14px;min-width:0;padding:0;border:0}
-.sumbar,.ktrack{display:flex;height:34px;background:rgba(31,42,54,.06);overflow:hidden}
+.k-form{background:#9aa9b6}.k-omit{background:#8a2a1e}.k-add{background:#b9803c}.k-diff{background:#3f5670}.k-order{background:#5f8060}.k-mixed{background:#cdc6b3}
+.swatch.k-form,.swatch.k-omit,.swatch.k-add,.swatch.k-diff,.swatch.k-order,.swatch.k-mixed{display:inline-block;width:14px;height:14px;min-width:0;padding:0;border:0}
+.ktrack{display:flex;height:34px;background:rgba(31,42,54,.06);overflow:hidden}
 .seg{display:flex;align-items:center;justify-content:center;min-width:2px;height:100%;color:#fff;font-size:.9rem;font-variant-numeric:tabular-nums;text-decoration:none;box-shadow:inset -1px 0 0 rgba(255,255,255,.55);overflow:hidden}
 .seg.k-mixed,.seg.k-form{color:var(--ink)}
 .seg>span{white-space:nowrap}
 .seg:hover,.seg:focus-visible{filter:brightness(1.12);outline-offset:-3px}
-.sumkey{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
-.sumkey li{font-size:1rem;line-height:1.45}
-.sumkey .swatch{margin-right:8px;vertical-align:-1px}
 .kgrid{display:grid;gap:8px;margin-top:6px}
 .krow{display:grid;grid-template-columns:4.6em 1fr 3.6em;gap:10px;align-items:center}
 .kname{font-weight:600;display:inline-flex;align-items:center;gap:6px}
@@ -91,5 +87,5 @@
   .krow{grid-template-columns:3.6em 1fr 3em;gap:6px}
   .drow{grid-template-columns:8em auto}
   .dname{font-size:.88rem}
-  .sumbar,.ktrack{height:30px}
+  .ktrack{height:30px}
 }
