@@ -226,24 +226,28 @@ function buildRP(){
   /* the notes where the alternate reading is shared only with critical editions */
   var co=hit.filter(function(i){return shareTest(N[i],'critonly');});
   $('rpcrit').textContent='In '+fmt(co.length)+' notes, a critical edition reads the alternate reading, and no other Byzantine edition and no Textus Receptus edition does. In these places the margin of the Robinson-Pierpont edition points toward the critical text. Select a note to find it in the variant search.';
-  var ul=$('clist');
+  var tb=$('clist');
+  function clip(t){return t.length>80?t.slice(0,80)+'…':t;}
   co.forEach(function(i){
-    var n=N[i],vm=n[2].match(/^\d+:\d+/),ref=BOOKS[n[1]]+' '+n[2];
+    var n=N[i],vm=n[2].match(/^\d+:\d+/);
     var rd=[];n[5].forEach(function(r){if(r[1]!=='txt'&&(r[0]&BIT.RPmg))rd.push(r);});
-    var li=el('li');
-    var a=el('a',null);a.href=searchUrl({ed:'RPmg',ref:vm?BOOKS[n[1]]+' '+vm[0]:BOOKS[n[1]]});
-    a.appendChild(el('b',null,ref+', note '+n[3]));li.appendChild(a);
-    var d=el('span','cdet');
-    var lem=n[4].length>90?n[4].slice(0,90)+'…':n[4];
-    d.appendChild(document.createTextNode(' Main text '));d.appendChild(el('span','gk',lem));
-    d.appendChild(document.createTextNode('. Alternate: '));
-    var alt=rd.map(function(r){var t=r[1];if(/^om\.?$/.test(t.trim()))return null;t=t.replace(/[.\s]+$/,'');return t.length>90?t.slice(0,90)+'…':t;});
-    if(alt.indexOf(null)>=0&&alt.length===1)d.appendChild(document.createTextNode('omits it'));
-    else d.appendChild(el('span','gk',alt.map(function(t){return t===null?'(omitted)':t;}).join(' / ')));
+    var tr=el('tr');
+    var c1=el('th');c1.scope='row';c1.setAttribute('data-label','Passage');
+    var a=el('a',null,BOOKS[n[1]]+' '+n[2]);a.href=searchUrl({ed:'RPmg',ref:vm?BOOKS[n[1]]+' '+vm[0]:BOOKS[n[1]]});
+    a.title='Find this note in the variant search';
+    c1.appendChild(a);c1.appendChild(el('small',null,'note '+n[3]));
+    var c2=el('td');c2.setAttribute('data-label','Main text');c2.appendChild(el('span','gk',clip(n[4])));
+    var c3=el('td','calt');c3.setAttribute('data-label','Alternate reading');
+    rd.forEach(function(r,k){
+      if(k)c3.appendChild(document.createTextNode(' / '));
+      var t=r[1].trim();
+      if(/^om\.?$/.test(t))c3.appendChild(el('i',null,'omitted'));
+      else c3.appendChild(el('span','gk',clip(t.replace(/[.\s]+$/,''))));
+    });
     var m=0;rd.forEach(function(r){m|=r[0];});
-    var ce=edsOf(m&M_CRIT).map(function(e){return e;});
-    d.appendChild(document.createTextNode('. Also read by '+ce.join(', ')+'.'));
-    li.appendChild(d);ul.appendChild(li);
+    var c4=el('td','ctags');c4.setAttribute('data-label','Also read by');
+    edsOf(m&M_CRIT).forEach(function(e){c4.appendChild(el('span','etag f-crit',e));});
+    tr.appendChild(c1);tr.appendChild(c2);tr.appendChild(c3);tr.appendChild(c4);tb.appendChild(tr);
   });
   $('cnote').textContent='The Greek is shown as it is printed in the apparatus, where most words appear without accents or breathing marks.';
 }

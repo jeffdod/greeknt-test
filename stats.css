@@ -91,21 +91,30 @@ h3.subhead{margin:34px 0 6px;font-size:1.3rem}
 .rtrack{display:block;height:12px;background:rgba(31,42,54,.06)}
 .rbar{display:block;height:100%;background:var(--r3)}
 .rval{color:var(--ink-soft);font-variant-numeric:tabular-nums;white-space:nowrap}
-.clist{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px;max-width:900px}
-.clist li{background:var(--vellum);border:1px solid var(--rule);padding:8px 14px;font-size:1rem;line-height:1.5}
-.cdet{color:var(--ink-soft)}
-.cdet .gk{color:var(--ink)}
-/* Links turn dark red on hover in the site style sheet; keep the text colors chosen for each square, segment and row */
-a.dc:hover,a.dc:focus-visible{color:var(--ink)}
-a.dc.d3:hover,a.dc.d3:focus-visible,a.dc.d4:hover,a.dc.d4:focus-visible{color:#fff}
-a.seg:hover,a.seg:focus-visible{color:#fff}
-a.seg.k-mixed:hover,a.seg.k-mixed:focus-visible,a.seg.k-form:hover,a.seg.k-form:focus-visible{color:var(--ink)}
-a.rrow:hover,a.rrow:focus-visible{color:var(--ink)}
+.ctabwrap{margin-top:12px;overflow-x:auto}
+.ctab{border-collapse:collapse;width:100%;max-width:980px;background:var(--vellum);border:1px solid var(--rule)}
+.ctab thead th{text-align:left;font-weight:600;font-size:.92rem;color:var(--ink-soft);padding:9px 14px;border-bottom:1px solid var(--rule);background:rgba(31,42,54,.04)}
+.ctab td,.ctab tbody th{text-align:left;vertical-align:top;padding:9px 14px;border-top:1px dotted var(--rule);font-weight:400}
+.ctab tbody tr:first-child td,.ctab tbody tr:first-child th{border-top:0}
+.ctab tbody th a{font-weight:600;white-space:nowrap}
+.ctab tbody th small{display:block;color:var(--ink-soft);font-size:.88rem}
+.ctab .gk{font-size:1.1rem}
+.ctab .calt .gk{color:var(--rubric)}
+.ctab .calt i{color:var(--ink-soft)}
+.ctags{white-space:normal}
+.ctags .etag{display:inline-block;margin:1px 3px 1px 0}
 @media (min-width:641px){.dhint{display:none}}
 #catnote{flex-basis:100%;order:3;margin:6px 0 0}
 @media (max-width:640px){
   .krow{grid-template-columns:3.6em 1fr 3em;gap:6px}
   .rrow{grid-template-columns:6.8em 1fr 6.2em;gap:6px;font-size:.9rem}
+  .ctab thead{position:absolute;left:-9999px}
+  .ctab,.ctab tbody,.ctab tr,.ctab td,.ctab tbody th{display:block}
+  .ctab tr{padding:8px 12px;border-top:1px solid var(--rule)}
+  .ctab tbody tr:first-child{border-top:0}
+  .ctab td,.ctab tbody th{border:0 !important;padding:2px 0}
+  .ctab td::before{content:attr(data-label)": ";color:var(--ink-soft);font-size:.88rem}
+  .ctab tbody th small{display:inline;margin-left:8px}
   .drow{grid-template-columns:8em auto}
   .dname{font-size:.88rem}
   .ktrack{height:30px}
