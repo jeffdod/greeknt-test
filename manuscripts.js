@@ -198,11 +198,10 @@ function buildBack(back,c,r){
   mid.appendChild(el('div','bkinds',kinds.join(' \u00b7 ')));
   var hr=el('div','bhrow');
   var h=el('h4','bhead','Cited in '+cites.length+' of the 50 variants');h.tabIndex=-1;hr.appendChild(h);
-  if(cites.length>12)hr.appendChild(el('span','bhint','scroll for more'));
   mid.appendChild(hr);
   back.appendChild(mid);
   var wrap=el('div','blist-wrap');
-  var ul=el('ul','blist');ul.tabIndex=0;ul.setAttribute('role','region');ul.setAttribute('aria-label','Variants where this manuscript is cited');
+  var ul=el('ul','blist');ul.setAttribute('role','region');ul.setAttribute('aria-label','Variants where this manuscript is cited');
   var ids=cites.map(function(ct){return ct.v.id;});
   cites.forEach(function(ct){
     var li=el('li');
@@ -213,7 +212,21 @@ function buildBack(back,c,r){
     });
     li.appendChild(a);ul.appendChild(li);
   });
-  wrap.appendChild(ul);back.appendChild(wrap);
+  wrap.appendChild(ul);
+  /* cues that the list scrolls: a "more below" button, and fades at the top and bottom edges */
+  var more=el('button','bmore');more.type='button';more.tabIndex=-1;more.setAttribute('aria-hidden','true');
+  function upd(){
+    var y=ul.scrollTop,down=y<ul.scrollHeight-ul.clientHeight-4;
+    wrap.classList.toggle('can-up',y>4);wrap.classList.toggle('can-down',down);
+    if(down){var n=0,lim=y+ul.clientHeight-2;Array.prototype.forEach.call(ul.children,function(li){if(li.offsetTop>=lim)n++;});more.textContent='\u25be '+(n?n+' more':'more');}
+  }
+  ul.addEventListener('scroll',function(){window.requestAnimationFrame(upd);});
+  more.addEventListener('click',function(){
+    var calm=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    ul.scrollBy({top:Math.round(ul.clientHeight*0.8),behavior:calm?'auto':'smooth'});
+  });
+  wrap.appendChild(more);back.appendChild(wrap);
+  back._upd=upd;window.addEventListener('resize',upd);upd();
   var foot=el('div','bfoot');
   var bk=el('button','linkbtn','\u2039 Back to front');bk.type='button';bk.addEventListener('click',function(){flipTo(c,r,false);});foot.appendChild(bk);
   var tl=el('a',null,'Show on the timeline');tl.href='variants.html#ms='+encodeURIComponent(r.m.ga);tl.title='Open the Fifty variants page and pick this manuscript on the timeline';foot.appendChild(tl);
@@ -223,6 +236,7 @@ function buildBack(back,c,r){
 function flipTo(c,r,on){
   var front=c.querySelector('.front'),back=c.querySelector('.back'),btn=c.querySelector('.cited .seewhere');
   if(on&&!back.firstChild)buildBack(back,c,r);
+  if(on&&back._upd)setTimeout(back._upd,0);
   c.classList.toggle('flipped',on);
   try{history.replaceState(on?{flip:r.m.ga}:null,'',location.href);}catch(e){}
   front.inert=on;back.inert=!on;
