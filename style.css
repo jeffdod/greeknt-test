@@ -237,3 +237,14 @@ details.fifty[open] summary::before{content:"−"}
 .jump-hidden{opacity:0;visibility:hidden;pointer-events:none}
 @media (prefers-reduced-motion:reduce){.jump{transition:none}}
 @media print{.jump{display:none!important}}
+
+/* Back and forward buttons in the top bar, only when running as an installed app (see backnav.js) */
+.histnav{display:flex;gap:4px;flex:none;margin-right:-8px}
+.histbtn{width:40px;height:40px;padding:0;display:flex;align-items:center;justify-content:center;background:none;border:1px solid var(--rule);border-radius:50%;color:var(--ink);cursor:pointer}
+.histbtn:hover:not(:disabled){background:rgba(31,42,54,.08)}
+.histbtn:focus-visible{outline:3px solid var(--gilt,#cdb072);outline-offset:2px}
+.histbtn:disabled{opacity:.3;cursor:default}
+.histbtn svg{display:block}
+@media (max-width:420px){.topbar .wrap{gap:12px}.histbtn{width:38px;height:38px}}
+@media print{.histnav{display:none!important}}
+@media (max-width:360px){.is-app .topbar .wrap{gap:8px}.is-app .brand{font-size:1rem;letter-spacing:.03em}.is-app .histbtn{width:34px;height:34px}.is-app .histnav{gap:2px;margin-right:-4px}}
