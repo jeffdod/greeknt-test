@@ -14,6 +14,8 @@ function $(id){return document.getElementById(id);}
 function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
 function roman(n){return ['','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'][n];}
 var MI=window.GNT_MSINFO||{};
+/* This file also runs on the Manuscripts page, which has only the pop-up and not the list, timeline or grid */
+var onVariantsPage=!!document.getElementById('vgrid');
 /* INTF Münster document numbers, as used on the manuscripts page */
 function docId(m){var g=m.ga.replace(/s$/,'');if(g.charAt(0)==='\uD835')return 10000+parseInt(g.slice(2),10);if(g.charAt(0)==='0')return 20000+parseInt(g,10);return 30000+parseInt(g,10);}
 function listeUrl(m){return 'https://ntvmr.uni-muenster.de/liste?docid='+docId(m);}
@@ -142,7 +144,9 @@ function chip(w,vid,ri){
   var s=sub(m);if(s)b.appendChild(el('small',null,s));
   b.appendChild(el('small',null,m.date));
   b.title=(msName(m)+label(m)+(s?' (GA '+s+')':'')+', '+m.date+(mk.t?'. '+mk.t:'')+'. Select to see it on the timeline.');
-  b.addEventListener('click',function(){skipBack=true;dlg.close();hist('pushState',{gnt:'ms',ga:m.ga,vid:vid},'#ms='+encodeURIComponent(m.ga));showOnTimeline(m.ga,vid);});
+  b.addEventListener('click',function(){
+    if(!onVariantsPage){location.href='variants.html#ms='+encodeURIComponent(m.ga)+'&v='+vid;return;}
+    skipBack=true;dlg.close();hist('pushState',{gnt:'ms',ga:m.ga,vid:vid},'#ms='+encodeURIComponent(m.ga));showOnTimeline(m.ga,vid);});
   return b;
 }
 function bsuffix(x){return x.b===2?', printed in double brackets':x.b===1?', printed in brackets':x.b===3?', printed in chevrons (« »)':'';}
@@ -158,7 +162,7 @@ function edText(x){
 }
 /* Browser history: opening a variant, and jumping to the timeline from it, each count as a step,
    so Back returns to the variant you were reading and then to the page. */
-var fromHistory=false,skipBack=false,replaceFirst=false;
+var fromHistory=false,skipBack=false;
 function hist(how,state,hash){try{history[how](state,'',location.pathname+location.search+hash);}catch(e){}}
 function closeQuietly(){if(dlg.open){skipBack=true;dlg.close();}}
 dlg.addEventListener('close',function(){
@@ -223,12 +227,13 @@ function openVariant(id){
   }
   var ef=el('p','edfoot');if(v.complex){ef.appendChild(document.createTextNode('This note uses special conventions; read the printed note on page '));ef.appendChild(window.GNTPages.link(String(v.page),v.page));ef.appendChild(document.createTextNode(' for the full detail. '));}ef.appendChild(document.createTextNode('An edition shown as “same as the main text” is not named in the printed note, which lists only editions that differ.'));b.appendChild(ef);
   var tl=el('p','tl-link');var a=el('button','btn btn-quiet','Show these witnesses on the timeline');a.type='button';
-  a.addEventListener('click',function(){skipBack=true;dlg.close();hist('pushState',{gnt:'tl',vid:v.id},'#tl='+v.id);pickVariant(v.id);});tl.appendChild(a);b.appendChild(tl);
+  a.addEventListener('click',function(){
+    if(!onVariantsPage){location.href='variants.html#tl='+v.id;return;}
+    skipBack=true;dlg.close();hist('pushState',{gnt:'tl',vid:v.id},'#tl='+v.id);pickVariant(v.id);});tl.appendChild(a);b.appendChild(tl);
   $('vprev').disabled=$('vnext').disabled=visible.length<2;
   if(!dlg.open)dlg.showModal();
   $('vbody').scrollTop=0;
-  if(!fromHistory)hist(wasOpen||replaceFirst?'replaceState':'pushState',{gnt:'v',id:id},'#v='+id);
-  replaceFirst=false;
+  if(!fromHistory)hist(wasOpen?'replaceState':'pushState',{gnt:'v',id:id},'#v='+id);
 }
 /* the arrows wrap: Previous on the first variant goes to the last, Next on the last goes to the first */
 function step(d){var n=visible.length;if(!n)return;var c=visible.indexOf(cur);var i=c<0?(d>0?0:n-1):(c+d+n)%n;openVariant(visible[i].id);}
@@ -451,10 +456,18 @@ function initGrid(){
   sg();renderGrid();
 }
 
-initGrid();
-renderSeg();renderList();renderContentFilter();renderPick();renderTimeline();
-if(location.hash&&location.hash.indexOf('#v=')===0){var v0=location.hash.slice(3);hist('replaceState',null,'');var msFlag='';try{msFlag=sessionStorage.getItem('gnt-from-ms');sessionStorage.removeItem('gnt-from-ms');}catch(e){}
-  /* arrived by a passage link on a manuscript card: closing the popup should go back to that card */
-  replaceFirst=/[?&]from=manuscripts(&|$)/.test(location.search)&&history.length>1&&(msFlag==='1'||/\/manuscripts(\.html)?([?#]|$)/.test(document.referrer));openVariant(v0);}
-if(location.hash&&location.hash.indexOf('#ms=')===0){var g0=decodeURIComponent(location.hash.slice(4));if(byGa[g0]){selectMs(g0);document.getElementById('timeline').scrollIntoView({block:'start'});}}
+if(onVariantsPage){initGrid();renderSeg();renderList();renderContentFilter();renderPick();renderTimeline();}
+/* Other pages open the pop-up with this. "ids" is the list the arrows step through. */
+window.GNTOpenVariant=function(id,ids){
+  if(!onVariantsPage&&ids)visible=V.filter(function(x){return ids.indexOf(x.id)>=0;});
+  openVariant(id);
+};
+if(location.hash&&location.hash.indexOf('#v=')===0){var v0=location.hash.slice(3);hist('replaceState',null,'');openVariant(v0);}
+if(onVariantsPage){
+  if(location.hash&&location.hash.indexOf('#ms=')===0){
+    var hp=location.hash.slice(4).split('&v='),g0=decodeURIComponent(hp[0]);
+    if(byGa[g0]){if(hp[1]&&V.some(function(x){return x.id===hp[1];}))showOnTimeline(g0,hp[1]);else{selectMs(g0);document.getElementById('timeline').scrollIntoView({block:'start'});}}
+  }
+  if(location.hash&&location.hash.indexOf('#tl=')===0){var t0=location.hash.slice(4);if(V.some(function(x){return x.id===t0;}))pickVariant(t0);}
+}
 })();
