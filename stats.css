@@ -81,10 +81,22 @@
 .dkey{display:flex;align-items:center;gap:4px;margin:0 0 14px;color:var(--ink-soft);font-size:.92rem}
 .dsw{display:inline-block;width:22px;height:14px;border:1px solid rgba(31,42,54,.12)}
 .dkey .dsw:first-of-type{margin-left:6px}.dkey .dsw:last-of-type{margin-right:6px}
+h3.subhead{margin:34px 0 6px;font-size:1.3rem}
+.rgrid{display:grid;gap:3px;margin-top:10px;max-width:760px}
+.rrow{display:grid;grid-template-columns:9.5em 1fr 7.5em;gap:10px;align-items:center;text-decoration:none;color:var(--ink);padding:2px 4px;border-radius:2px;font-size:.98rem}
+.rrow:hover,.rrow:focus-visible{background:rgba(138,42,30,.07)}
+.rname{text-align:right}
+.rtrack{display:block;height:12px;background:rgba(31,42,54,.06)}
+.rbar{display:block;height:100%;background:var(--r3)}
+.rval{color:var(--ink-soft);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rk{grid-template-columns:9.5em 1fr 3.6em}
+.rk .kname{justify-content:flex-end}
 @media (min-width:641px){.dhint{display:none}}
 #catnote{flex-basis:100%;order:3;margin:6px 0 0}
 @media (max-width:640px){
   .krow{grid-template-columns:3.6em 1fr 3em;gap:6px}
+  .rrow{grid-template-columns:6.8em 1fr 6.2em;gap:6px;font-size:.9rem}
+  .rk{grid-template-columns:6.8em 1fr 2.6em}
   .drow{grid-template-columns:8em auto}
   .dname{font-size:.88rem}
   .ktrack{height:30px}

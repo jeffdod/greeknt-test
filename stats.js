@@ -172,6 +172,56 @@ function buildKinds(){
   $('ktable').innerHTML=h+'</tbody>';
 }
 
+/* ---------- alternate Byzantine readings (RPmg) ---------- */
+function buildRP(){
+  var hit=[];
+  N.forEach(function(n,i){if(differs(n,'RPmg'))hit.push(i);});
+  var tot=hit.length,per=BOOKS.map(function(){return 0;}),bt=BOOKS.map(function(){return 0;});
+  N.forEach(function(n){bt[n[1]]++;});
+  hit.forEach(function(i){per[N[i][1]]++;});
+  $('rplede').innerHTML='In '+fmt(tot)+' of the '+fmt(N.length)+' notes ('+pct(tot/N.length)+'), the Robinson-Pierpont edition offers an alternate Byzantine reading, marked RP<sup>mg</sup>. These are the places where its editors judged that the Byzantine tradition is divided. Select any bar or segment to list those notes.';
+  $('rpwhere').textContent='The bar is the number of notes with an alternate reading in each book. The figure at the right adds its share of that book’s notes.';
+  var mx=0;per.forEach(function(v){if(v>mx)mx=v;});
+  var g=$('rgrid');
+  BOOKS.forEach(function(b,bi){
+    var a=el('a','rrow');a.href=searchUrl({ed:'RPmg',where:'b:'+bi});
+    var v=per[bi],sh=bt[bi]?v/bt[bi]:0;
+    a.title=b+': '+fmt(v)+' of '+fmt(bt[bi])+' notes ('+pct(sh)+') have an alternate Byzantine reading. List them.';
+    a.setAttribute('aria-label',b+': '+fmt(v)+' of '+fmt(bt[bi])+' notes, '+pct(sh)+'. List them.');
+    a.appendChild(el('span','rname',b));
+    var tr=el('span','rtrack'),bar=el('span','rbar');bar.style.width=(mx?v/mx*100:0)+'%';tr.appendChild(bar);a.appendChild(tr);
+    a.appendChild(el('span','rval',fmt(v)+' · '+pct(sh)));
+    g.appendChild(a);
+  });
+    var big=0;per.forEach(function(v,i){if(v>per[big])big=i;});
+  $('rnote').textContent=BOOKS[big]+' holds '+fmt(per[big])+' of the '+fmt(tot)+' notes ('+pct(per[big]/tot)+'), and '+pct(per[big]/bt[big])+' of its own notes have one. Longer books have more notes of every kind, so compare the percentages as well as the bars.';
+  /* kinds: one bar for all, then one per part of the New Testament */
+  var k=$('rkey');
+  CATS.forEach(function(x){var s=el('span');s.appendChild(el('i','swatch k-'+x.k));s.appendChild(document.createTextNode(x.short));k.appendChild(s);});
+  $('rpkind').textContent='Each bar is all of the alternate readings in that part, taken as 100% and divided by kind. The number at the right is how many notes have one.';
+  var rows=[{label:'All',where:'',idx:hit}];
+  ALLG.forEach(function(gp){rows.push({label:gp,where:'g:'+gp,idx:hit.filter(function(i){return groupOf(N[i])===gp;})});});
+  var kg=$('rkinds');
+  rows.forEach(function(r){
+    var c={},t=0;CATS.forEach(function(x){c[x.k]=0;});
+    r.idx.forEach(function(i){var seen={};N[i][5].forEach(function(rd){if(rd[1]!=='txt'&&(rd[0]&BIT.RPmg)){var ct=catOf(rd);if(!seen[ct]){seen[ct]=1;c[ct]++;t++;}}});});
+    var row=el('div','krow rk');
+    row.appendChild(el('span','kname',r.label));
+    var tr=el('span','ktrack');
+    CATS.forEach(function(x){
+      var n=c[x.k];if(!n)return;var sh=n/t;
+      var a=el('a','seg k-'+x.k);a.href=searchUrl({ed:'RPmg',where:r.where,cat:x.k});
+      a.style.width=(sh*100)+'%';
+      a.title=r.label+' — '+x.name+': '+fmt(n)+' of '+fmt(t)+' ('+pct(sh)+'). List them.';
+      a.setAttribute('aria-label',r.label+', '+x.name+': '+fmt(n)+' of '+fmt(t)+', '+pct(sh)+'. List them.');
+      a.appendChild(el('span',null,Math.round(sh*100)+'%'));
+      tr.appendChild(a);
+    });
+    row.appendChild(tr);row.appendChild(el('span','kn',fmt(r.idx.length)));kg.appendChild(row);
+  });
+  $('rknote').textContent='“Mixed or other” gathers readings that do several things at once and readings that could not be given a single label. A note with two alternate readings of different kinds is counted once under each kind.';
+}
+
 /* Show a segment's percentage only when it fits inside the segment */
 function fitLabels(){
   var segs=document.querySelectorAll('.seg > span');
@@ -217,6 +267,7 @@ function buildFilters(){
   var ed=$('fEd');
   ed.appendChild(new Option('Any edition',''));
   SHOWN.forEach(function(e){ed.appendChild(new Option(e+' — '+(OPTNAME[e]||EDNAME[e]),e));});
+  ed.appendChild(new Option('Robinson-Pierpont alternate Byzantine reading','RPmg'));
   var w=$('fWhere');
   w.appendChild(new Option('The whole New Testament',''));
   var og=document.createElement('optgroup');og.label='Parts';
@@ -512,7 +563,7 @@ function readUrl(){
 }
 function init(){
   if($('filters'))$('filters').addEventListener('submit',function(ev){ev.preventDefault();});
-  if($('cgrid')){buildKey();buildChart();buildDensity();buildKinds();fitLabels();window.addEventListener('load',fitLabels);window.addEventListener('resize',fitLabels);}
+  if($('cgrid')){buildKey();buildChart();buildDensity();buildKinds();buildRP();fitLabels();window.addEventListener('load',fitLabels);window.addEventListener('resize',fitLabels);}
   if(!$('filters'))return;
   buildFilters();stripHover();
   ['fEd','fRel','fWhere','fKind','fPat'].forEach(function(id){$(id).addEventListener('change',function(){if(id==='fKind'||id==='fRel'||id==='fPat')CAT='';update();});});
