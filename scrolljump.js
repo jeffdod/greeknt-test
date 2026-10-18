@@ -1,6 +1,6 @@
 /* A small button that jumps to the top or the bottom of a long page.
-   It appears only when the page is much taller than the screen. After you scroll down it
-   takes you to the top; after you scroll up it takes you to the bottom. */
+   It appears only when the page is much taller than the screen. While you scroll down it
+   takes you to the bottom; while you scroll up it takes you to the top. */
 (function () {
   var LONG = 8;        // a page counts as long when it is taller than this many screens
   var NEAR_TOP = 300;  // closer to the top than this (pixels): offer the bottom
@@ -23,7 +23,7 @@
     var m;
     if (y < NEAR_TOP) m = 'bottom';
     else if (atBottom) m = 'top';
-    else m = dir === 'down' ? 'top' : 'bottom';
+    else m = dir === 'down' ? 'bottom' : 'top';
     if (m !== mode || !btn.getAttribute('aria-label')) {
       mode = m;
       btn.classList.toggle('jump-bottom', m === 'bottom');
