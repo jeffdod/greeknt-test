@@ -242,6 +242,12 @@ function evidenceCsv(v){
   }).join(' ‖ \n');
 }
 function edsOf(mask){return EDS.filter(function(e){return mask&BIT[e];});}
+/* A label such as "(Pericope Adulterae: See Appendix C ...)" is printed in bold in the edition */
+function lemmaInto(p,t){
+  var m=/^(.*?\()([A-Z][A-Za-z]*(?: [A-Z][A-Za-z]*)*)(: .*)$/.exec(t);
+  if(!m){p.appendChild(document.createTextNode(t));return;}
+  p.appendChild(document.createTextNode(m[1]));p.appendChild(el('b','en',m[2]));p.appendChild(document.createTextNode(m[3]));
+}
 function renderItem(n){
   var li=el('li','res');
   var head=el('div','rhd');
@@ -251,7 +257,7 @@ function renderItem(n){
   var pgs=el('span','pg');pgs.appendChild(document.createTextNode('page '));pgs.appendChild(window.GNTPages.link(String(n[0]),n[0]));head.appendChild(pgs);
   head.appendChild(el('span','caller',' note '+n[3]));
   li.appendChild(head);
-  var lem=el('div','lem');lem.appendChild(el('span','lab','Main text: '));var gr=el('span','gk',n[4]);gr.lang='grc';lem.appendChild(gr);li.appendChild(lem);
+  var lem=el('div','lem');lem.appendChild(el('span','lab','Main text: '));var gr=el('span','gk');gr.lang='grc';lemmaInto(gr,n[4]);lem.appendChild(gr);li.appendChild(lem);
   n[5].forEach(function(r){
     var d=el('div','rd');
     var tags=el('span','tags');

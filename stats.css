@@ -35,6 +35,7 @@
 .rhd .caller{color:var(--ink-soft);font-size:.92rem}
 .lem{margin:4px 0 6px;font-size:1.02rem}
 .lem .lab{color:var(--ink-soft);font-size:.92rem}
+.lem b.en{font-family:'EB Garamond',serif;font-weight:700}
 .gk{font-family:'GFS Didot','EB Garamond',serif}
 .rd{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;padding:3px 0;border-top:1px dotted var(--rule)}
 .rd .tags{display:inline-flex;flex-wrap:wrap;gap:3px}
