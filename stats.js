@@ -173,53 +173,79 @@ function buildKinds(){
 }
 
 /* ---------- alternate Byzantine readings (RPmg) ---------- */
+function famMask(list){return list.reduce(function(a,e){return a|BIT[e];},0);}
+var M_BYZ=famMask(['HF','PCK','PT']),M_CRIT=famMask(['ECM','NA27','NA28','SBL','TH','WH']),M_TR=famMask(['SCR','ST']);
+/* All editions that read any of this note's alternate readings, or -1 if the note has none */
+function rpShared(n){
+  var m=0,any=false;
+  n[5].forEach(function(r){if(r[1]!=='txt'&&(r[0]&BIT.RPmg)){any=true;m|=r[0];}});
+  return any?m:-1;
+}
+function shareTest(n,kind){
+  var m=rpShared(n);if(m<0)return false;
+  if(kind==='byz')return !!(m&M_BYZ);
+  if(kind==='crit')return !!(m&M_CRIT);
+  if(kind==='tr')return !!(m&M_TR);
+  if(kind==='none')return (m&~BIT.RPmg)===0;
+  if(kind==='critonly')return !!(m&M_CRIT)&&!(m&M_BYZ)&&!(m&M_TR);
+  return false;
+}
+var SHARENAME={byz:'also read by another Byzantine edition',crit:'also read by a critical edition',tr:'also read by a Textus Receptus edition',none:'read by no other edition',critonly:'read by critical editions and by no other Byzantine or Textus Receptus edition'};
 function buildRP(){
   var hit=[];
-  N.forEach(function(n,i){if(differs(n,'RPmg'))hit.push(i);});
-  var tot=hit.length,per=BOOKS.map(function(){return 0;}),bt=BOOKS.map(function(){return 0;});
-  N.forEach(function(n){bt[n[1]]++;});
-  hit.forEach(function(i){per[N[i][1]]++;});
-  $('rplede').innerHTML='In '+fmt(tot)+' of the '+fmt(N.length)+' notes ('+pct(tot/N.length)+'), the Robinson-Pierpont edition offers an alternate Byzantine reading, marked RP<sup>mg</sup>. These are the places where its editors judged that the Byzantine tradition is divided. Select any bar or segment to list those notes.';
-  $('rpwhere').textContent='The bar is the number of notes with an alternate reading in each book. The figure at the right adds its share of that book’s notes.';
-  var mx=0;per.forEach(function(v){if(v>mx)mx=v;});
-  var g=$('rgrid');
-  BOOKS.forEach(function(b,bi){
-    var a=el('a','rrow');a.href=searchUrl({ed:'RPmg',where:'b:'+bi});
-    var v=per[bi],sh=bt[bi]?v/bt[bi]:0;
-    a.title=b+': '+fmt(v)+' of '+fmt(bt[bi])+' notes ('+pct(sh)+') have an alternate Byzantine reading. List them.';
-    a.setAttribute('aria-label',b+': '+fmt(v)+' of '+fmt(bt[bi])+' notes, '+pct(sh)+'. List them.');
-    a.appendChild(el('span','rname',b));
-    var tr=el('span','rtrack'),bar=el('span','rbar');bar.style.width=(mx?v/mx*100:0)+'%';tr.appendChild(bar);a.appendChild(tr);
-    a.appendChild(el('span','rval',fmt(v)+' · '+pct(sh)));
-    g.appendChild(a);
-  });
-    var big=0;per.forEach(function(v,i){if(v>per[big])big=i;});
-  $('rnote').textContent=BOOKS[big]+' holds '+fmt(per[big])+' of the '+fmt(tot)+' notes ('+pct(per[big]/tot)+'), and '+pct(per[big]/bt[big])+' of its own notes have one. Longer books have more notes of every kind, so compare the percentages as well as the bars.';
-  /* kinds: one bar for all, then one per part of the New Testament */
-  var k=$('rkey');
-  CATS.forEach(function(x){var s=el('span');s.appendChild(el('i','swatch k-'+x.k));s.appendChild(document.createTextNode(x.short));k.appendChild(s);});
-  $('rpkind').textContent='Each bar is all of the alternate readings in that part, taken as 100% and divided by kind. The number at the right is how many notes have one.';
-  var rows=[{label:'All',where:'',idx:hit}];
-  ALLG.forEach(function(gp){rows.push({label:gp,where:'g:'+gp,idx:hit.filter(function(i){return groupOf(N[i])===gp;})});});
-  var kg=$('rkinds');
-  rows.forEach(function(r){
-    var c={},t=0;CATS.forEach(function(x){c[x.k]=0;});
-    r.idx.forEach(function(i){var seen={};N[i][5].forEach(function(rd){if(rd[1]!=='txt'&&(rd[0]&BIT.RPmg)){var ct=catOf(rd);if(!seen[ct]){seen[ct]=1;c[ct]++;t++;}}});});
-    var row=el('div','krow rk');
-    row.appendChild(el('span','kname',r.label));
-    var tr=el('span','ktrack');
-    CATS.forEach(function(x){
-      var n=c[x.k];if(!n)return;var sh=n/t;
-      var a=el('a','seg k-'+x.k);a.href=searchUrl({ed:'RPmg',where:r.where,cat:x.k});
-      a.style.width=(sh*100)+'%';
-      a.title=r.label+' — '+x.name+': '+fmt(n)+' of '+fmt(t)+' ('+pct(sh)+'). List them.';
-      a.setAttribute('aria-label',r.label+', '+x.name+': '+fmt(n)+' of '+fmt(t)+', '+pct(sh)+'. List them.');
-      a.appendChild(el('span',null,Math.round(sh*100)+'%'));
-      tr.appendChild(a);
+  N.forEach(function(n,i){if(rpShared(n)>=0)hit.push(i);});
+  var tot=hit.length;
+  $('rplede').innerHTML='In '+fmt(tot)+' of the '+fmt(N.length)+' notes ('+pct(tot/N.length)+'), the Robinson-Pierpont edition offers an alternate Byzantine reading, marked RP<sup>mg</sup>. These are the places where its editors judged that the Byzantine tradition is divided. Here is who else reads each one. Select any bar to list those notes.';
+  $('rpwho').textContent='Each panel counts the notes with an alternate reading in one part of the New Testament. Each bar is the share of those notes in which at least one edition of that kind also reads the alternate reading.';
+  var BARS=[
+    {k:'byz', name:'Byzantine', fam:'byz', tip:'another Byzantine edition (Hodges-Farstad, Pickering, or Antoniades)'},
+    {k:'crit',name:'Critical',  fam:'crit',tip:'a critical edition'},
+    {k:'tr',  name:'Textus Receptus', fam:'tr',tip:'a Textus Receptus edition (Scrivener or Stephanus)'},
+    {k:'none',name:'No other edition', fam:'none',tip:null}
+  ];
+  var panels=[{label:'The whole New Testament',where:'',idx:hit}];
+  ALLG.forEach(function(gp){panels.push({label:gp,where:'g:'+gp,idx:hit.filter(function(i){return groupOf(N[i])===gp;})});});
+  var grid=$('sgrid');
+  panels.forEach(function(p){
+    var box=el('div','cpanel');box.appendChild(el('h3',null,p.label));
+    box.appendChild(el('p','csub',fmt(p.idx.length)+' notes'));
+    BARS.forEach(function(b){
+      var c=0;p.idx.forEach(function(i){if(shareTest(N[i],b.k))c++;});
+      var sh=p.idx.length?c/p.idx.length:0;
+      var a=el('a','srow');a.href=searchUrl({ed:'RPmg',where:p.where,share:b.k});
+      a.title=fmt(c)+' of '+fmt(p.idx.length)+' alternate readings in '+p.label+' ('+pct(sh)+') are '+(b.tip?'also read by '+b.tip:'read by no other edition')+'. List them.';
+      a.setAttribute('aria-label',b.name+', '+p.label+': '+fmt(c)+' of '+fmt(p.idx.length)+' notes, '+pct(sh)+'. List them.');
+      a.appendChild(el('span','sname',b.name));
+      var tr=el('span','ctrack'),bar=el('span','cbar');bar.style.width=(sh*100)+'%';bar.style.background=b.fam==='none'?'var(--ink-soft)':FAMCOL[b.fam];tr.appendChild(bar);a.appendChild(tr);
+      a.appendChild(el('span','cval',pct(sh)));
+      box.appendChild(a);
     });
-    row.appendChild(tr);row.appendChild(el('span','kn',fmt(r.idx.length)));kg.appendChild(row);
+    grid.appendChild(box);
   });
-  $('rknote').textContent='“Mixed or other” gathers readings that do several things at once and readings that could not be given a single label. A note with two alternate readings of different kinds is counted once under each kind.';
+  $('snote').textContent='“Byzantine” means Hodges-Farstad, Pickering, or Antoniades. “Critical” means ECM (where it exists), NA27, NA28, SBL, Tyndale House, or Westcott-Hort. “Textus Receptus” means Scrivener or Stephanus. The bars do not add up to 100%, because the same reading can be shared by editions of several kinds.';
+  /* the notes where the alternate reading is shared only with critical editions */
+  var co=hit.filter(function(i){return shareTest(N[i],'critonly');});
+  $('rpcrit').textContent='In '+fmt(co.length)+' notes, a critical edition reads the alternate reading, and no other Byzantine edition and no Textus Receptus edition does. In these places the margin of the Robinson-Pierpont edition points toward the critical text. Select a note to find it in the variant search.';
+  var ul=$('clist');
+  co.forEach(function(i){
+    var n=N[i],vm=n[2].match(/^\d+:\d+/),ref=BOOKS[n[1]]+' '+n[2];
+    var rd=[];n[5].forEach(function(r){if(r[1]!=='txt'&&(r[0]&BIT.RPmg))rd.push(r);});
+    var li=el('li');
+    var a=el('a',null);a.href=searchUrl({ed:'RPmg',ref:vm?BOOKS[n[1]]+' '+vm[0]:BOOKS[n[1]]});
+    a.appendChild(el('b',null,ref+', note '+n[3]));li.appendChild(a);
+    var d=el('span','cdet');
+    var lem=n[4].length>90?n[4].slice(0,90)+'…':n[4];
+    d.appendChild(document.createTextNode(' Main text '));d.appendChild(el('span','gk',lem));
+    d.appendChild(document.createTextNode('. Alternate: '));
+    var alt=rd.map(function(r){var t=r[1];if(/^om\.?$/.test(t.trim()))return null;t=t.replace(/[.\s]+$/,'');return t.length>90?t.slice(0,90)+'…':t;});
+    if(alt.indexOf(null)>=0&&alt.length===1)d.appendChild(document.createTextNode('omits it'));
+    else d.appendChild(el('span','gk',alt.map(function(t){return t===null?'(omitted)':t;}).join(' / ')));
+    var m=0;rd.forEach(function(r){m|=r[0];});
+    var ce=edsOf(m&M_CRIT).map(function(e){return e;});
+    d.appendChild(document.createTextNode('. Also read by '+ce.join(', ')+'.'));
+    li.appendChild(d);ul.appendChild(li);
+  });
+  $('cnote').textContent='The Greek is shown as it is printed in the apparatus, where most words appear without accents or breathing marks.';
 }
 
 /* Show a segment's percentage only when it fits inside the segment */
@@ -336,6 +362,7 @@ function matches(n,i,f){
     if(!ok)return false;
   }
   if(f.rel==='split'&&f.kind){var ok2=false;n[5].forEach(function(r){if(r[3].indexOf(f.kind)>=0)ok2=true;});if(!ok2)return false;}
+  if(f.share&&!shareTest(n,f.share))return false;
   if(f.cat){
     var b2=f.ed?BIT[f.ed]:0,okc=false,seen=false;
     n[5].forEach(function(r){if(r[1]!=='txt'&&(!b2||(r[0]&b2))){seen=true;if(catOf(r)===f.cat)okc=true;}});
@@ -368,7 +395,7 @@ var BOOKSTART=[];BOOKS.forEach(function(_,bi){var m=1e9;N.forEach(function(n){if
 
 function getFilters(){
   var rf=parseRef($('fRef').value);
-  return {ed:$('fEd').value,rel:$('fRel').value,where:$('fWhere').value,kind:$('fKind').value,pat:$('fPat').value,ref:rf&&!rf.bad?rf:null,refBad:!!(rf&&rf.bad),greek:greekPieces($('fGreek').value),cat:CAT};
+  return {ed:$('fEd').value,rel:$('fRel').value,where:$('fWhere').value,kind:$('fKind').value,pat:$('fPat').value,ref:rf&&!rf.bad?rf:null,refBad:!!(rf&&rf.bad),greek:greekPieces($('fGreek').value),cat:CAT,share:SHARE};
 }
 function tag(e){
   if(e==='RPmg'){var t=el('span','etag f-byz','RP');t.appendChild(el('sup',null,'mg'));t.title='Robinson-Pierpont, alternate Byzantine reading';return t;}
@@ -512,8 +539,11 @@ function update(){
   var c=$('rcount');
   if(f.refBad)c.textContent='I could not read that passage. Try a form like “Romans 8”, “John 1:18”, or “1 Cor 13”.';
   else c.textContent=out.length===0?'No notes match these choices.':fmt(out.length)+' note'+(out.length===1?'':'s')+' ('+pct(out.length/N.length)+' of all '+fmt(N.length)+') on '+fmt(new Set(out.map(function(i){return N[i][0];})).size)+(new Set(out.map(function(i){return N[i][0];})).size===1?' page.':' pages.');
-  $('catnote').hidden=!(CAT&&!f.refBad);
-  if(CAT)$('catnote').textContent='Showing only readings whose one kind of difference is “'+CATNAME[CAT]+'”, as counted on the Stats page. Change any other choice above to see them all.';
+  $('catnote').hidden=!((CAT||SHARE)&&!f.refBad);
+  var cm=[];
+  if(CAT)cm.push('readings whose one kind of difference is “'+CATNAME[CAT]+'”');
+  if(SHARE)cm.push('notes with an alternate Byzantine reading that is '+SHARENAME[SHARE]);
+  if(CAT||SHARE)$('catnote').textContent='Showing only '+cm.join(', and ')+', as counted on the Stats page. Change any other choice above to see them all.';
   $('fCsv').disabled=!out.length;
   showMore();drawStrip(out);writeUrl();
 }
@@ -544,6 +574,7 @@ function downloadCsv(){
   a.href=url;a.download='greek-nt-notes.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);
   setTimeout(function(){URL.revokeObjectURL(url);},1000);
 }
+var SHARE='';   /* set only by a link from the Stats page: who else reads an alternate Byzantine reading */
 var CAT='';   /* set only by a link from the Stats page: a kind of difference chosen there */
 var URLMAP={ed:'fEd',rel:'fRel',where:'fWhere',kind:'fKind',pat:'fPat',ref:'fRef',greek:'fGreek'};
 var URLDEF={rel:'differs'};
@@ -552,6 +583,7 @@ function writeUrl(){
   var p=new URLSearchParams();
   Object.keys(URLMAP).forEach(function(k){var v=$(URLMAP[k]).value;if(v&&v!==(URLDEF[k]||''))p.set(k,v);});
   if(CAT)p.set('cat',CAT);
+  if(SHARE)p.set('share',SHARE);
   var qs=p.toString();
   try{history.replaceState(null,'',location.pathname+(qs?'?'+qs+'#find':''));}catch(e){}
 }
@@ -559,6 +591,7 @@ function readUrl(){
   var p=new URLSearchParams(location.search),any=false;
   Object.keys(URLMAP).forEach(function(k){if(p.has(k)){$(URLMAP[k]).value=p.get(k);any=true;}});
   if(p.has('cat')&&/^(form|omit|add|diff|order|mixed)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;}
+  if(p.has('share')&&/^(byz|crit|tr|none|critonly)$/.test(p.get('share'))){SHARE=p.get('share');any=true;}
   return any;
 }
 function init(){
@@ -566,10 +599,10 @@ function init(){
   if($('cgrid')){buildKey();buildChart();buildDensity();buildKinds();buildRP();fitLabels();window.addEventListener('load',fitLabels);window.addEventListener('resize',fitLabels);}
   if(!$('filters'))return;
   buildFilters();stripHover();
-  ['fEd','fRel','fWhere','fKind','fPat'].forEach(function(id){$(id).addEventListener('change',function(){if(id==='fKind'||id==='fRel'||id==='fPat')CAT='';update();});});
+  ['fEd','fRel','fWhere','fKind','fPat'].forEach(function(id){$(id).addEventListener('change',function(){if(id==='fKind'||id==='fRel'||id==='fPat')CAT='';if(id==='fEd'||id==='fRel'||id==='fPat')SHARE='';update();});});
   var tm;['fRef','fGreek'].forEach(function(id){$(id).addEventListener('input',function(){clearTimeout(tm);tm=setTimeout(update,200);});});
   $('fReset').addEventListener('click',function(){
-    $('fEd').value='';$('fRel').value='differs';$('fWhere').value='';$('fKind').value='';$('fPat').value='';$('fRef').value='';$('fGreek').value='';CAT='';update();
+    $('fEd').value='';$('fRel').value='differs';$('fWhere').value='';$('fKind').value='';$('fPat').value='';$('fRef').value='';$('fGreek').value='';CAT='';SHARE='';update();
   });
   $('more').addEventListener('click',showMore);
   var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){drawStrip(hits);},150);});
