@@ -158,7 +158,7 @@ function edText(x){
 }
 /* Browser history: opening a variant, and jumping to the timeline from it, each count as a step,
    so Back returns to the variant you were reading and then to the page. */
-var fromHistory=false,skipBack=false;
+var fromHistory=false,skipBack=false,replaceFirst=false;
 function hist(how,state,hash){try{history[how](state,'',location.pathname+location.search+hash);}catch(e){}}
 function closeQuietly(){if(dlg.open){skipBack=true;dlg.close();}}
 dlg.addEventListener('close',function(){
@@ -227,7 +227,8 @@ function openVariant(id){
   $('vprev').disabled=$('vnext').disabled=visible.length<2;
   if(!dlg.open)dlg.showModal();
   $('vbody').scrollTop=0;
-  if(!fromHistory)hist(wasOpen?'replaceState':'pushState',{gnt:'v',id:id},'#v='+id);
+  if(!fromHistory)hist(wasOpen||replaceFirst?'replaceState':'pushState',{gnt:'v',id:id},'#v='+id);
+  replaceFirst=false;
 }
 /* the arrows wrap: Previous on the first variant goes to the last, Next on the last goes to the first */
 function step(d){var n=visible.length;if(!n)return;var c=visible.indexOf(cur);var i=c<0?(d>0?0:n-1):(c+d+n)%n;openVariant(visible[i].id);}
@@ -452,6 +453,6 @@ function initGrid(){
 
 initGrid();
 renderSeg();renderList();renderContentFilter();renderPick();renderTimeline();
-if(location.hash&&location.hash.indexOf('#v=')===0){var v0=location.hash.slice(3);hist('replaceState',null,'');openVariant(v0);}
+if(location.hash&&location.hash.indexOf('#v=')===0){var v0=location.hash.slice(3);hist('replaceState',null,'');replaceFirst=/[?&]from=manuscripts(&|$)/.test(location.search)&&/manuscripts\.html/.test(document.referrer);openVariant(v0);}
 if(location.hash&&location.hash.indexOf('#ms=')===0){var g0=decodeURIComponent(location.hash.slice(4));if(byGa[g0]){selectMs(g0);document.getElementById('timeline').scrollIntoView({block:'start'});}}
 })();

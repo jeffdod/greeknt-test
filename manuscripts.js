@@ -188,17 +188,6 @@ function citesFor(ga){
   });
   return out;
 }
-function markText(f){
-  var t=[];
-  f.forEach(function(x){
-    if(x==='orig')t.push('original hand');
-    else if(x==='corr')t.push('a corrector');
-    else if(/^corr\d+$/.test(x))t.push('corrector, hand '+x.slice(4));
-    else if(x==='vid')t.push('reading appears to be this (\u201cvid\u201d)');
-    else if(x==='minor')t.push('differs slightly from this reading');
-  });
-  return t.join('; ');
-}
 function buildBack(back,c,r){
   var cites=citesFor(r.m.ga);
   back.appendChild(bandEl(r));
@@ -209,27 +198,15 @@ function buildBack(back,c,r){
   mid.appendChild(el('div','bkinds',kinds.join(' \u00b7 ')));
   var hr=el('div','bhrow');
   var h=el('h4','bhead','Cited in '+cites.length+' of the 50 variants');h.tabIndex=-1;hr.appendChild(h);
-  if(cites.length>3)hr.appendChild(el('span','bhint','scroll for more'));
+  if(cites.length>12)hr.appendChild(el('span','bhint','scroll for more'));
   mid.appendChild(hr);
   back.appendChild(mid);
   var wrap=el('div','blist-wrap');
   var ul=el('ul','blist');ul.tabIndex=0;ul.setAttribute('role','region');ul.setAttribute('aria-label','Variants where this manuscript is cited');
   cites.forEach(function(ct){
     var li=el('li');
-    var a=el('a','bref',ct.v.ref);a.href='variants.html#v='+ct.v.id;a.title='Open this variant on the Fifty variants page';li.appendChild(a);
-    ct.items.forEach(function(it){
-      var d=el('div','bcite');
-      var rd=it.r;
-      if(rd.status){d.appendChild(el('span','bread',rd.status==='unreadable'?'Cannot be read at this point':'Not accessible at this point'));}
-      else{
-        d.appendChild(el('span','btag'+(rd.main?' main':''),rd.main?'Main text':'Other reading'));
-        d.appendChild(document.createTextNode(' '+rd.label));
-        if(rd.greek){d.appendChild(document.createTextNode(' '));d.appendChild(el('span','greek bgk',rd.greek));}
-      }
-      var mt=markText(it.f);if(mt)d.appendChild(el('span','bmark',' ('+mt+')'));
-      li.appendChild(d);
-    });
-    ul.appendChild(li);
+    var a=el('a',null,ct.v.ref);a.href='variants.html?from=manuscripts#v='+ct.v.id;a.title='Open this variant. Closing it brings you back to this card.';
+    li.appendChild(a);ul.appendChild(li);
   });
   wrap.appendChild(ul);back.appendChild(wrap);
   var foot=el('div','bfoot');
@@ -242,6 +219,7 @@ function flipTo(c,r,on){
   var front=c.querySelector('.front'),back=c.querySelector('.back'),btn=c.querySelector('.cited .seewhere');
   if(on&&!back.firstChild)buildBack(back,c,r);
   c.classList.toggle('flipped',on);
+  try{history.replaceState(on?{flip:r.m.ga}:null,'',location.href);}catch(e){}
   front.inert=on;back.inert=!on;
   if(btn)btn.setAttribute('aria-expanded',on?'true':'false');
   var t=on?back.querySelector('.bhead'):btn;
@@ -274,7 +252,12 @@ function bind(){
   $('fcent').addEventListener('change',function(){st.cent=this.value;paint();agebar();});
   $('fsort').addEventListener('change',function(){st.sort=this.value;paint();});
 }
+var saved=null;try{saved=history.state;}catch(e){}
 summary();bind();readUrl();agebar();paint();
+if(saved&&saved.flip){
+  var fr=rows.filter(function(r){return r.m.ga===saved.flip;})[0],fc=fr&&document.getElementById('ms-'+fr.m.ga);
+  if(fc){buildBack(fc.querySelector('.back'),fc,fr);fc.classList.add('flipped');fc.querySelector('.front').inert=true;fc.querySelector('.back').inert=false;var fb=fc.querySelector('.seewhere');if(fb)fb.setAttribute('aria-expanded','true');try{history.replaceState(saved,'',location.href);}catch(e){}}
+}
 (function(){var b=$('mshare');if(b)b.addEventListener('click',function(){writeUrl();window.GNT_copy(location.href,b,'Link copied');});})();
 if(location.hash&&location.hash.indexOf('#ms-')===0){var t=document.getElementById(decodeURIComponent(location.hash.slice(1)));if(t){t.classList.add('hit');t.scrollIntoView({block:'center'});}}
 })();
