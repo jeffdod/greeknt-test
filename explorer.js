@@ -142,7 +142,7 @@ function chip(w,vid,ri){
   var s=sub(m);if(s)b.appendChild(el('small',null,s));
   b.appendChild(el('small',null,m.date));
   b.title=(msName(m)+label(m)+(s?' (GA '+s+')':'')+', '+m.date+(mk.t?'. '+mk.t:'')+'. Select to see it on the timeline.');
-  b.addEventListener('click',function(){dlg.close();showOnTimeline(m.ga,vid);});
+  b.addEventListener('click',function(){skipBack=true;dlg.close();hist('pushState',{gnt:'ms',ga:m.ga,vid:vid},'#ms='+encodeURIComponent(m.ga));showOnTimeline(m.ga,vid);});
   return b;
 }
 function bsuffix(x){return x.b===2?', printed in double brackets':x.b===1?', printed in brackets':x.b===3?', printed in chevrons (« »)':'';}
@@ -156,8 +156,24 @@ function edText(x){
   if(x.s==='differs'){var t=x.t||'';return t==='om.'?'Omits it':(t.length<70?'Reads: ':'Reads a longer form')+(t.length<70?t:'')+bsuffix(x);}
   return '';
 }
+/* Browser history: opening a variant, and jumping to the timeline from it, each count as a step,
+   so Back returns to the variant you were reading and then to the page. */
+var fromHistory=false,skipBack=false;
+function hist(how,state,hash){try{history[how](state,'',location.pathname+location.search+hash);}catch(e){}}
+function closeQuietly(){if(dlg.open){skipBack=true;dlg.close();}}
+dlg.addEventListener('close',function(){
+  if(skipBack){skipBack=false;return;}
+  if(history.state&&history.state.gnt==='v'){try{history.back();}catch(e){}}
+});
+window.addEventListener('popstate',function(e){
+  var s=e.state;
+  if(s&&s.gnt==='v'){fromHistory=true;openVariant(s.id);fromHistory=false;return;}
+  closeQuietly();
+  if(s&&s.gnt==='ms'){showOnTimeline(s.ga,s.vid);}
+  else if(s&&s.gnt==='tl'){pickVariant(s.vid);}
+});
 function openVariant(id){
-  var v=V.filter(function(x){return x.id===id;})[0];if(!v)return;cur=v;
+  var v=V.filter(function(x){return x.id===id;})[0];if(!v)return;cur=v;var wasOpen=dlg.open;
   var b=$('vbody');b.textContent='';
   b.appendChild(el('h3',null,v.ref)).id='vtitle';
   var wh=el('p','where');wh.appendChild(document.createTextNode('Page '));wh.appendChild(window.GNTPages.link(String(v.page),v.page));wh.appendChild(document.createTextNode(' of the edition · footnote “'+v.caller+'” · '+KIND[v.kind]));b.appendChild(wh);
@@ -207,10 +223,11 @@ function openVariant(id){
   }
   var ef=el('p','edfoot');if(v.complex){ef.appendChild(document.createTextNode('This note uses special conventions; read the printed note on page '));ef.appendChild(window.GNTPages.link(String(v.page),v.page));ef.appendChild(document.createTextNode(' for the full detail. '));}ef.appendChild(document.createTextNode('An edition shown as “same as the main text” is not named in the printed note, which lists only editions that differ.'));b.appendChild(ef);
   var tl=el('p','tl-link');var a=el('button','btn btn-quiet','Show these witnesses on the timeline');a.type='button';
-  a.addEventListener('click',function(){dlg.close();pickVariant(v.id);});tl.appendChild(a);b.appendChild(tl);
+  a.addEventListener('click',function(){skipBack=true;dlg.close();hist('pushState',{gnt:'tl',vid:v.id},'#tl='+v.id);pickVariant(v.id);});tl.appendChild(a);b.appendChild(tl);
   $('vprev').disabled=$('vnext').disabled=visible.length<2;
   if(!dlg.open)dlg.showModal();
   $('vbody').scrollTop=0;
+  if(!fromHistory)hist(wasOpen?'replaceState':'pushState',{gnt:'v',id:id},'#v='+id);
 }
 /* the arrows wrap: Previous on the first variant goes to the last, Next on the last goes to the first */
 function step(d){var n=visible.length;if(!n)return;var c=visible.indexOf(cur);var i=c<0?(d>0?0:n-1):(c+d+n)%n;openVariant(visible[i].id);}
@@ -435,6 +452,6 @@ function initGrid(){
 
 initGrid();
 renderSeg();renderList();renderContentFilter();renderPick();renderTimeline();
-if(location.hash&&location.hash.indexOf('#v=')===0){openVariant(location.hash.slice(3));}
+if(location.hash&&location.hash.indexOf('#v=')===0){var v0=location.hash.slice(3);hist('replaceState',null,'');openVariant(v0);}
 if(location.hash&&location.hash.indexOf('#ms=')===0){var g0=decodeURIComponent(location.hash.slice(4));if(byGa[g0]){selectMs(g0);document.getElementById('timeline').scrollIntoView({block:'start'});}}
 })();
