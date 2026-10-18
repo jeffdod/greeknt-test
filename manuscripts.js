@@ -207,8 +207,10 @@ function buildBack(back,c,r){
   var kinds=r.m.c.split('').map(function(k){return SHORT[k];}).concat(r.x.tags||[]);
   if(r.m.supp)kinds.push('later supplement');
   mid.appendChild(el('div','bkinds',kinds.join(' \u00b7 ')));
-  var h=el('h4','bhead','Cited in '+cites.length+' of the 50 variants');h.tabIndex=-1;mid.appendChild(h);
-  if(cites.length>4)mid.appendChild(el('div','bhint','Scroll the list to see all '+cites.length+'.'));
+  var hr=el('div','bhrow');
+  var h=el('h4','bhead','Cited in '+cites.length+' of the 50 variants');h.tabIndex=-1;hr.appendChild(h);
+  if(cites.length>3)hr.appendChild(el('span','bhint','scroll for more'));
+  mid.appendChild(hr);
   back.appendChild(mid);
   var wrap=el('div','blist-wrap');
   var ul=el('ul','blist');ul.tabIndex=0;ul.setAttribute('role','region');ul.setAttribute('aria-label','Variants where this manuscript is cited');
@@ -244,9 +246,6 @@ function flipTo(c,r,on){
   if(btn)btn.setAttribute('aria-expanded',on?'true':'false');
   var t=on?back.querySelector('.bhead'):btn;
   if(t)t.focus({preventScroll:true});
-  /* the flipped card grows, so bring all of it into view once it has */
-  var calm=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-  setTimeout(function(){c.scrollIntoView({block:'nearest',behavior:calm?'auto':'smooth'});},calm?0:520);
 }
 var PM={q:'q',type:'ftype',cont:'fcont',cent:'fcent',sort:'fsort'};
 function writeUrl(){
