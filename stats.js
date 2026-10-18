@@ -195,34 +195,34 @@ function buildRP(){
   var hit=[];
   N.forEach(function(n,i){if(rpShared(n)>=0)hit.push(i);});
   var tot=hit.length;
-  $('rplede').innerHTML='In '+fmt(tot)+' of the '+fmt(N.length)+' notes ('+pct(tot/N.length)+'), the Robinson-Pierpont edition offers an alternate Byzantine reading, marked RP<sup>mg</sup>. These are the places where its editors judged that the Byzantine tradition is divided. Here is who else reads each one. Select any bar to list those notes.';
-  $('rpwho').textContent='Each panel counts the notes with an alternate reading in one part of the New Testament. Each bar is the share of those notes in which at least one edition of that kind also reads the alternate reading.';
-  var BARS=[
-    {k:'byz', name:'Byzantine', fam:'byz', tip:'another Byzantine edition (Hodges-Farstad, Pickering, or Antoniades)'},
-    {k:'crit',name:'Critical',  fam:'crit',tip:'a critical edition'},
-    {k:'tr',  name:'Textus Receptus', fam:'tr',tip:'a Textus Receptus edition (Scrivener or Stephanus)'},
-    {k:'none',name:'No other edition', fam:'none',tip:null}
-  ];
-  var panels=[{label:'The whole New Testament',where:'',idx:hit}];
-  ALLG.forEach(function(gp){panels.push({label:gp,where:'g:'+gp,idx:hit.filter(function(i){return groupOf(N[i])===gp;})});});
-  var grid=$('sgrid');
-  panels.forEach(function(p){
-    var box=el('div','cpanel');box.appendChild(el('h3',null,p.label));
-    box.appendChild(el('p','csub',fmt(p.idx.length)+' notes'));
-    BARS.forEach(function(b){
-      var c=0;p.idx.forEach(function(i){if(shareTest(N[i],b.k))c++;});
-      var sh=p.idx.length?c/p.idx.length:0;
-      var a=el('a','srow');a.href=searchUrl({ed:'RPmg',where:p.where,share:b.k});
-      a.title=fmt(c)+' of '+fmt(p.idx.length)+' alternate readings in '+p.label+' ('+pct(sh)+') are '+(b.tip?'also read by '+b.tip:'read by no other edition')+'. List them.';
-      a.setAttribute('aria-label',b.name+', '+p.label+': '+fmt(c)+' of '+fmt(p.idx.length)+' notes, '+pct(sh)+'. List them.');
-      a.appendChild(el('span','sname',b.name));
-      var tr=el('span','ctrack'),bar=el('span','cbar');bar.style.width=(sh*100)+'%';bar.style.background=b.fam==='none'?'var(--ink-soft)':FAMCOL[b.fam];tr.appendChild(bar);a.appendChild(tr);
-      a.appendChild(el('span','cval',pct(sh)));
-      box.appendChild(a);
+  $('rplede').innerHTML='In '+fmt(tot)+' of the '+fmt(N.length)+' notes ('+pct(tot/N.length)+'), the Robinson-Pierpont edition offers an alternate Byzantine reading, marked RP<sup>mg</sup>. These are the places where its editors judged that the Byzantine tradition is divided. Select any bar to list those notes.';
+  /* books, most alternate readings first; Revelation can be switched off so that it does not dwarf the rest */
+  $('rpwho').textContent='Each bar is the number of notes in a book that have an alternate reading. The figure at the right adds the share of that book’s notes. Select a bar to list those notes.';
+  var per=BOOKS.map(function(){return 0;}),bt=BOOKS.map(function(){return 0;});
+  N.forEach(function(n){bt[n[1]]++;});
+  hit.forEach(function(i){per[N[i][1]]++;});
+  var REV=BOOKS.indexOf('Revelation');
+  function drawBooks(){
+    var withRev=$('rpRev').checked,g=$('rgrid');g.textContent='';
+    var order=BOOKS.map(function(_,i){return i;}).filter(function(i){return withRev||i!==REV;});
+    order.sort(function(a,b){return per[b]-per[a]||a-b;});
+    var mx=per[order[0]]||1;
+    order.forEach(function(bi){
+      var v=per[bi],sh=bt[bi]?v/bt[bi]:0;
+      var a=el('a','rrow');a.href=searchUrl({ed:'RPmg',where:'b:'+bi});
+      a.title=BOOKS[bi]+': '+fmt(v)+' of '+fmt(bt[bi])+' notes ('+pct(sh)+') have an alternate Byzantine reading. List them.';
+      a.setAttribute('aria-label',BOOKS[bi]+': '+fmt(v)+' of '+fmt(bt[bi])+' notes, '+pct(sh)+'. List them.');
+      a.appendChild(el('span','rname',BOOKS[bi]));
+      var tr=el('span','rtrack'),bar=el('span','rbar');bar.style.width=(v/mx*100)+'%';tr.appendChild(bar);a.appendChild(tr);
+      a.appendChild(el('span','rval',fmt(v)+' · '+pct(sh)));
+      g.appendChild(a);
     });
-    grid.appendChild(box);
-  });
-  $('snote').textContent='“Byzantine” means Hodges-Farstad, Pickering, or Antoniades. “Critical” means ECM (where it exists), NA27, NA28, SBL, Tyndale House, or Westcott-Hort. “Textus Receptus” means Scrivener or Stephanus. The bars do not add up to 100%, because the same reading can be shared by editions of several kinds.';
+    $('rnote').textContent=withRev
+      ?'Revelation alone holds '+fmt(per[REV])+' of the '+fmt(tot)+' notes ('+pct(per[REV]/tot)+'). Switch it off to compare the other books at a readable scale. Longer books have more notes of every kind, so compare the percentages as well as the bars.'
+      :'With Revelation left out, the other books hold '+fmt(tot-per[REV])+' of the '+fmt(tot)+' notes. The bars are scaled to the longest one shown. Longer books have more notes of every kind, so compare the percentages as well as the bars.';
+  }
+  $('rpRev').addEventListener('change',drawBooks);
+  drawBooks();
   /* the notes where the alternate reading is shared only with critical editions */
   var co=hit.filter(function(i){return shareTest(N[i],'critonly');});
   $('rpcrit').textContent='In '+fmt(co.length)+' notes, a critical edition reads the alternate reading, and no other Byzantine edition and no Textus Receptus edition does. In these places the margin of the Robinson-Pierpont edition points toward the critical text. Select a note to find it in the variant search.';
