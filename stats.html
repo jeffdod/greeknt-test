@@ -60,9 +60,46 @@
   <div class="xhero">
     <div class="wrap">
       <h1>The apparatus across the whole text</h1>
-      <p class="lede">Every note in the Edition Apparatus, counted. See how each of the eleven editions compares with the main text in each part of the New Testament. To find the exact notes, use the <a href="search.html">variant search</a>.</p>
+      <p class="lede">Every note in the Edition Apparatus, counted. See how each of the eleven editions compares with the main text in each part of the New Testament. Every bar and square on this page opens the matching notes in the <a href="search.html">variant search</a>.</p>
     </div>
   </div>
+
+  <section id="density">
+    <div class="wrap">
+      <div class="head">
+        <h2>Where the notes fall</h2>
+        <p class="lede">Each square is one chapter, and each row is one book. A darker square means more notes in that chapter. Select a square to list its notes.</p>
+      </div>
+      <div class="dkey" id="dkey" aria-hidden="true"></div>
+      <div class="dscroll"><div class="dmap" id="dmap"></div></div>
+      <p class="caveat dhint">On a narrow screen, swipe the squares sideways to reach later chapters.</p>
+      <p class="caveat" id="dnote"></p>
+    </div>
+  </section>
+
+  <section id="kinds">
+    <div class="wrap">
+      <div class="head">
+        <h2>Spelling or substance?</h2>
+        <p class="lede" id="sumlede"></p>
+      </div>
+      <div class="sumbar" id="sumbar" role="group" aria-label="Notes by kind of difference"></div>
+      <ul class="sumkey" id="sumkey"></ul>
+      <p class="caveat" id="sumnote"></p>
+
+      <div class="head khead">
+        <h2>What kind of difference, edition by edition</h2>
+        <p class="lede" id="kindlede"></p>
+      </div>
+      <div class="gkey fam-key" id="kindkey"></div>
+      <div class="kgrid" id="kgrid"></div>
+      <p class="caveat" id="kindnote"></p>
+      <details class="tablebox">
+        <summary>Show the figures as a table</summary>
+        <div class="gridwrap"><table class="agree" id="ktable"></table></div>
+      </details>
+    </div>
+  </section>
 
   <section id="chart">
     <div class="wrap">

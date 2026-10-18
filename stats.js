@@ -105,6 +105,146 @@ function buildChart(){
   h+='</tbody>';t.innerHTML=h;
 }
 
+/* ---------- kinds of difference ---------- */
+/* One label per reading. A reading has a single kind only when exactly one of these applies; anything else is "mixed". */
+var CATS=[
+  {k:'form',  name:'Spelling or form only', short:'Spelling or form'},
+  {k:'omit',  name:'Omits words',           short:'Omits words'},
+  {k:'add',   name:'Adds words',            short:'Adds words'},
+  {k:'diff',  name:'A different word',      short:'Different word'},
+  {k:'order', name:'Word order',            short:'Word order'},
+  {k:'mixed', name:'Several kinds at once, or other', short:'Mixed or other'}
+];
+var CATNAME={};CATS.forEach(function(c){CATNAME[c.k]=c.name;});
+var SINGLE={form:1,omit:1,add:1,diff:1,order:1};
+function catOf(r){
+  var s=r[3].filter(function(k){return k!=='brk'&&k!=='special';});
+  return (s.length===1&&SINGLE[s[0]])?s[0]:'mixed';
+}
+/* The kind of difference between edition ed and the main text in note n */
+function catFor(n,ed){
+  var b=BIT[ed];
+  for(var i=0;i<n[5].length;i++){var r=n[5][i];if((r[0]&b)&&r[1]!=='txt')return catOf(r);}
+  return 'mixed';
+}
+/* One label per note: spelling only, wording changes, or neither (only brackets or descriptive notes) */
+function noteCat(n){
+  var any=false,words=false;
+  for(var i=0;i<n[5].length;i++){
+    var r=n[5][i];if(r[1]==='txt'||r[3].indexOf('special')>=0)continue;
+    any=true;
+    var c=catOf(r),ks=r[3];
+    if(c==='form')continue;
+    if(ks.length===1&&ks[0]==='bracket')continue;
+    words=true;
+  }
+  return !any?'N:other':words?'N:word':'N:spell';
+}
+function searchUrl(o){
+  var p=[];Object.keys(o).forEach(function(k){if(o[k])p.push(k+'='+encodeURIComponent(o[k]));});
+  return 'search.html?'+p.join('&')+'#find';
+}
+function buildSummary(){
+  var cnt={'N:spell':0,'N:word':0,'N:other':0};
+  N.forEach(function(n){cnt[noteCat(n)]++;});
+  var tot=N.length;
+  var parts=[
+    {k:'N:spell',cls:'k-form',name:'Spelling or form only',txt:'Every difference is the same word spelled or inflected another way.'},
+    {k:'N:word',cls:'k-word',name:'Changes the wording',txt:'At least one reading omits, adds, replaces, or reorders words.'},
+    {k:'N:other',cls:'k-mixed',name:'Brackets or other',txt:'Only brackets, parentheses, or a descriptive note.'}
+  ];
+  $('sumlede').textContent='Of the '+fmt(tot)+' notes, '+pct(cnt['N:spell']/tot)+' record only a different spelling or form of the same word. '+pct(cnt['N:word']/tot)+' involve a change in the wording itself. Select a segment to list its notes.';
+  var bar=$('sumbar'),key=$('sumkey');
+  parts.forEach(function(p){
+    var c=cnt[p.k],sh=c/tot;
+    var a=el('a','seg '+p.cls);a.href=searchUrl({cat:p.k});
+    a.style.width=(sh*100)+'%';
+    a.title=p.name+': '+fmt(c)+' notes ('+pct(sh)+'). List them.';
+    a.setAttribute('aria-label',p.name+': '+fmt(c)+' notes, '+pct(sh)+'. List them.');
+    if(sh>=.08)a.appendChild(el('span',null,pct(sh)));
+    bar.appendChild(a);
+    var li=el('li');li.appendChild(el('i','swatch '+p.cls));
+    var b=el('b',null,p.name+': ');li.appendChild(b);
+    li.appendChild(document.createTextNode(fmt(c)+' notes ('+pct(sh)+'). '+p.txt));
+    key.appendChild(li);
+  });
+  $('sumnote').textContent='A note is placed by all of its readings together. If even one reading changes the wording, the note counts as changing the wording.';
+}
+function buildKinds(){
+  var rows=[];
+  SHOWN.forEach(function(e){
+    var c={},t=0;CATS.forEach(function(x){c[x.k]=0;});
+    N.forEach(function(n){var g=groupOf(n);if(!edApplies(e,g)||!differs(n,e))return;c[catFor(n,e)]++;t++;});
+    rows.push({e:e,c:c,t:t});
+  });
+  var k=$('kindkey');
+  CATS.forEach(function(x){var s=el('span');s.appendChild(el('i','swatch k-'+x.k));s.appendChild(document.createTextNode(x.short));k.appendChild(s);});
+  $('kindlede').textContent='Each bar is all of one edition’s differences from the main text, taken as 100%, and divided by kind. The number at the right is how many notes name that edition as reading differently. Select a segment to list those notes.';
+  var g=$('kgrid');
+  rows.forEach(function(r){
+    var row=el('div','krow');
+    var nm=el('span','kname',r.e);nm.title=EDNAME[r.e];
+    var fam=el('i','swatch sw-'+FAM[r.e]);nm.insertBefore(fam,nm.firstChild);
+    var tr=el('span','ktrack');
+    CATS.forEach(function(x){
+      var c=r.c[x.k];if(!c)return;
+      var sh=c/r.t;
+      var a=el('a','seg k-'+x.k);a.href=searchUrl({ed:r.e,cat:x.k});
+      a.style.width=(sh*100)+'%';
+      a.title=EDNAME[r.e]+' — '+x.name+': '+fmt(c)+' of '+fmt(r.t)+' differences ('+pct(sh)+'). List them.';
+      a.setAttribute('aria-label',r.e+', '+x.name+': '+fmt(c)+' of '+fmt(r.t)+', '+pct(sh)+'. List them.');
+      if(sh>=(window.matchMedia('(max-width:640px)').matches?.14:.09))a.appendChild(el('span',null,Math.round(sh*100)+'%'));
+      tr.appendChild(a);
+    });
+    row.appendChild(nm);row.appendChild(tr);row.appendChild(el('span','kn',fmt(r.t)));
+    g.appendChild(row);
+  });
+  $('kindnote').textContent='A segment lists only the notes in which that edition’s reading is of that one kind. “Mixed or other” gathers readings that do several things at once (for example, omit one word and replace another) and readings that could not be given a single label. ECM is counted only where it exists, in Mark, Acts, the Catholic Epistles, and Revelation.';
+  var h='<thead><tr><th class="corner" scope="col">Edition</th><th scope="col">Differences</th>';
+  CATS.forEach(function(x){h+='<th scope="col">'+x.short+'</th>';});
+  h+='</tr></thead><tbody>';
+  rows.forEach(function(r){
+    h+='<tr><th class="pass" scope="row" title="'+EDNAME[r.e]+'">'+r.e+'</th><td class="c">'+fmt(r.t)+'</td>';
+    CATS.forEach(function(x){h+='<td class="c">'+fmt(r.c[x.k])+'<br><small>'+pct(r.c[x.k]/r.t)+'</small></td>';});
+    h+='</tr>';
+  });
+  $('ktable').innerHTML=h+'</tbody>';
+}
+
+/* ---------- where the notes fall ---------- */
+var CHAPS=[28,16,24,21,28,16,16,13,6,6,4,4,5,3,6,4,3,1,13,5,5,3,5,1,1,1,22];
+function buildDensity(){
+  var cnt=BOOKS.map(function(_,bi){return new Array(CHAPS[bi]+1).fill(0);});
+  N.forEach(function(n){var m=n[2].match(/^(\d+)/);if(m&&cnt[n[1]]&&cnt[n[1]][+m[1]]!==undefined)cnt[n[1]][+m[1]]++;});
+  var all=[];cnt.forEach(function(a){for(var i=1;i<a.length;i++)all.push(a[i]);});
+  var sorted=all.slice().sort(function(a,b){return a-b;});
+  var cuts=[1,2,3,4].map(function(q){return sorted[Math.floor(sorted.length*q/5)];});
+  function level(v){var l=0;for(var i=0;i<cuts.length;i++)if(v>cuts[i])l=i+1;return l;}
+  var lo=[0].concat(cuts.map(function(c){return c+1;}));
+  var key=$('dkey');
+  key.appendChild(document.createTextNode('Fewer notes '));
+  for(var l=0;l<5;l++){var s=el('i','dsw d'+l);s.title=(l===4?lo[l]+' or more':lo[l]+' to '+cuts[l])+' notes';key.appendChild(s);}
+  key.appendChild(document.createTextNode(' More notes'));
+  var map=$('dmap'),mx=0,mxb=0,mxc=0;
+  BOOKS.forEach(function(b,bi){
+    var row=el('div','drow');
+    row.appendChild(el('span','dname',b));
+    var cells=el('span','dcells');
+    for(var c=1;c<=CHAPS[bi];c++){
+      var v=cnt[bi][c];
+      var a=el('a','dc d'+level(v));
+      a.href=searchUrl({ref:b+' '+c});
+      a.title=b+' '+c+': '+fmt(v)+' note'+(v===1?'':'s');
+      a.setAttribute('aria-label',b+' '+c+', '+fmt(v)+' note'+(v===1?'':'s')+'. List them.');
+      a.appendChild(el('span',null,String(c)));
+      cells.appendChild(a);
+      if(v>mx){mx=v;mxb=bi;mxc=c;}
+    }
+    row.appendChild(cells);map.appendChild(row);
+  });
+  $('dnote').textContent='The busiest chapter is '+BOOKS[mxb]+' '+mxc+', with '+fmt(mx)+' notes. Chapters differ in length, so a longer chapter naturally has more notes. The shading runs from the lightest fifth of chapters to the darkest fifth.';
+}
+
 /* ---------- filters ---------- */
 function buildFilters(){
   var ed=$('fEd');
@@ -178,6 +318,15 @@ function matches(n,i,f){
     if(!ok)return false;
   }
   if(f.rel==='split'&&f.kind){var ok2=false;n[5].forEach(function(r){if(r[3].indexOf(f.kind)>=0)ok2=true;});if(!ok2)return false;}
+  if(f.cat){
+    if(f.cat.charAt(0)==='N'){if(noteCat(n)!==f.cat)return false;}
+    else {
+      var b2=f.ed?BIT[f.ed]:0,okc=false,seen=false;
+      n[5].forEach(function(r){if(r[1]!=='txt'&&(!b2||(r[0]&b2))){seen=true;if(catOf(r)===f.cat)okc=true;}});
+      if(!seen&&f.ed&&f.cat==='mixed')okc=true;
+      if(!okc)return false;
+    }
+  }
   if(f.pat){
     var cs=criticalSet(n),st;
     if(f.pat==='critall'){
@@ -204,7 +353,7 @@ var BOOKSTART=[];BOOKS.forEach(function(_,bi){var m=1e9;N.forEach(function(n){if
 
 function getFilters(){
   var rf=parseRef($('fRef').value);
-  return {ed:$('fEd').value,rel:$('fRel').value,where:$('fWhere').value,kind:$('fKind').value,pat:$('fPat').value,ref:rf&&!rf.bad?rf:null,refBad:!!(rf&&rf.bad),greek:greekPieces($('fGreek').value)};
+  return {ed:$('fEd').value,rel:$('fRel').value,where:$('fWhere').value,kind:$('fKind').value,pat:$('fPat').value,ref:rf&&!rf.bad?rf:null,refBad:!!(rf&&rf.bad),greek:greekPieces($('fGreek').value),cat:CAT};
 }
 function tag(e){
   if(e==='RPmg'){var t=el('span','etag f-byz','RP');t.appendChild(el('sup',null,'mg'));t.title='Robinson-Pierpont, alternate Byzantine reading';return t;}
@@ -348,6 +497,8 @@ function update(){
   var c=$('rcount');
   if(f.refBad)c.textContent='I could not read that passage. Try a form like “Romans 8”, “John 1:18”, or “1 Cor 13”.';
   else c.textContent=out.length===0?'No notes match these choices.':fmt(out.length)+' note'+(out.length===1?'':'s')+' ('+pct(out.length/N.length)+' of all '+fmt(N.length)+') on '+fmt(new Set(out.map(function(i){return N[i][0];})).size)+(new Set(out.map(function(i){return N[i][0];})).size===1?' page.':' pages.');
+  $('catnote').hidden=!(CAT&&!f.refBad);
+  if(CAT)$('catnote').textContent=CAT.charAt(0)==='N'?('Showing only notes counted as “'+({'N:spell':'Spelling or form only','N:word':'Changes the wording','N:other':'Brackets or other'})[CAT]+'” on the Stats page. Change any other choice above to see them all.'):('Showing only readings whose one kind of difference is “'+CATNAME[CAT]+'”, as counted on the Stats page. Change any other choice above to see them all.');
   $('fCsv').disabled=!out.length;
   showMore();drawStrip(out);writeUrl();
 }
@@ -378,29 +529,32 @@ function downloadCsv(){
   a.href=url;a.download='greek-nt-notes.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);
   setTimeout(function(){URL.revokeObjectURL(url);},1000);
 }
+var CAT='';   /* set only by a link from the Stats page: a kind of difference chosen there */
 var URLMAP={ed:'fEd',rel:'fRel',where:'fWhere',kind:'fKind',pat:'fPat',ref:'fRef',greek:'fGreek'};
 var URLDEF={rel:'differs'};
 function writeUrl(){
   if(!window.history||!history.replaceState)return;
   var p=new URLSearchParams();
   Object.keys(URLMAP).forEach(function(k){var v=$(URLMAP[k]).value;if(v&&v!==(URLDEF[k]||''))p.set(k,v);});
+  if(CAT)p.set('cat',CAT);
   var qs=p.toString();
   try{history.replaceState(null,'',location.pathname+(qs?'?'+qs+'#find':''));}catch(e){}
 }
 function readUrl(){
   var p=new URLSearchParams(location.search),any=false;
   Object.keys(URLMAP).forEach(function(k){if(p.has(k)){$(URLMAP[k]).value=p.get(k);any=true;}});
+  if(p.has('cat')&&/^(N:(spell|word|other)|form|omit|add|diff|order|mixed)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;}
   return any;
 }
 function init(){
   if($('filters'))$('filters').addEventListener('submit',function(ev){ev.preventDefault();});
-  if($('cgrid')){buildKey();buildChart();}
+  if($('cgrid')){buildKey();buildChart();buildDensity();buildSummary();buildKinds();}
   if(!$('filters'))return;
   buildFilters();stripHover();
-  ['fEd','fRel','fWhere','fKind','fPat'].forEach(function(id){$(id).addEventListener('change',function(){update();});});
+  ['fEd','fRel','fWhere','fKind','fPat'].forEach(function(id){$(id).addEventListener('change',function(){if(id==='fKind'||id==='fRel'||id==='fPat')CAT='';update();});});
   var tm;['fRef','fGreek'].forEach(function(id){$(id).addEventListener('input',function(){clearTimeout(tm);tm=setTimeout(update,200);});});
   $('fReset').addEventListener('click',function(){
-    $('fEd').value='';$('fRel').value='differs';$('fWhere').value='';$('fKind').value='';$('fPat').value='';$('fRef').value='';$('fGreek').value='';update();
+    $('fEd').value='';$('fRel').value='differs';$('fWhere').value='';$('fKind').value='';$('fPat').value='';$('fRef').value='';$('fGreek').value='';CAT='';update();
   });
   $('more').addEventListener('click',showMore);
   var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){drawStrip(hits);},150);});

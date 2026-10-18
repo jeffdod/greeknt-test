@@ -56,3 +56,39 @@
 
 .specnote{margin-top:10px;padding:8px 12px;border-left:3px solid var(--rubric);background:rgba(138,42,30,.06);font-size:.95rem;line-height:1.45;color:var(--ink-soft)}
 .specnote b{color:var(--ink);font-weight:600}
+
+/* ---- Where the notes fall, spelling or substance, kinds by edition ---- */
+.k-form{background:#9aa9b6}.k-omit{background:#8a2a1e}.k-add{background:#b9803c}.k-diff{background:#3f5670}.k-order{background:#5f8060}.k-mixed{background:#cdc6b3}.k-word{background:#8a2a1e}
+.khead{margin-top:48px}
+.swatch.k-form,.swatch.k-omit,.swatch.k-add,.swatch.k-diff,.swatch.k-order,.swatch.k-mixed,.swatch.k-word{display:inline-block;width:14px;height:14px;min-width:0;padding:0;border:0}
+.sumbar,.ktrack{display:flex;height:34px;background:rgba(31,42,54,.06);overflow:hidden}
+.seg{display:flex;align-items:center;justify-content:center;min-width:2px;height:100%;color:#fff;font-size:.9rem;font-variant-numeric:tabular-nums;text-decoration:none;box-shadow:inset -1px 0 0 rgba(255,255,255,.55);overflow:hidden}
+.seg.k-mixed,.seg.k-form{color:var(--ink)}
+.seg:hover,.seg:focus-visible{filter:brightness(1.12);outline-offset:-3px}
+.sumkey{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+.sumkey li{font-size:1rem;line-height:1.45}
+.sumkey .swatch{margin-right:8px;vertical-align:-1px}
+.kgrid{display:grid;gap:8px;margin-top:6px}
+.krow{display:grid;grid-template-columns:4.6em 1fr 3.6em;gap:10px;align-items:center}
+.kname{font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.kname .swatch{width:10px;height:10px}
+.kn{text-align:right;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.dscroll{overflow-x:auto;padding-bottom:6px}
+.dmap{display:grid;gap:3px;min-width:max-content}
+.drow{display:grid;grid-template-columns:9.5em auto;gap:8px;align-items:center}
+.dname{font-size:.95rem;text-align:right;color:var(--ink);white-space:nowrap}
+.dcells{display:flex;gap:3px}
+.dc{display:flex;align-items:center;justify-content:center;width:26px;height:26px;font-size:.72rem;text-decoration:none;color:var(--ink);border:1px solid rgba(31,42,54,.12);font-variant-numeric:tabular-nums}
+.dc:hover,.dc:focus-visible{outline:2px solid var(--rubric);outline-offset:1px;position:relative;z-index:1}
+.d0{background:#f1eee5}.d1{background:#e6d3c4}.d2{background:#d3a98f}.d3{background:#b7745a;color:#fff}.d4{background:#8a2a1e;color:#fff}
+.dkey{display:flex;align-items:center;gap:4px;margin:0 0 14px;color:var(--ink-soft);font-size:.92rem}
+.dsw{display:inline-block;width:22px;height:14px;border:1px solid rgba(31,42,54,.12)}
+.dkey .dsw:first-of-type{margin-left:6px}.dkey .dsw:last-of-type{margin-right:6px}
+@media (min-width:641px){.dhint{display:none}}
+#catnote{flex-basis:100%;order:3;margin:6px 0 0}
+@media (max-width:640px){
+  .krow{grid-template-columns:3.6em 1fr 3em;gap:6px}
+  .drow{grid-template-columns:8em auto}
+  .dname{font-size:.88rem}
+  .sumbar,.ktrack{height:30px}
+}
