@@ -44,7 +44,7 @@ spots.forEach(s=>{
   el.setAttribute('aria-label', parts[s.key].name);
   el.style.left = (l/PAGE_W*100)+'%';  el.style.top = (t/PAGE_H*100)+'%';
   el.style.width = ((r-l)/PAGE_W*100)+'%'; el.style.height = ((b-t)/PAGE_H*100)+'%';
-  el.addEventListener('click', ()=>show(s.key));
+  el.addEventListener('click', ()=>show(s.key, el));
   sheet.appendChild(el);
 });
 Object.keys(parts).forEach(k=>{
@@ -52,12 +52,63 @@ Object.keys(parts).forEach(k=>{
   b.className='chip'; b.textContent=parts[k].name; b.dataset.key=k;
   b.onclick=()=>show(k); chips.appendChild(b);
 });
-function show(key){
+function show(key, fromEl){
   const p=parts[key]; if(!p) return;
   const zhtml = p.zoom ? '<div class="zoomset">'+p.zoom.map(z=>{const q=zooms[z];return `<figure class="zoom"><img src="${q.src}" width="${q.w}" height="${q.h}" alt="Magnified: ${q.cap}"><figcaption>${q.cap}</figcaption></figure>`}).join('')+'</div>' : '';
   info.innerHTML=`<h3>${p.name}</h3>${p.html}${zhtml}`;
   sheet.querySelectorAll('.hot').forEach(el=>el.classList.toggle('on',el.dataset.key===key));
   chips.querySelectorAll('.chip').forEach(el=>el.classList.toggle('on',el.dataset.key===key));
+  curKey=key;
+  if(small.matches) openSheet(fromEl || sheet.querySelector('.hot[data-key="'+key+'"]'));
+}
+
+/* On phones the explanation slides up from the bottom of the screen (styles are in style.css) */
+const small = window.matchMedia('(max-width:860px)');
+const panel = document.querySelector('#explore .panel');
+const section = document.getElementById('explore');
+const keys = Object.keys(parts);
+let curKey = null;
+const bar = document.createElement('div');
+bar.className = 'sheetbar';
+bar.innerHTML = '<button type="button" class="sb-prev" aria-label="Previous part">\u2039 Previous</button>'
+  + '<span class="sb-count" aria-hidden="true"></span>'
+  + '<button type="button" class="sb-next" aria-label="Next part">Next \u203a</button>'
+  + '<button type="button" class="sb-close" aria-label="Close explanation">\u00d7</button>';
+panel.insertBefore(bar, panel.firstChild);
+const sbCount = bar.querySelector('.sb-count');
+function step(n){
+  const i = Math.max(0, keys.indexOf(curKey));
+  show(keys[(i+n+keys.length)%keys.length]);
+}
+bar.querySelector('.sb-prev').addEventListener('click', ()=>step(-1));
+bar.querySelector('.sb-next').addEventListener('click', ()=>step(1));
+bar.querySelector('.sb-close').addEventListener('click', closeSheet);
+function closeSheet(){ panel.classList.remove('open'); }
+function openSheet(el){
+  sbCount.textContent = (keys.indexOf(curKey)+1) + ' of ' + keys.length;
+  panel.classList.add('open');
+  if(el) bringIntoView(el);
+}
+/* Scroll the page so the chosen spot is not hidden behind the sheet */
+function bringIntoView(el){
+  const tb = document.querySelector('.topbar');
+  const topLim = (tb ? Math.max(0, tb.getBoundingClientRect().bottom) : 0) + 10;
+  const botLim = window.innerHeight - Math.min(panel.offsetHeight, window.innerHeight*0.46) - 10;
+  const r = el.getBoundingClientRect();
+  let d = 0;
+  if(r.height > botLim - topLim) d = r.top - topLim;
+  else if(r.top < topLim || r.bottom > botLim) d = (r.top + r.bottom)/2 - (topLim + botLim)/2;
+  if(Math.abs(d) > 2){
+    const calm = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    window.scrollBy({top:d, behavior: calm ? 'auto' : 'smooth'});
+  }
+}
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape' && panel.classList.contains('open') && !document.getElementById('lightbox').open) closeSheet();
+});
+small.addEventListener('change', ()=>{ if(!small.matches) closeSheet(); });
+if('IntersectionObserver' in window){
+  new IntersectionObserver(es=>{ if(!es[0].isIntersecting) closeSheet(); }).observe(section);
 }
 
 /* Enlarge the page */
