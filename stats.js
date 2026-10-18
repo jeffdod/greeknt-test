@@ -235,7 +235,7 @@ function buildRP(){
     var c1=el('th');c1.scope='row';c1.setAttribute('data-label','Passage');
     var a=el('a',null,BOOKS[n[1]]+' '+n[2]);a.href=searchUrl({ed:'RPmg',ref:vm?BOOKS[n[1]]+' '+vm[0]:BOOKS[n[1]]});
     a.title='Find this note in the variant search';
-    c1.appendChild(a);c1.appendChild(el('small',null,'note '+n[3]));
+    c1.appendChild(a);c1.appendChild(el('small',null,'page '+n[0]+', note '+n[3]));
     var c2=el('td');c2.setAttribute('data-label','Main text');c2.appendChild(el('span','gk',clip(n[4])));
     var c3=el('td','calt');c3.setAttribute('data-label','Alternate reading');
     rd.forEach(function(r,k){
