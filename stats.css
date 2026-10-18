@@ -95,6 +95,12 @@ h3.subhead{margin:34px 0 6px;font-size:1.3rem}
 .clist li{background:var(--vellum);border:1px solid var(--rule);padding:8px 14px;font-size:1rem;line-height:1.5}
 .cdet{color:var(--ink-soft)}
 .cdet .gk{color:var(--ink)}
+/* Links turn dark red on hover in the site style sheet; keep the text colors chosen for each square, segment and row */
+a.dc:hover,a.dc:focus-visible{color:var(--ink)}
+a.dc.d3:hover,a.dc.d3:focus-visible,a.dc.d4:hover,a.dc.d4:focus-visible{color:#fff}
+a.seg:hover,a.seg:focus-visible{color:#fff}
+a.seg.k-mixed:hover,a.seg.k-mixed:focus-visible,a.seg.k-form:hover,a.seg.k-form:focus-visible{color:var(--ink)}
+a.rrow:hover,a.rrow:focus-visible{color:var(--ink)}
 @media (min-width:641px){.dhint{display:none}}
 #catnote{flex-basis:100%;order:3;margin:6px 0 0}
 @media (max-width:640px){
