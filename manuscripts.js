@@ -2,6 +2,7 @@
 'use strict';
 var D=window.GNT_DATA, M=D.manuscripts, I=window.GNT_MSINFO||{};
 var CONTENT={e:'Gospels',a:'Acts and Catholic Epistles',p:'Pauline Epistles and Hebrews',r:'Revelation'};
+var SHORT={e:'Gospels',a:'Acts and Catholic Epistles',p:'Paul and Hebrews',r:'Revelation'};
 var LETTER={e:'G',a:'A',p:'P',r:'R'};
 var ROMAN=['','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
 var KIND={p:'Papyrus',u:'Uncial',m:'Minuscule'};
@@ -101,11 +102,13 @@ function list(){
 }
 function gaNode(ga){var f=document.createDocumentFragment();if(ga.charAt(0)==='\uD835'){f.appendChild(document.createTextNode(ga.slice(0,2)));var s=document.createElement('sup');s.className='mk';s.textContent=ga.slice(2);f.appendChild(s);}else f.appendChild(document.createTextNode(ga));return f;}
 /* ---- card ---- */
-function card(r){
-  var m=r.m,x=r.x;
-  var c=el('article','mscard '+ccls(m));c.id='ms-'+m.ga;
+function bandEl(r){
+  var m=r.m;
   var band=el('div','band');band.appendChild(el('span','kind',KIND[r.kind]));band.appendChild(el('span','date',/^\d+$/.test(m.date)?'AD '+m.date:m.date+' century'));
-  c.appendChild(band);
+  return band;
+}
+function topEl(r){
+  var m=r.m,x=r.x;
   var top=el('div','top');
   var g=glyphText(m);var gl=el('div','glyph');gl.setAttribute('aria-hidden','true');
   gl.appendChild(document.createTextNode(g[0]));
@@ -118,13 +121,26 @@ function card(r){
   else{h.appendChild(document.createTextNode('GA '));h.appendChild(gaNode(m.ga));}
   var sm=el('small',null,'GA ');sm.appendChild(gaNode(m.ga));if(m.w&&r.kind!=='p')sm.appendChild(document.createTextNode(' · letter '+m.w));
   h.appendChild(sm);
-  top.appendChild(h);c.appendChild(top);
-  var body=el('div','body');
+  top.appendChild(h);
+  return top;
+}
+function tagsEl(r){
+  var m=r.m,x=r.x;
   var tags=el('div','tags');
   m.c.split('').forEach(function(k){var t=el('span','tag ct');t.title=CONTENT[k];var b=el('b',null,LETTER[k]);t.appendChild(b);t.appendChild(document.createTextNode(' '+CONTENT[k].replace(' and Catholic Epistles','/Catholic').replace(' and Hebrews','/Hebrews')));tags.appendChild(t);});
   (x.tags||[]).forEach(function(t){tags.appendChild(el('span','tag',t));});
   if(m.supp)tags.appendChild(el('span','tag','later supplement'));
-  body.appendChild(tags);
+  return tags;
+}
+function card(r){
+  var m=r.m,x=r.x;
+  var c=el('article','mscard '+ccls(m));c.id='ms-'+m.ga;
+  var flip=el('div','flip');
+  var front=el('div','face front');
+  front.appendChild(bandEl(r));
+  front.appendChild(topEl(r));
+  var body=el('div','body');
+  body.appendChild(tagsEl(r));
   var w=el('div','where'+(x.lib||x.city?'':' unk'));
   if(x.lib||x.city){
     w.appendChild(document.createTextNode((x.lib||'')+(x.city?', '+x.city:'')+(x.ctry&&x.ctry!==x.city?' ('+x.ctry+')':'')));
@@ -143,7 +159,7 @@ function card(r){
   body.appendChild(me);
   var ci=el('div','cited');
   ci.appendChild(document.createTextNode('Cited in '+(x.u||0)+' of the 50 variants. '));
-  if(x.u){var a=el('a',null,'See where');a.href='variants.html#ms='+encodeURIComponent(m.ga);a.title='Open the Fifty variants page and pick this manuscript on the timeline';a.setAttribute('aria-label','See where '+(x.n||('GA '+m.ga.replace(/s$/,'')))+' is cited');ci.appendChild(a);}
+  if(x.u){var a=el('button','seewhere','See where');a.type='button';a.setAttribute('aria-expanded','false');a.title='Turn the card over to list the variants where this manuscript is cited';a.setAttribute('aria-label','See where '+(x.n||('GA '+m.ga.replace(/s$/,'')))+' is cited');a.addEventListener('click',function(){flipTo(c,r,true);});ci.appendChild(a);}
   body.appendChild(ci);
   var lk=el('div','mlinks');
   var who=x.n||('GA '+m.ga.replace(/s$/,''));
@@ -155,8 +171,82 @@ function card(r){
   cb.addEventListener('click',function(){window.GNT_copy(refText(r),cb,'Copied');});
   lk.appendChild(cb);
   body.appendChild(lk);
-  c.appendChild(body);
+  front.appendChild(body);
+  var back=el('div','face back');back.inert=true;
+  flip.appendChild(front);flip.appendChild(back);c.appendChild(flip);
   return c;
+}
+/* ---- the back of a card: where the manuscript is cited ---- */
+function citesFor(ga){
+  var out=[];
+  D.variants.forEach(function(v){
+    var items=[];
+    v.readings.forEach(function(rd,i){
+      rd.wits.forEach(function(w){if(w.ga===ga&&!items.some(function(t){return t.i===i;}))items.push({i:i,r:rd,f:w.f||[]});});
+    });
+    if(items.length)out.push({v:v,items:items});
+  });
+  return out;
+}
+function markText(f){
+  var t=[];
+  f.forEach(function(x){
+    if(x==='orig')t.push('original hand');
+    else if(x==='corr')t.push('a corrector');
+    else if(/^corr\d+$/.test(x))t.push('corrector, hand '+x.slice(4));
+    else if(x==='vid')t.push('reading appears to be this (\u201cvid\u201d)');
+    else if(x==='minor')t.push('differs slightly from this reading');
+  });
+  return t.join('; ');
+}
+function buildBack(back,c,r){
+  var cites=citesFor(r.m.ga);
+  back.appendChild(bandEl(r));
+  back.appendChild(topEl(r));
+  var mid=el('div','bmid');
+  var kinds=r.m.c.split('').map(function(k){return SHORT[k];}).concat(r.x.tags||[]);
+  if(r.m.supp)kinds.push('later supplement');
+  mid.appendChild(el('div','bkinds',kinds.join(' \u00b7 ')));
+  var h=el('h4','bhead','Cited in '+cites.length+' of the 50 variants');h.tabIndex=-1;mid.appendChild(h);
+  if(cites.length>4)mid.appendChild(el('div','bhint','Scroll the list to see all '+cites.length+'.'));
+  back.appendChild(mid);
+  var wrap=el('div','blist-wrap');
+  var ul=el('ul','blist');ul.tabIndex=0;ul.setAttribute('role','region');ul.setAttribute('aria-label','Variants where this manuscript is cited');
+  cites.forEach(function(ct){
+    var li=el('li');
+    var a=el('a','bref',ct.v.ref);a.href='variants.html#v='+ct.v.id;a.title='Open this variant on the Fifty variants page';li.appendChild(a);
+    ct.items.forEach(function(it){
+      var d=el('div','bcite');
+      var rd=it.r;
+      if(rd.status){d.appendChild(el('span','bread',rd.status==='unreadable'?'Cannot be read at this point':'Not accessible at this point'));}
+      else{
+        d.appendChild(el('span','btag'+(rd.main?' main':''),rd.main?'Main text':'Other reading'));
+        d.appendChild(document.createTextNode(' '+rd.label));
+        if(rd.greek){d.appendChild(document.createTextNode(' '));d.appendChild(el('span','greek bgk',rd.greek));}
+      }
+      var mt=markText(it.f);if(mt)d.appendChild(el('span','bmark',' ('+mt+')'));
+      li.appendChild(d);
+    });
+    ul.appendChild(li);
+  });
+  wrap.appendChild(ul);back.appendChild(wrap);
+  var foot=el('div','bfoot');
+  var bk=el('button','linkbtn','\u2039 Back to card');bk.type='button';bk.addEventListener('click',function(){flipTo(c,r,false);});foot.appendChild(bk);
+  var tl=el('a',null,'Show on the timeline');tl.href='variants.html#ms='+encodeURIComponent(r.m.ga);tl.title='Open the Fifty variants page and pick this manuscript on the timeline';foot.appendChild(tl);
+  back.appendChild(foot);
+  back.addEventListener('keydown',function(e){if(e.key==='Escape'){e.stopPropagation();flipTo(c,r,false);}});
+}
+function flipTo(c,r,on){
+  var front=c.querySelector('.front'),back=c.querySelector('.back'),btn=c.querySelector('.cited .seewhere');
+  if(on&&!back.firstChild)buildBack(back,c,r);
+  c.classList.toggle('flipped',on);
+  front.inert=on;back.inert=!on;
+  if(btn)btn.setAttribute('aria-expanded',on?'true':'false');
+  var t=on?back.querySelector('.bhead'):btn;
+  if(t)t.focus({preventScroll:true});
+  /* the flipped card grows, so bring all of it into view once it has */
+  var calm=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  setTimeout(function(){c.scrollIntoView({block:'nearest',behavior:calm?'auto':'smooth'});},calm?0:520);
 }
 var PM={q:'q',type:'ftype',cont:'fcont',cent:'fcent',sort:'fsort'};
 function writeUrl(){

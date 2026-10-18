@@ -37,9 +37,15 @@
 
 /* Cards */
 .msgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:20px}
-.mscard{position:relative;background:var(--vellum);border:1px solid var(--rule);border-radius:4px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 0 rgba(0,0,0,.04);transition:transform .15s,box-shadow .15s}
-.mscard:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(30,40,55,.16)}
-.mscard:target,.mscard.hit{outline:3px solid var(--cc);outline-offset:2px}
+.mscard{position:relative;display:grid;perspective:1500px;scroll-margin:80px 0 84px;transition:transform .15s,min-height .5s ease}
+.mscard.flipped{min-height:min(560px,88vh)}
+.mscard:hover{transform:translateY(-3px)}
+.mscard:target,.mscard.hit{outline:3px solid var(--cc);outline-offset:2px;border-radius:4px}
+.flip{display:grid;position:relative;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.45,.05,.25,1)}
+.mscard.flipped .flip{transform:rotateY(180deg)}
+.face{grid-area:1/1;min-width:0;background:var(--vellum);border:1px solid var(--rule);border-radius:4px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 0 rgba(0,0,0,.04);transition:box-shadow .15s;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.mscard:hover .face{box-shadow:0 10px 22px rgba(30,40,55,.16)}
+.face.back{transform:rotateY(180deg)}
 .mscard .band{background:linear-gradient(120deg,var(--cc),color-mix(in srgb,var(--cc) 60%,#1f2a36));color:#fff;padding:9px 16px;display:flex;justify-content:space-between;align-items:baseline;font-size:.98rem;letter-spacing:.03em}
 .mscard .band .kind{text-transform:uppercase;font-size:.8rem;letter-spacing:.1em;opacity:.92}
 .mscard .band .date{font-variant:small-caps;font-size:1.05rem}
@@ -79,3 +85,36 @@
 .linkbtn{font:inherit;background:none;border:0;padding:0;cursor:pointer}
 .linkbtn:hover,.mlinks a:hover{color:var(--rubric-dark)}
 .count .linkbtn{margin-left:14px;font-size:.98rem}
+
+/* Back of a card: where the manuscript is cited */
+.bmid{padding:6px 16px 8px;display:flex;flex-direction:column;gap:8px}
+.bhead{margin:0;font-size:1.02rem;font-weight:600;color:var(--cc)}
+.bhead:focus{outline:none}
+.blist-wrap{position:relative;flex:1;min-height:210px;border-top:1px solid var(--rule)}
+.blist-wrap::after{content:"";position:absolute;left:0;right:0;bottom:0;height:22px;background:linear-gradient(to bottom,rgba(243,241,234,0),var(--vellum));pointer-events:none}
+.blist{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;list-style:none;margin:0;padding:2px 16px 22px;-webkit-overflow-scrolling:touch}
+.blist:focus-visible{outline:2px solid var(--cc);outline-offset:-2px}
+.blist li{padding:9px 0;border-bottom:1px dotted var(--rule);font-size:.95rem;line-height:1.35}
+.blist li:last-child{border-bottom:0}
+.bref{font-weight:600;color:var(--rubric)}
+.bcite{margin-top:3px;color:var(--ink)}
+.btag{font-size:.75rem;letter-spacing:.05em;text-transform:uppercase;padding:0 .5em;border-radius:999px;border:1px solid var(--rule);color:var(--ink-soft);white-space:nowrap}
+.btag.main{border-color:var(--cc);color:var(--cc)}
+.bgk{color:var(--ink-soft);font-size:.92rem}
+.bmark,.bread{color:var(--ink-soft);font-style:italic}
+.bfoot{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:10px 16px;border-top:1px solid var(--rule);font-size:.95rem}
+.bfoot a{color:var(--rubric)}
+@media (prefers-reduced-motion:reduce){.flip,.mscard{transition:none}}
+@media print{.face.back{display:none}.mscard{perspective:none}}
+
+/* Back of a card, tuned: one line of contents, a scroll hint, and a clearer "See where" button */
+.bkinds{font-size:.92rem;color:var(--ink-soft);line-height:1.35}
+.bhint{font-size:.88rem;font-style:italic;color:var(--ink-soft)}
+.bmid{gap:5px}
+.blist{scrollbar-width:thin;scrollbar-color:var(--cc) transparent}
+.blist::-webkit-scrollbar{width:7px}
+.blist::-webkit-scrollbar-thumb{background:var(--cc);border-radius:4px}
+.cited{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.seewhere{font:inherit;font-size:.92rem;color:var(--cc);background:#fbfaf6;border:1.5px solid var(--cc);border-radius:999px;padding:.1em .9em;cursor:pointer;white-space:nowrap}
+.seewhere:hover{background:var(--cc);color:#fff}
+.seewhere:focus-visible{outline:3px solid var(--cc);outline-offset:2px}
