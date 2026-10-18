@@ -24,3 +24,6 @@ table.agree.errata-table{width:auto;min-width:0;text-align:left}
 .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--rubric);outline-offset:1px}
 .report-form .btn{justify-self:start}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.rf-error{margin:8px 0 0;color:var(--rubric);font-weight:600}
+.g-recaptcha{max-width:100%}
+@media (max-width:380px){.g-recaptcha{transform:scale(.85);transform-origin:0 0;height:66px}}

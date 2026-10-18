@@ -131,6 +131,10 @@
             <label for="rf-email">Your email <span class="opt">(optional, only if you would like a reply)</span></label>
             <input id="rf-email" type="email" name="email" autocomplete="email">
           </div>
+          <div class="field">
+            <div class="g-recaptcha" data-sitekey="6LeYj_QtAAAAABDMMAeEPH-470MEr6Sg6CWPtZDT"></div>
+            <p class="rf-error" id="rfCaptchaMsg" role="alert" hidden>Please tick &ldquo;I&rsquo;m not a robot&rdquo; before sending your report.</p>
+          </div>
           <button class="btn btn-primary" type="submit">Send report</button>
         </form>
       </div>
@@ -148,6 +152,7 @@
 
 <script src="pageviewer.js"></script>
 <script src="report.js"></script>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script src="menu.js"></script>
 <script data-goatcounter="https://greeknt.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
