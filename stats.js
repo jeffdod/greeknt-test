@@ -12,7 +12,7 @@ var FAMCOL={byz:'var(--r3)',crit:'var(--r1)',tr:'var(--r2)'};
 var EDNAME={HF:'Hodges-Farstad',PCK:'Pickering',PT:'Antoniades (Patriarchal Text)',ECM:'Editio Critica Maior',NA27:'Nestle-Aland 27',NA28:'Nestle-Aland 28',SBL:'SBL Greek New Testament',TH:'Tyndale House',WH:'Westcott-Hort',SCR:'Scrivener',ST:'Stephanus'};
 var OPTNAME={PCK:'Pickering',PT:'Antoniades Patriarchal Text',SBL:'SBL Greek NT'};
 function kindOrder(a){return a.slice().sort(function(x,y){return (x==='brk')-(y==='brk');});}
-var KINDS={bracket:'only brackets or parentheses differ',omit:'omits words',add:'adds words',order:'changes the word order',diff:'a different word',elide:'elision',brk:'with brackets',krasis:'krasis, two words written as one',form:'same word, different spelling or form',other:'other changes too',special:'descriptive note'};
+var KINDS={bracket:'only brackets or parentheses differ',omit:'omits words',add:'adds words',order:'changes the word order',diff:'a different word',elide:'elision',brk:'with brackets',krasis:'krasis, two words written as one',form:'same word, different spelling or form',repl:'replaces text',special:'descriptive note'};
 var $=function(id){return document.getElementById(id);};
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
 function fmt(n){return n.toLocaleString('en-US');}
@@ -106,26 +106,27 @@ function buildChart(){
 }
 
 /* ---------- kinds of difference ---------- */
-/* One label per reading. A reading has a single kind only when exactly one of these applies; anything else is "mixed". */
+/* One label per reading: its one main kind (spelling or form, omits, adds, a different word, word order, or replaces text). Elision, krasis and brackets ride along and do not change it. A reading with none of the main kinds is filed under "minor". */
 var CATS=[
   {k:'form',  name:'Spelling or form only', short:'Spelling or form'},
   {k:'omit',  name:'Omits words',           short:'Omits words'},
   {k:'add',   name:'Adds words',            short:'Adds words'},
   {k:'diff',  name:'A different word',      short:'Different word'},
   {k:'order', name:'Word order',            short:'Word order'},
-  {k:'mixed', name:'Several kinds at once, or other', short:'Mixed or other'}
+  {k:'repl',  name:'Replaces text',         short:'Replaces text'},
+  {k:'minor', name:'Elision, krasis, or brackets only', short:'Elision, krasis, brackets'}
 ];
 var CATNAME={};CATS.forEach(function(c){CATNAME[c.k]=c.name;});
-var SINGLE={form:1,omit:1,add:1,diff:1,order:1};
+var MAIN={form:1,omit:1,add:1,diff:1,order:1,repl:1};
 function catOf(r){
-  var s=r[3].filter(function(k){return k!=='brk'&&k!=='special';});
-  return (s.length===1&&SINGLE[s[0]])?s[0]:'mixed';
+  var m=r[3].filter(function(k){return MAIN[k];});
+  return m.length===1?m[0]:(m.length?'repl':'minor');
 }
 /* The kind of difference between edition ed and the main text in note n */
 function catFor(n,ed){
   var b=BIT[ed];
   for(var i=0;i<n[5].length;i++){var r=n[5][i];if((r[0]&b)&&r[1]!=='txt')return catOf(r);}
-  return 'mixed';
+  return 'minor';
 }
 function searchUrl(o){
   var p=[];Object.keys(o).forEach(function(k){if(o[k])p.push(k+'='+encodeURIComponent(o[k]));});
@@ -160,7 +161,7 @@ function buildKinds(){
     row.appendChild(nm);row.appendChild(tr);row.appendChild(el('span','kn',fmt(r.t)));
     g.appendChild(row);
   });
-  $('kindnote').textContent='A segment lists only the notes in which that edition’s reading is of that one kind. “Mixed or other” gathers readings that do several things at once (for example, omit one word and replace another) and readings that could not be given a single label. ECM is counted only where it exists, in Mark, Acts, the Catholic Epistles, and Revelation.';
+  $('kindnote').textContent='A segment lists only the notes in which that edition’s reading is of that one kind. “Replaces text” gathers readings that both remove and add words, or change words in a way that no single simpler label describes. “Elision, krasis, brackets” gathers readings whose only difference is one of those, along with a few descriptive notes. ECM is counted only where it exists, in Mark, Acts, the Catholic Epistles, and Revelation.';
   var h='<thead><tr><th class="corner" scope="col">Edition</th><th scope="col">Differences</th>';
   CATS.forEach(function(x){h+='<th scope="col">'+x.short+'</th>';});
   h+='</tr></thead><tbody>';
@@ -468,7 +469,7 @@ function matches(n,i,f){
   if(f.cat){
     var b2=f.ed?BIT[f.ed]:0,okc=false,seen=false;
     n[5].forEach(function(r){if(r[1]!=='txt'&&(!b2||(r[0]&b2))){seen=true;if(catOf(r)===f.cat)okc=true;}});
-    if(!seen&&f.ed&&f.cat==='mixed')okc=true;
+    if(!seen&&f.ed&&f.cat==='minor')okc=true;
     if(!okc)return false;
   }
   if(f.pat){
@@ -558,7 +559,7 @@ function renderItem(n){
     if(r[0]&BIT.RPmg){}
     d.appendChild(tags);
     var t=el('span','gk',r[1]==='txt'?'reads the main text':r[1]);t.lang='grc';d.appendChild(t);
-    var kk=kindOrder(r[3].filter(function(k){return k!=='special';}));if(kk.length&&r[1]!=='txt'&&!(kk.length===1&&kk[0]==='other')){d.appendChild(el('span','kd',' ('+kk.map(function(k){return KINDS[k];}).join('; ')+')'));}
+    var kk=kindOrder(r[3].filter(function(k){return k!=='special';}));if(kk.length&&r[1]!=='txt'){d.appendChild(el('span','kd',' ('+kk.map(function(k){return KINDS[k];}).join('; ')+')'));}
     li.appendChild(d);
   });
   n[6].forEach(function(b){
@@ -659,7 +660,7 @@ function csvRows(idx){
     var n=N[i],base=[BOOKS[n[1]],BOOKS[n[1]]+' '+n[2],n[3],n[0],n[4]];
     var sv=SPEC[n[1]+'/'+n[0]+'/'+n[3]],ev=sv?evidenceCsv(sv):'';
     n[5].forEach(function(r){
-      var kk=kindOrder(r[3].filter(function(k){return k!=='special'&&(k!=='other'||r[3].length>1);})).map(function(k){return KINDS[k];});
+      var kk=kindOrder(r[3].filter(function(k){return k!=='special';})).map(function(k){return KINDS[k];});
       rows.push(base.concat(['reading',r[1]==='txt'?'(reads the main text)':r[1],edsOf(r[0]).map(function(e){return e==='ECMs'?'ECM†':e;}).join('; '),r[1]==='txt'?'':kk.join('; '),ev]));
     });
     n[6].forEach(function(b){
@@ -695,7 +696,7 @@ function writeUrl(){
 function readUrl(){
   var p=new URLSearchParams(location.search),any=false;
   Object.keys(URLMAP).forEach(function(k){if(p.has(k)){$(URLMAP[k]).value=p.get(k);any=true;}});
-  if(p.has('cat')&&/^(form|omit|add|diff|order|mixed)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;}
+  if(p.has('cat')&&/^(form|omit|add|diff|order|repl|minor)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;}
   if(p.has('share')&&/^(byz|crit|tr|none|critonly|with:(HF|PCK|PT|ECM|NA27|NA28|SBL|TH|WH|SCR|ST))$/.test(p.get('share'))){SHARE=p.get('share');any=true;}
   if(p.has('alone')&&/^(MT|HF|PCK|PT|ECM|NA27|NA28|SBL|TH|WH|SCR|ST)(\.(agree|div))?$/.test(p.get('alone'))){ALONE=p.get('alone');any=true;}
   return any;

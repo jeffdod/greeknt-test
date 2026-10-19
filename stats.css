@@ -58,11 +58,11 @@
 .specnote b{color:var(--ink);font-weight:600}
 
 /* ---- Where the notes fall, spelling or substance, kinds by edition ---- */
-.k-form{background:#9aa9b6}.k-omit{background:#8a2a1e}.k-add{background:#b9803c}.k-diff{background:#3f5670}.k-order{background:#5f8060}.k-mixed{background:#cdc6b3}
-.swatch.k-form,.swatch.k-omit,.swatch.k-add,.swatch.k-diff,.swatch.k-order,.swatch.k-mixed{display:inline-block;width:14px;height:14px;min-width:0;padding:0;border:0}
+.k-form{background:#9aa9b6}.k-omit{background:#8a2a1e}.k-add{background:#b9803c}.k-diff{background:#3f5670}.k-order{background:#5f8060}.k-repl{background:#7a5d86}.k-minor{background:#cdc6b3}
+.swatch.k-form,.swatch.k-omit,.swatch.k-add,.swatch.k-diff,.swatch.k-order,.swatch.k-repl,.swatch.k-minor{display:inline-block;width:14px;height:14px;min-width:0;padding:0;border:0}
 .ktrack{display:flex;height:34px;background:rgba(31,42,54,.06);overflow:hidden}
 .seg{display:flex;align-items:center;justify-content:center;min-width:2px;height:100%;color:#fff;font-size:.9rem;font-variant-numeric:tabular-nums;text-decoration:none;box-shadow:inset -1px 0 0 rgba(255,255,255,.55);overflow:hidden}
-.seg.k-mixed,.seg.k-form{color:var(--ink)}
+.seg.k-minor,.seg.k-form{color:var(--ink)}
 .seg>span{white-space:nowrap}
 .seg:hover,.seg:focus-visible{filter:brightness(1.12);outline-offset:-3px}
 .kgrid{display:grid;gap:8px;margin-top:6px}
@@ -119,7 +119,7 @@ a.acount:hover,a.acount:focus-visible{color:var(--rubric);text-decoration:underl
 a.dc:hover,a.dc:focus-visible{color:var(--ink)}
 a.dc.d3:hover,a.dc.d3:focus-visible,a.dc.d4:hover,a.dc.d4:focus-visible{color:#fff}
 a.seg:hover,a.seg:focus-visible{color:#fff}
-a.seg.k-form:hover,a.seg.k-form:focus-visible,a.seg.k-mixed:hover,a.seg.k-mixed:focus-visible{color:var(--ink)}
+a.seg.k-form:hover,a.seg.k-form:focus-visible,a.seg.k-minor:hover,a.seg.k-minor:focus-visible{color:var(--ink)}
 a.rrow:hover,a.rrow:focus-visible{color:var(--ink)}
 @media (min-width:641px){.dhint{display:none}}
 #catnote{flex-basis:100%;order:3;margin:6px 0 0}
