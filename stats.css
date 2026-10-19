@@ -113,6 +113,8 @@ a.acount:hover,a.acount:focus-visible{color:var(--rubric);text-decoration:underl
 .apct{text-align:right;color:var(--ink-soft);font-variant-numeric:tabular-nums;font-size:.95rem}
 .swatch.al-agree,.swatch.al-div{display:inline-block;width:14px;height:14px;min-width:0;padding:0;border:0;background:var(--ink)}
 .swatch.al-div{background:color-mix(in srgb, var(--ink) 40%, #ebe8df)}
+.arow.wide{grid-template-columns:8.6em 3.6em 1fr 10.5em}
+.arow.wide .apct{text-align:left;font-size:.9rem}
 @media (min-width:641px){.dhint{display:none}}
 #catnote{flex-basis:100%;order:3;margin:6px 0 0}
 @media (max-width:640px){
@@ -120,6 +122,8 @@ a.acount:hover,a.acount:focus-visible{color:var(--rubric);text-decoration:underl
   .rrow{grid-template-columns:6.8em 1fr 6.2em;gap:6px;font-size:.9rem}
   .arow{grid-template-columns:4.7em 2.9em 1fr 3.4em;gap:6px;font-size:.9rem}
   .acount{font-size:1.15rem}
+  .arow.wide{grid-template-columns:5.6em 2.9em 1fr;row-gap:0}
+  .arow.wide .apct{grid-column:3;font-size:.8rem;margin-top:-2px}
   .aname{white-space:nowrap}
   .ctab thead{position:absolute;left:-9999px}
   .ctab,.ctab tbody,.ctab tr,.ctab td,.ctab tbody th{display:block}
