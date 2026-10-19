@@ -133,42 +133,51 @@ function searchUrl(o){
   var p=[];Object.keys(o).forEach(function(k){if(o[k])p.push(k+'='+encodeURIComponent(o[k]));});
   return 'search.html?'+p.join('&')+'#find';
 }
+/* What kind of difference: the four kinds that concern the words themselves, one kind at a time.
+   Each edition's figure is that kind's share of its word-level differences (omits, adds, a different word, replaces text). */
+var WORDKINDS=['omit','add','diff','repl'];
 function buildKinds(){
   var rows=[];
   SHOWN.forEach(function(e){
-    var c={},t=0;CATS.forEach(function(x){c[x.k]=0;});
-    N.forEach(function(n){var g=groupOf(n);if(!edApplies(e,g)||!differs(n,e))return;c[catFor(n,e)]++;t++;});
+    var c={omit:0,add:0,diff:0,repl:0},t=0;
+    N.forEach(function(n){var g=groupOf(n);if(!edApplies(e,g)||!differs(n,e))return;var k=catFor(n,e);if(c.hasOwnProperty(k)){c[k]++;t++;}});
     rows.push({e:e,c:c,t:t});
   });
-  var k=$('kindkey');
-  CATS.forEach(function(x){var s=el('span');s.appendChild(el('i','swatch k-'+x.k));s.appendChild(document.createTextNode(x.short));k.appendChild(s);});
-  $('kindlede').textContent='Each bar is all of one edition’s differences from the main text, taken as 100%, and divided by kind. The number at the right is how many notes name that edition as reading differently. Select a segment to list those notes.';
-  var g=$('kgrid');
-  rows.forEach(function(r){
-    var row=el('div','krow');
-    var nm=el('span','kname',r.e);nm.title=EDNAME[r.e];
-    var fam=el('i','swatch sw-'+FAM[r.e]);nm.insertBefore(fam,nm.firstChild);
-    var tr=el('span','ktrack');
-    CATS.forEach(function(x){
-      var c=r.c[x.k];if(!c)return;
-      var sh=c/r.t;
-      var a=el('a','seg k-'+x.k);a.href=searchUrl({ed:r.e,cat:x.k});
-      a.style.width=(sh*100)+'%';
-      a.title=EDNAME[r.e]+' — '+x.name+': '+fmt(c)+' of '+fmt(r.t)+' differences ('+pct(sh)+'). List them.';
-      a.setAttribute('aria-label',r.e+', '+x.name+': '+fmt(c)+' of '+fmt(r.t)+', '+pct(sh)+'. List them.');
-      a.appendChild(el('span',null,Math.round(sh*100)+'%'));
-      tr.appendChild(a);
-    });
-    row.appendChild(nm);row.appendChild(tr);row.appendChild(el('span','kn',fmt(r.t)));
-    g.appendChild(row);
+  var NAMES={omit:'Omits words',add:'Adds words',diff:'A different word',repl:'Replaces text'};
+  var pick='omit',keyEl=$('kindkey'),g=$('kgrid');
+  $('kindlede').textContent='Choose a kind of change to rank the eleven editions by how often it makes up their word-level differences from the main text. A word-level difference is a reading that omits words, adds words, uses a different word, or replaces text. Each percentage is that kind’s share of the edition’s word-level differences, so an edition’s four shares add up to 100%. Select a row to list those notes.';
+  var btns={};
+  WORDKINDS.forEach(function(k){
+    var b=el('button','kbtn');b.type='button';b.appendChild(el('i','swatch k-'+k));b.appendChild(document.createTextNode(NAMES[k]));
+    b.addEventListener('click',function(){pick=k;draw();});
+    keyEl.appendChild(b);btns[k]=b;
   });
-  $('kindnote').textContent='A segment lists only the notes in which that edition’s reading is of that one kind. A reading that adds (or omits) words and also puts the other words in a different order is counted under “Adds words” (or “Omits words”). “Replaces text” gathers readings that both remove and add words, or change words in a way that no single simpler label describes. “Elision, krasis, brackets” gathers readings whose only difference is one of those, along with a few descriptive notes. ECM is counted only where it exists, in Mark, Acts, the Catholic Epistles, and Revelation.';
-  var h='<thead><tr><th class="corner" scope="col">Edition</th><th scope="col">Differences</th>';
-  CATS.forEach(function(x){h+='<th scope="col">'+x.short+'</th>';});
+  function draw(){
+    WORDKINDS.forEach(function(k){btns[k].setAttribute('aria-pressed',k===pick?'true':'false');});
+    var list=rows.map(function(r){return {r:r,sh:r.t?r.c[pick]/r.t:0};}).sort(function(a,b){return b.sh-a.sh||b.r.c[pick]-a.r.c[pick];});
+    var top=list.length?list[0].sh:0;
+    g.textContent='';
+    list.forEach(function(x){
+      var r=x.r,c=r.c[pick];
+      var row=el('a','kr');row.href=searchUrl({ed:r.e,cat:pick});
+      row.title=EDNAME[r.e]+': '+fmt(c)+' of '+fmt(r.t)+' word-level differences are of this kind ('+pct(x.sh)+'). List them.';
+      row.setAttribute('aria-label',r.e+', '+NAMES[pick]+': '+pct(x.sh)+' ('+fmt(c)+' of '+fmt(r.t)+' word-level differences). List them.');
+      var nm=el('span','kname',r.e);nm.insertBefore(el('i','swatch sw-'+FAM[r.e]),nm.firstChild);
+      var tr=el('span','ktr'),bar=el('span','kbar k-'+pick);bar.style.width=(top?x.sh/top*100:0)+'%';tr.appendChild(bar);
+      row.appendChild(nm);row.appendChild(tr);
+      row.appendChild(el('span','kpct',Math.round(x.sh*100)+'%'));
+      row.appendChild(el('span','kcnt',fmt(c)+' of '+fmt(r.t)));
+      g.appendChild(row);
+    });
+  }
+  draw();
+  $('kindnote').textContent='Bars are scaled to the longest one shown. A reading that adds (or omits) words and also puts the other words in a different order is counted under “Adds words” (or “Omits words”). “Replaces text” gathers readings that both remove and add words, or change words in a way that no single simpler label describes. Differences of spelling or form, word order alone, elision, krasis, and brackets are not charted here; the kind filter in Variant search finds them. ECM is counted only where it exists, in Mark, Acts, the Catholic Epistles, and Revelation.';
+  var h='<thead><tr><th class="corner" scope="col">Edition</th><th scope="col">Word-level differences</th>';
+  WORDKINDS.forEach(function(k){h+='<th scope="col">'+NAMES[k]+'</th>';});
   h+='</tr></thead><tbody>';
   rows.forEach(function(r){
     h+='<tr><th class="pass" scope="row" title="'+EDNAME[r.e]+'">'+r.e+'</th><td class="c">'+fmt(r.t)+'</td>';
-    CATS.forEach(function(x){h+='<td class="c">'+fmt(r.c[x.k])+'<br><small>'+pct(r.c[x.k]/r.t)+'</small></td>';});
+    WORDKINDS.forEach(function(k){h+='<td class="c">'+fmt(r.c[k])+'<br><small>'+pct(r.t?r.c[k]/r.t:0)+'</small></td>';});
     h+='</tr>';
   });
   $('ktable').innerHTML=h+'</tbody>';
