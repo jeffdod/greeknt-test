@@ -623,7 +623,7 @@ function lemmaInto(p,t){
   var a=m[1].length,b=a+m[2].length;
   putMarked(p,t,rg,0,a);putMarked(p,t,rg,a,b,['b','en']);putMarked(p,t,rg,b,t.length);
 }
-function renderItem(n){
+function renderItem(n,idx){
   var li=el('li','res');
   var head=el('div','rhd');
   var ref=el('b',null,BOOKS[n[1]]+' '+n[2]);
@@ -633,6 +633,7 @@ function renderItem(n){
   head.appendChild(el('span','caller',' note '+n[3]));
   li.appendChild(head);
   var lem=el('div','lem');lem.appendChild(el('span','lab','Main text: '));var gr=el('span','gk');gr.lang='grc';lemmaInto(gr,n[4]);lem.appendChild(gr);li.appendChild(lem);
+  var grh=el('div','grhold');grh.dataset.i=idx;grh.dataset.b=n[1];grh.dataset.r=n[2];li.appendChild(grh);
   var enh=el('div','enhold');enh.dataset.b=n[1];enh.dataset.r=n[2];li.appendChild(enh);
   n[5].forEach(function(r){
     var d=el('div','rd');
@@ -727,11 +728,20 @@ function fillEnglish(){
     h.removeAttribute('data-b');if(ln)h.appendChild(ln);
   }
 }
+/* Put the Greek of each result's verse, with the note's words underlined, once the Greek text is here */
+function fillGreek(){
+  if(!window.GNT_GR||!GNT_GR.ready)return;
+  var hs=$('results').querySelectorAll('.grhold[data-i]');
+  for(var i=0;i<hs.length;i++){
+    var h=hs[i],ln=GNT_GR.line(+h.dataset.i,+h.dataset.b,h.dataset.r,true);
+    h.removeAttribute('data-i');if(ln)h.appendChild(ln);
+  }
+}
 var ENPIECES=[];
 function showMore(){
   var ul=$('results'),end=Math.min(hits.length,shown+PER);
-  for(;shown<end;shown++)ul.appendChild(renderItem(N[hits[shown]]));
-  fillEnglish();
+  for(;shown<end;shown++)ul.appendChild(renderItem(N[hits[shown]],hits[shown]));
+  fillEnglish();fillGreek();
   $('more').hidden=shown>=hits.length;
   if(!$('more').hidden)$('more').textContent='Show more ('+fmt(hits.length-shown)+' left)';
 }
@@ -914,6 +924,15 @@ function init(){
       se.checked=GNT_EN.shown();applyEn();
       se.addEventListener('change',function(){GNT_EN.setShown(se.checked);applyEn();});
       document.addEventListener('gntenglish',function(){se.checked=GNT_EN.shown();applyEn();});
+    }
+  }
+  if(window.GNT_GR){
+    var sg=$('fShowGr');
+    if(sg){
+      var applyGr=function(){$('results').classList.toggle('no-gr',!sg.checked);if(sg.checked)GNT_GR.load(fillGreek);};
+      sg.checked=GNT_GR.shown();applyGr();
+      sg.addEventListener('change',function(){GNT_GR.setShown(sg.checked);applyGr();});
+      document.addEventListener('gntgreek',function(){sg.checked=GNT_GR.shown();applyGr();});
     }
   }
   var bl=$('bookList');if(bl)BOOKS.forEach(function(b){bl.appendChild(new Option(b));});
