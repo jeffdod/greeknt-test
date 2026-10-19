@@ -113,12 +113,6 @@
             <option value="trcrit">TR joins a critical edition</option>
           </select>
         </label>
-        <label>Sort the results
-          <select id="fSort">
-            <option value="">In the order of the edition</option>
-            <option value="most">Most editions differing first</option>
-          </select>
-        </label>
         <label>Passage
           <input id="fRef" type="text" placeholder="e.g. Romans 8, John 1:18, or Romans 8:1-17" autocomplete="off">
         </label>
@@ -139,6 +133,13 @@
       <div class="nores" id="nores" aria-live="polite" hidden></div>
       <div class="strip" id="strip" aria-label="Where the matching notes fall in the edition, page by page"></div>
       <div class="stripscale" id="stripscale"></div>
+      <div class="sortrow">
+        <label for="fSort">Sort the results</label>
+        <select id="fSort">
+          <option value="">In the order of the edition</option>
+          <option value="most">Most editions differing first</option>
+        </select>
+      </div>
       <ol class="results" id="results"></ol>
       <p class="more"><button type="button" class="btn btn-quiet" id="more" hidden>Show more</button></p>
       <p class="caveat">An edition not named in a note reads the same as the main text. Accents, punctuation, movable nu, final sigma, and spacing in compound words are not recorded in the apparatus. A note records only a place where at least one edition differs from the main text, so these figures describe the apparatus, not the editions as a whole. Readings appear exactly as the edition prints them. Most are printed without accents; where the edition prints a reading with accents, the accents are kept. Page numbers are the numbers printed in the book. The kind of difference is worked out automatically by comparing the printed words. A reading has one main kind: omits words, adds words, changes the word order, a different word, or the same word in a different spelling or form. “Changes the word order” is used when the words that both texts share appear in a different order. A reading may add words, or omit words, and also change the order of the rest, and then it carries both labels; a reading that does both adding and omitting is “Replaces text.” “A different word” is used only when exactly one word stands in the same place as the word it replaces. A reading that both removes and adds words, that changes several words, or whose change the program cannot describe more simply is labeled “Replaces text.” “Elision,” “krasis” and “with brackets” can accompany any main kind, so a reading that has one of them is counted under both, and the kinds should not be added together. A movable nu or a final sigma is not counted as a difference. “With brackets” is added when the reading itself is printed with square brackets, which the main text never has; it appears next to the other kinds and is also its own choice in the list. “Krasis” is used only for the closed set of joined forms in which και and the next word are written as one, such as κακει for και εκει. Words are matched to their dictionary entries using the Strong’s numbers of the Robinson-Pierpont text, so “same word, different spelling or form” and “a different word” are only given when both words are recognized with certainty. Where the program could not be sure, the reading is labeled “Replaces text.” The CSV download contains every matching note, not only the ones shown on the page, with one row for each reading, one row for each case where an edition prints the main-text reading in brackets, and one row where ECM prints a split guiding line. When a note is also one of the fifty variants, the last column of its rows lists the manuscripts cited for each reading, with the readings separated by ‖, with raised marks written as superscript characters (for example 399ᶜᵛⁱᵈ).</p>
