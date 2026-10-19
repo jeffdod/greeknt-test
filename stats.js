@@ -247,7 +247,7 @@ function buildRP(){
     return {e:e,c:c,t:t};
   });
   ER.sort(function(a,b){return (b.c/b.t)-(a.c/a.t);});
-  $('rpwith').textContent='In how many of the alternate readings does each edition read the same thing? The rows run from the edition that agrees most often to the one that agrees least often. The large figure is the share of the notes in which the edition is compared, and each bar shows the same share. Select a figure or a bar to list those notes.';
+  $('rpwith').innerHTML='Wherever the Robinson-Pierpont edition gives an alternate Byzantine reading (RP<sup>mg</sup>), each of the other editions either reads that alternate reading or does not. The rows rank the editions by how often they agree with those alternate readings, from the edition that agrees most often to the one that agrees least often. The large figure is the percentage of the RP<sup>mg</sup> notes in which the edition reads the alternate reading, and each bar shows the same percentage. Select a figure or a bar to list those notes.';
   var eg=$('egrid');
   ER.forEach(function(r){
     var sh=r.t?r.c/r.t:0;
