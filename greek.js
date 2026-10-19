@@ -56,14 +56,30 @@
     if (s) s.split(';').forEach(function (t) { var p = t.split(','); (out[p[0]] = out[p[0]] || []).push([+p[1], +p[2]]); });
     return (MARKS[i] = out);
   }
-  function put(parent, text, rg) {
-    var at = 0;
+  /* Put text into parent with every word in its own span (so a word can be tapped for its dictionary entry), and the
+     stretches in rg underlined. b is the book and key the verse, so the word can be found in the word data. */
+  function plain(host, text, a, z, rg) {
+    var at = a;
     rg.forEach(function (r) {
-      if (r[0] > at) parent.appendChild(document.createTextNode(text.slice(at, r[0])));
-      var u = document.createElement('u'); u.className = 'vw'; u.textContent = text.slice(r[0], r[1]); parent.appendChild(u);
-      at = r[1];
+      var s = Math.max(r[0], a), e = Math.min(r[1], z);
+      if (s >= e) return;
+      if (s > at) host.appendChild(document.createTextNode(text.slice(at, s)));
+      var u = document.createElement('u'); u.className = 'vw'; u.textContent = text.slice(s, e); host.appendChild(u);
+      at = e;
     });
-    if (at < text.length) parent.appendChild(document.createTextNode(text.slice(at)));
+    if (at < z) host.appendChild(document.createTextNode(text.slice(at, z)));
+  }
+  function put(parent, text, rg, b, key) {
+    var re = /\S+/g, m, at = 0, n = 0;
+    while ((m = re.exec(text))) {
+      if (m.index > at) plain(parent, text, at, m.index, rg);
+      var w = document.createElement('span'); w.className = 'gw';
+      w.dataset.b = b; w.dataset.k = key; w.dataset.n = n++;
+      parent.appendChild(w);
+      plain(w, text, m.index, m.index + m[0].length, rg);
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) plain(parent, text, at, text.length, rg);
   }
   /* The Greek line for note number i (a position in notes-data.js): a label and the verses with the note's words underlined.
      Long passages show the first two verses, with a button for the rest. Returns null when there is no Greek. */
@@ -82,7 +98,7 @@
         host = rest;
       }
       if (vs.length > 1) { var num = document.createElement('sup'); num.className = 'envn'; num.textContent = v.label; host.appendChild(num); }
-      put(host, v.text, mk[v.key] || []);
+      put(host, v.text, mk[v.key] || [], b, v.key);
       host.appendChild(document.createTextNode(' '));
     });
     if (rest) {

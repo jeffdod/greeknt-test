@@ -26,4 +26,17 @@
 .enhold.en-off .enline{display:none}
 .enhold.en-off{margin-bottom:14px}
 
+/* the word popup (see greek-tip.js) */
+.gw{border-radius:2px;cursor:pointer}
+.gw:hover,.gw.gw-on{background:rgba(138,42,30,.1)}
+.gwtip{position:fixed;z-index:60;box-sizing:border-box;width:max-content;max-width:min(340px,calc(100vw - 16px));max-height:min(70vh,420px);overflow:auto;background:var(--vellum);color:var(--ink);border:1px solid var(--rule);border-top:3px solid var(--rubric);box-shadow:0 6px 18px rgba(0,0,0,.2);padding:10px 14px 12px;font-size:.95rem;line-height:1.45;text-align:left;font-weight:400;font-style:normal}
+.gwtip[hidden]{display:none}
+.gwtip .gt-word{font-size:1.3rem;line-height:1.3;margin-bottom:4px}
+.gwtip .gt-an+.gt-an{margin-top:10px;padding-top:8px;border-top:1px dotted var(--rule)}
+.gwtip .gt-num{color:var(--ink-soft);margin-right:8px}
+.gwtip .gt-hw{font-size:1.05rem}
+.gwtip .gt-gloss{margin:2px 0 4px}
+.gwtip .gt-code{font-weight:600;color:var(--rubric)}
+.gwtip .gt-count,.gwtip .gt-many,.gwtip .gt-none,.gwtip .gt-load{color:var(--ink-soft);font-size:.9rem;margin-top:4px}
+
 @media (max-width:640px){.sortrow .showen,.sortrow .showgr{margin-left:0;flex:1 1 100%}}
