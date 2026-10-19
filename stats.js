@@ -106,7 +106,7 @@ function buildChart(){
 }
 
 /* ---------- kinds of difference ---------- */
-/* One label per reading: its one main kind (spelling or form, omits, adds, a different word, word order, or replaces text). Elision, krasis and brackets ride along and do not change it. A reading with none of the main kinds is filed under "minor". */
+/* One label per reading: its one main kind (spelling or form, omits, adds, a different word, word order, or replaces text). A reading that adds or omits words and also rearranges the rest is counted under adds or omits. Elision, krasis and brackets ride along and do not change it. A reading with none of the main kinds is filed under "minor". */
 var CATS=[
   {k:'form',  name:'Spelling or form only', short:'Spelling or form'},
   {k:'omit',  name:'Omits words',           short:'Omits words'},
@@ -120,6 +120,7 @@ var CATNAME={};CATS.forEach(function(c){CATNAME[c.k]=c.name;});
 var MAIN={form:1,omit:1,add:1,diff:1,order:1,repl:1};
 function catOf(r){
   var m=r[3].filter(function(k){return MAIN[k];});
+  if(m.length===2&&m.indexOf('order')>=0)return m[0]==='order'?m[1]:m[0];   /* added or omitted words count first; the reordering rides along */
   return m.length===1?m[0]:(m.length?'repl':'minor');
 }
 /* The kind of difference between edition ed and the main text in note n */
@@ -161,7 +162,7 @@ function buildKinds(){
     row.appendChild(nm);row.appendChild(tr);row.appendChild(el('span','kn',fmt(r.t)));
     g.appendChild(row);
   });
-  $('kindnote').textContent='A segment lists only the notes in which that edition’s reading is of that one kind. “Replaces text” gathers readings that both remove and add words, or change words in a way that no single simpler label describes. “Elision, krasis, brackets” gathers readings whose only difference is one of those, along with a few descriptive notes. ECM is counted only where it exists, in Mark, Acts, the Catholic Epistles, and Revelation.';
+  $('kindnote').textContent='A segment lists only the notes in which that edition’s reading is of that one kind. A reading that adds (or omits) words and also puts the other words in a different order is counted under “Adds words” (or “Omits words”). “Replaces text” gathers readings that both remove and add words, or change words in a way that no single simpler label describes. “Elision, krasis, brackets” gathers readings whose only difference is one of those, along with a few descriptive notes. ECM is counted only where it exists, in Mark, Acts, the Catholic Epistles, and Revelation.';
   var h='<thead><tr><th class="corner" scope="col">Edition</th><th scope="col">Differences</th>';
   CATS.forEach(function(x){h+='<th scope="col">'+x.short+'</th>';});
   h+='</tr></thead><tbody>';
