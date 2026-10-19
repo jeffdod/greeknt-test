@@ -289,8 +289,7 @@ function buildAlone(){
     });
     return {e:e,c:c,t:t};
   });
-  var mx=0;res.forEach(function(r){var s=r.c.agree+r.c.div;if(s>mx)mx=s;});
-  $('alolede').textContent='In some notes one edition reads differently from every other edition, or the main text itself reads differently from every edition. Each bar counts those notes. The darker part is the notes where everything else agrees. The lighter part is the notes where the others are divided among themselves. Select a part to list those notes.';
+  $('alolede').textContent='In some notes one edition reads differently from every other edition, or the main text itself reads differently from every edition. Each bar is all of the notes where that one reads alone, divided in two. The darker part is the notes where everything else agrees. The lighter part is the notes where the others are divided among themselves. The figure at the right is the total, with its share of the notes in which the edition is compared. Select a part, or the total, to list those notes.';
   var key=$('alokey');
   [['Everything else agrees','al-agree'],['The others are divided','al-div']].forEach(function(x){var s=el('span');s.appendChild(el('i','swatch '+x[1]));s.appendChild(document.createTextNode(x[0]));key.appendChild(s);});
   var grid=$('agrid');
@@ -300,20 +299,23 @@ function buildAlone(){
     if(r.e!=='MT'){nm.title=EDNAME[r.e];}
     var colr=r.e==='MT'?'var(--ink)':FAMCOL[FAM[r.e]];
     var tr=el('span','atrack');
-    var tot=r.c.agree+r.c.div,label=r.e==='MT'?'the main text':EDNAME[r.e];
+    var tot=r.c.agree+r.c.div,label=r.e==='MT'?'the main text':EDNAME[r.e],who=r.e==='MT'?'Main text':r.e;
     [['agree','al-agree','everything else agrees'],['div','al-div','the others are divided']].forEach(function(p){
       var c=r.c[p[0]];if(!c)return;
-      var a=el('a','aseg '+p[1]);a.href=searchUrl({alone:r.e+'.'+p[0]});
-      a.style.width=(c/mx*100)+'%';a.style.background=colr;
-      a.title=label.charAt(0).toUpperCase()+label.slice(1)+' reads alone in '+fmt(c)+' notes where '+p[2]+'. List them.';
-      a.setAttribute('aria-label',(r.e==='MT'?'Main text':r.e)+', '+p[2]+': '+fmt(c)+' notes. List them.');
+      var a=el('a','seg aseg '+p[1]);a.href=searchUrl({alone:r.e+'.'+p[0]});
+      a.style.width=(c/tot*100)+'%';
+      a.style.background=p[0]==='agree'?colr:'color-mix(in srgb, '+colr+' 40%, #ebe8df)';
+      a.title=label.charAt(0).toUpperCase()+label.slice(1)+' reads alone in '+fmt(c)+' of '+fmt(tot)+' notes where '+p[2]+'. List them.';
+      a.setAttribute('aria-label',who+', '+p[2]+': '+fmt(c)+' of '+fmt(tot)+' notes. List them.');
+      a.appendChild(el('span',null,fmt(c)));
       tr.appendChild(a);
     });
     row.appendChild(nm);row.appendChild(tr);
-    row.appendChild(el('span','aval',fmt(tot)+' · '+pct(r.t?tot/r.t:0)));
+    var tl=el('a','aval',fmt(tot)+' · '+pct(r.t?tot/r.t:0));tl.href=searchUrl({alone:r.e});tl.title='All '+fmt(tot)+' notes where '+label+' reads alone. List them.';
+    row.appendChild(tl);
     grid.appendChild(row);
   });
-  $('alonote').innerHTML='A note counts here when the edition (or the main text) has a reading that no other edition shares. “Everything else agrees” means that every other edition reads the main text, or, for the main text row, that every edition reads alike. Percentages are shares of the notes in which the edition is compared: the Editio Critica Maior (ECM) only in Mark, Acts, the Catholic Epistles, and Revelation. Alternate readings marked RP<sup>mg</sup> are not counted as an edition.';
+  $('alonote').innerHTML='A note counts here when the edition (or the main text) has a reading that no other edition shares. “Everything else agrees” means that every other edition reads the main text, or, for the main text row, that every edition reads alike. Every bar is drawn to the same full width, whatever its total, so that small totals can be seen and selected. Percentages are shares of the notes in which the edition is compared: the Editio Critica Maior (ECM) only in Mark, Acts, the Catholic Epistles, and Revelation. Alternate readings marked RP<sup>mg</sup> are not counted as an edition.';
 }
 
 /* Show a segment's percentage only when it fits inside the segment */
