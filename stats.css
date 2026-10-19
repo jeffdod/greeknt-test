@@ -106,6 +106,7 @@ h3.subhead{margin:34px 0 6px;font-size:1.3rem}
 .ctab tbody tr:first-child td,.ctab tbody tr:first-child th{border-top:0}
 .ctab tbody th a{font-weight:600;white-space:nowrap}
 .ctab tbody th small{display:block;color:var(--ink-soft);font-size:.88rem}
+.ctab tbody th small a{font-weight:400;white-space:nowrap}
 .ctab .gk{font-size:1.1rem}
 .ctab .calt .gk{color:var(--rubric)}
 .ctab .calt i{color:var(--ink-soft)}
