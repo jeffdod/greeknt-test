@@ -152,3 +152,19 @@ a.rrow:hover,a.rrow:focus-visible{color:var(--ink)}
   .drow{grid-template-columns:8em auto}
   .dname{font-size:.88rem}
 }
+
+/* choices in force, and the no-results help */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.chips[hidden],.nores[hidden]{display:none}
+.chip{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:4px 12px;font:inherit;font-size:.95rem;line-height:1.3;color:var(--ink);background:var(--vellum);border:1px solid var(--rule);border-radius:18px;cursor:pointer;text-align:left}
+.chip sup{font-size:.7em;line-height:0;margin-left:1px}
+.chip .chx{font-size:1.15rem;line-height:1;color:var(--rubric)}
+.chip:hover,.chip:focus-visible{border-color:var(--rubric);color:var(--ink)}
+.nores{margin:0 0 14px;padding:10px 14px;border-left:3px solid var(--rubric);background:rgba(138,42,30,.06)}
+.nores p{margin:0 0 8px;font-size:1rem;color:var(--ink)}
+.nores .nrbtns{display:flex;flex-wrap:wrap;gap:8px;margin:0}
+.nores .btn{height:auto;min-height:44px;padding:6px 14px;text-align:left}
+@media (max-width:640px){
+  .chip{font-size:.9rem}
+  .nores .btn{width:100%}
+}

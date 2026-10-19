@@ -113,6 +113,12 @@
             <option value="trcrit">TR joins a critical edition</option>
           </select>
         </label>
+        <label>Sort the results
+          <select id="fSort">
+            <option value="">In the order of the edition</option>
+            <option value="most">Most editions differing first</option>
+          </select>
+        </label>
         <label>Passage
           <input id="fRef" type="text" placeholder="e.g. Romans 8, John 1:18, or Romans 8:1-17" autocomplete="off">
         </label>
@@ -124,11 +130,13 @@
         <button type="button" class="btn btn-quiet" id="fShare">Copy link to this search</button>
         <button type="button" class="btn btn-quiet" id="fCsv" title="Download every matching note as a spreadsheet file (CSV)">Download results as CSV</button>
       </form>
+      <div class="chips" id="chips" aria-label="Choices in force" hidden></div>
       <div class="rhead">
         <p id="rcount" aria-live="polite"></p>
         <p id="catnote" class="specnote" hidden></p>
         <div id="pagechip"></div>
       </div>
+      <div class="nores" id="nores" aria-live="polite" hidden></div>
       <div class="strip" id="strip" aria-label="Where the matching notes fall in the edition, page by page"></div>
       <div class="stripscale" id="stripscale"></div>
       <ol class="results" id="results"></ol>
