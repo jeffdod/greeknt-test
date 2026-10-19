@@ -463,8 +463,12 @@ function readOf(n,ed){ // index of the reading containing ed, -1 = main text
   var b=BIT[ed];for(var i=0;i<n[5].length;i++){var r=n[5][i];if((r[0]&b)&&r[1]!=='txt')return i;}
   return -1;
 }
+/* Notes the English translation treats as significant (english-effect.js); null when that file is missing or does not fit these notes */
+var EFFSET=null;
+if(window.GNT_EFFECT&&GNT_EFFECT.n===N.length){EFFSET=new Uint8Array(N.length);GNT_EFFECT.ids.forEach(function(i){EFFSET[i]=1;});}
 function matches(n,i,f){
   var g=groupOf(n);
+  if(f.eff&&EFFSET&&(f.eff==='yes')!==(EFFSET[i]===1))return false;
   if(f.where){
     if(f.where.charAt(0)==='g'){if(g!==f.where.slice(2))return false;}
     else if(n[1]!==+f.where.slice(2))return false;
@@ -532,7 +536,7 @@ var BOOKSTART=[];BOOKS.forEach(function(_,bi){var m=1e9;N.forEach(function(n){if
 
 function getFilters(){
   var rf=parseRef($('fRef').value);
-  return {ed:ALONE?'':$('fEd').value,rel:$('fRel').value,where:$('fWhere').value,kind:CAT?'':$('fKind').value,pat:$('fPat').value,ref:rf&&!rf.bad?rf:null,refBad:!!(rf&&rf.bad),greek:greekPieces($('fGreek').value),cat:CAT,share:SHARE,alone:ALONE,sort:$('fSort')?$('fSort').value:'',eng:window.GNT_EN?GNT_EN.pieces($('fEng').value):[]};
+  return {ed:ALONE?'':$('fEd').value,rel:$('fRel').value,where:$('fWhere').value,kind:CAT?'':$('fKind').value,pat:$('fPat').value,eff:EFFSET&&$('fEff')?$('fEff').value:'',ref:rf&&!rf.bad?rf:null,refBad:!!(rf&&rf.bad),greek:greekPieces($('fGreek').value),cat:CAT,share:SHARE,alone:ALONE,sort:$('fSort')?$('fSort').value:'',eng:window.GNT_EN?GNT_EN.pieces($('fEng').value):[]};
 }
 function tag(e){
   if(e==='RPmg'){var t=el('span','etag f-byz','RP');t.appendChild(el('sup',null,'mg'));t.title='Robinson-Pierpont, alternate Byzantine reading';return t;}
@@ -785,6 +789,7 @@ function activeChips(f){
   if($('fWhere').value)add('Where: '+optText('fWhere'),null,function(){$('fWhere').value='';},function(g){g.where='';});
   if(!CAT&&$('fKind').value)add('Kind: '+optText('fKind'),null,function(){$('fKind').value='';dropStats('fKind');},function(g){g.kind='';g.cat='';});
   if($('fPat').value)add('Pattern: '+optText('fPat'),null,function(){$('fPat').value='';dropStats('fPat');},function(g){g.pat='';g.cat='';g.share='';g.alone='';});
+  if(EFFSET&&$('fEff').value)add('Effect on the English: '+optText('fEff'),null,function(){$('fEff').value='';},function(g){g.eff='';});
   if($('fRef').value.trim())add('Passage: '+$('fRef').value.trim(),null,function(){$('fRef').value='';},function(g){g.ref=null;g.refBad=false;});
   if($('fEng').value.trim())add('English: '+$('fEng').value.trim(),null,function(){$('fEng').value='';},function(g){g.eng=[];});
   if($('fGreek').value.trim())add('Greek: '+$('fGreek').value.trim(),null,function(){$('fGreek').value='';},function(g){g.greek=[];});
@@ -824,7 +829,7 @@ function buildChips(f){
 }
 
 /* ---------- how many notes each choice would show ---------- */
-var CNTSEL={fEd:'ed',fWhere:'where',fKind:'kind',fPat:'pat'};
+var CNTSEL={fEd:'ed',fWhere:'where',fKind:'kind',fPat:'pat',fEff:'eff'};
 var cntTimer=0;
 function scheduleCounts(){clearTimeout(cntTimer);cntTimer=setTimeout(updateCounts,120);}
 function updateCounts(){
@@ -836,6 +841,7 @@ function updateCounts(){
       if(id==='fEd'){f.ed=o.value;f.share='';f.alone='';}
       else if(id==='fKind'){f.kind=o.value;f.cat='';}
       else if(id==='fPat'){f.pat=o.value;f.cat='';f.share='';f.alone='';}
+      else if(id==='fEff')f.eff=o.value;
       else f.where=o.value;
       o.text=o.dataset.lab+' ('+fmt(f.refBad?0:countFor(f))+')';
     });
@@ -845,18 +851,19 @@ function updateCounts(){
 /* The Reference column includes the book name (Matthew 6:1) so that Excel keeps it as text; a bare 6:1 would be turned into a time of day. */
 function csvCell(v){return '"'+String(v).replace(/"/g,'""')+'"';}
 function csvRows(idx){
-  var rows=[['Book','Reference','Note','Printed page','Main text','Row type','Reading','Editions','Kind of difference','Manuscript evidence (fifty variants)']];
+  var rows=[['Book','Reference','Note','Printed page','Main text','Row type','Reading','Editions','Kind of difference','Manuscript evidence (fifty variants)'].concat(EFFSET?['Changes the English']:[])];
   idx.forEach(function(i){
     var n=N[i],base=[BOOKS[n[1]],BOOKS[n[1]]+' '+n[2],n[3],n[0],n[4]];
     var sv=SPEC[n[1]+'/'+n[0]+'/'+n[3]],ev=sv?evidenceCsv(sv):'';
+    var ef=EFFSET?[EFFSET[i]===1?'Yes':'No']:[];
     n[5].forEach(function(r){
       var kk=kindOrder(r[3].filter(function(k){return k!=='special';})).map(function(k){return KINDS[k];});
-      rows.push(base.concat(['reading',r[1]==='txt'?'(reads the main text)':r[1],edsOf(r[0]).map(function(e){return e==='ECMs'?'ECM†':e;}).join('; '),r[1]==='txt'?'':kk.join('; '),ev]));
+      rows.push(base.concat(['reading',r[1]==='txt'?'(reads the main text)':r[1],edsOf(r[0]).map(function(e){return e==='ECMs'?'ECM†':e;}).join('; '),r[1]==='txt'?'':kk.join('; '),ev].concat(ef)));
     });
     n[6].forEach(function(b){
-      rows.push(base.concat(['main text printed in '+(b[0]===2?'double brackets':b[0]===3?'chevrons':'brackets'),'',edsOf(b[1]).join('; '),'',ev]));
+      rows.push(base.concat(['main text printed in '+(b[0]===2?'double brackets':b[0]===3?'chevrons':'brackets'),'',edsOf(b[1]).join('; '),'',ev].concat(ef)));
     });
-    if(n[7])rows.push(base.concat(['ECM split guiding line','','ECM†','',ev]));
+    if(n[7])rows.push(base.concat(['ECM split guiding line','','ECM†','',ev].concat(ef)));
   });
   return rows;
 }
@@ -871,7 +878,7 @@ function downloadCsv(){
 var ALONE='';   /* set only by a link from the Stats page: an edition (or the main text) reading alone */
 var SHARE='';   /* set only by a link from the Stats page: who else reads an alternate Byzantine reading */
 var CAT='';   /* set only by a link from the Stats page: a kind of difference chosen there */
-var URLMAP={ed:'fEd',rel:'fRel',where:'fWhere',kind:'fKind',pat:'fPat',ref:'fRef',greek:'fGreek',eng:'fEng',sort:'fSort'};
+var URLMAP={ed:'fEd',rel:'fRel',where:'fWhere',kind:'fKind',pat:'fPat',eff:'fEff',ref:'fRef',greek:'fGreek',eng:'fEng',sort:'fSort'};
 var URLDEF={rel:'differs'};
 var LASTKEY='gnt-last-search',RESTORED=0;
 function writeUrl(){
@@ -898,6 +905,7 @@ function init(){
   if($('cgrid')){buildKey();buildChart();buildDensity();buildKinds();buildRP();buildAlone();fitLabels();window.addEventListener('load',fitLabels);window.addEventListener('resize',fitLabels);}
   if(!$('filters'))return;
   buildFilters();stripHover();
+  if(!EFFSET){var el0=$('fEff');if(el0&&el0.parentNode)el0.parentNode.hidden=true;}
   if(window.GNT_EN){
     GNT_EN.load(fillEnglish);
     var se=$('fShowEn');
@@ -909,11 +917,11 @@ function init(){
     }
   }
   var bl=$('bookList');if(bl)BOOKS.forEach(function(b){bl.appendChild(new Option(b));});
-  ['fEd','fRel','fWhere','fKind','fPat'].forEach(function(id){$(id).addEventListener('change',function(){dropStats(id);update();});});
+  ['fEd','fRel','fWhere','fKind','fPat','fEff'].forEach(function(id){$(id).addEventListener('change',function(){dropStats(id);update();});});
   $('fSort').addEventListener('change',update);
   var tm;['fRef','fGreek','fEng'].forEach(function(id){$(id).addEventListener('input',function(){clearTimeout(tm);tm=setTimeout(update,200);});});
   $('fReset').addEventListener('click',function(){
-    $('fEd').value='';$('fRel').value='differs';$('fWhere').value='';$('fKind').value='';$('fPat').value='';$('fRef').value='';$('fGreek').value='';$('fEng').value='';$('fSort').value='';CAT='';SHARE='';ALONE='';update();
+    $('fEd').value='';$('fRel').value='differs';$('fWhere').value='';$('fKind').value='';$('fPat').value='';$('fEff').value='';$('fRef').value='';$('fGreek').value='';$('fEng').value='';$('fSort').value='';CAT='';SHARE='';ALONE='';update();
   });
   $('more').addEventListener('click',showMore);
   var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){drawStrip(hits);},150);});

@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Greek NT">
 <title>Variant Search · The Greek New Testament According to the Byzantine Text</title>
-<meta name="description" content="Find every note in the Edition Apparatus by edition, passage, kind of difference, Greek word, or English word, and download the results as a spreadsheet.">
+<meta name="description" content="Find every note in the Edition Apparatus by edition, passage, kind of difference, effect on the English, Greek word, or English word, and download the results as a spreadsheet.">
 <link rel="canonical" href="https://greeknt.org/search.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Guardian Press">
@@ -67,7 +67,7 @@
   <div class="xhero">
     <div class="wrap">
       <h1>Variant search</h1>
-      <p class="lede">Choose an edition, a passage, a kind of difference, or a Greek or English word, and see every matching note in the Edition Apparatus with its page number. Each note shows the English of its verse, and the words you searched for are highlighted. The strip shows where in the edition the matches fall. Each choice you make appears as a button above the results, which you can click to remove it, and the number beside each choice in the lists is how many notes it would show. For the totals instead, see the <a href="stats.html">stats</a>.</p>
+      <p class="lede">Choose an edition, a passage, a kind of difference, whether the variant changes the English, or a Greek or English word, and see every matching note in the Edition Apparatus with its page number. Each note shows the English of its verse, and the words you searched for are highlighted. The strip shows where in the edition the matches fall. Each choice you make appears as a button above the results, which you can click to remove it, and the number beside each choice in the lists is how many notes it would show. For the totals instead, see the <a href="stats.html">stats</a>.</p>
     </div>
   </div>
 
@@ -106,7 +106,7 @@
             <option value="repl">Replaces text (words both removed and added)</option>
           </select>
         </label>
-        <label class="span2">Pattern among editions
+        <label>Pattern among editions
           <select id="fPat">
             <option value="">Any</option>
             <option value="critall">Critical editions agree</option>
@@ -115,7 +115,14 @@
             <option value="trcrit">TR joins a critical edition</option>
           </select>
         </label>
-        <label class="span2">Passage
+        <label>Effect on the English
+          <select id="fEff">
+            <option value="">Any</option>
+            <option value="yes">Changes the English</option>
+            <option value="no">No change to the English</option>
+          </select>
+        </label>
+        <label class="wide">Passage
           <input id="fRef" type="text" list="bookList" placeholder="e.g. Romans 8 or John 1:18-25" autocomplete="off" spellcheck="false">
           <datalist id="bookList"></datalist>
         </label>
@@ -153,7 +160,7 @@
       </div>
       <ol class="results" id="results"></ol>
       <p class="more"><button type="button" class="btn btn-quiet" id="more" hidden>Show more</button></p>
-      <p class="caveat">An edition not named in a note reads the same as the main text. Accents, punctuation, movable nu, final sigma, and spacing in compound words are not recorded in the apparatus. A note records only a place where at least one edition differs from the main text, so these figures describe the apparatus, not the editions as a whole. Readings appear exactly as the edition prints them. Most are printed without accents; where the edition prints a reading with accents, the accents are kept. Page numbers are the numbers printed in the book. The English is the Boyd ASVBT, a form of the American Standard Version made to follow the Byzantine text, which is in the public domain; it is matched verse for verse to this edition, so a verse number this edition prints without text has no English. An English search looks in the verses a note covers, not in the wording of the note itself. The kind of difference is worked out automatically by comparing the printed words. A reading has one main kind: omits words, adds words, changes the word order, a different word, or the same word in a different spelling or form. “Changes the word order” is used when the words that both texts share appear in a different order. A reading may add words, or omit words, and also change the order of the rest, and then it carries both labels; a reading that does both adding and omitting is “Replaces text.” “A different word” is used only when exactly one word stands in the same place as the word it replaces. A reading that both removes and adds words, that changes several words, or whose change the program cannot describe more simply is labeled “Replaces text.” “Elision,” “crasis” and “with brackets” can accompany any main kind, so a reading that has one of them is counted under both, and the kinds should not be added together. A movable nu or a final sigma is not counted as a difference. “With brackets” is added when the reading itself is printed with square brackets, which the main text never has; it appears next to the other kinds and is also its own choice in the list. “Crasis” is used only for the closed set of joined forms in which και and the next word are written as one, such as κακει for και εκει. Words are matched to their dictionary entries using the Strong’s numbers of the Robinson-Pierpont text, so “same word, different spelling or form” and “a different word” are only given when both words are recognized with certainty. Where the program could not be sure, the reading is labeled “Replaces text.” The CSV download contains every matching note, not only the ones shown on the page, with one row for each reading, one row for each case where an edition prints the main-text reading in brackets, and one row where ECM prints a split guiding line. When a note is also one of the fifty variants, the last column of its rows lists the manuscripts cited for each reading, with the readings separated by ‖, with raised marks written as superscript characters (for example 399ᶜᵛⁱᵈ).</p>
+      <p class="caveat">An edition not named in a note reads the same as the main text. Accents, punctuation, movable nu, final sigma, and spacing in compound words are not recorded in the apparatus. A note records only a place where at least one edition differs from the main text, so these figures describe the apparatus, not the editions as a whole. Readings appear exactly as the edition prints them. Most are printed without accents; where the edition prints a reading with accents, the accents are kept. Page numbers are the numbers printed in the book. The English is the Boyd ASVBT, a form of the American Standard Version made to follow the Byzantine text, which is in the public domain; it is matched verse for verse to this edition, so a verse number this edition prints without text has no English. An English search looks in the verses a note covers, not in the wording of the note itself. “Effect on the English” comes from an English translation of this Greek text, whose footnotes mark the places where a variant changes the translation. A note is marked “Changes the English” when that translation has a footnote at the same place; every other note is marked “No change to the English.” The marks reflect that translator’s judgment, not a measurement, and a few variants may matter to the English more or less than the translator thought. The kind of difference is worked out automatically by comparing the printed words. A reading has one main kind: omits words, adds words, changes the word order, a different word, or the same word in a different spelling or form. “Changes the word order” is used when the words that both texts share appear in a different order. A reading may add words, or omit words, and also change the order of the rest, and then it carries both labels; a reading that does both adding and omitting is “Replaces text.” “A different word” is used only when exactly one word stands in the same place as the word it replaces. A reading that both removes and adds words, that changes several words, or whose change the program cannot describe more simply is labeled “Replaces text.” “Elision,” “crasis” and “with brackets” can accompany any main kind, so a reading that has one of them is counted under both, and the kinds should not be added together. A movable nu or a final sigma is not counted as a difference. “With brackets” is added when the reading itself is printed with square brackets, which the main text never has; it appears next to the other kinds and is also its own choice in the list. “Crasis” is used only for the closed set of joined forms in which και and the next word are written as one, such as κακει for και εκει. Words are matched to their dictionary entries using the Strong’s numbers of the Robinson-Pierpont text, so “same word, different spelling or form” and “a different word” are only given when both words are recognized with certainty. Where the program could not be sure, the reading is labeled “Replaces text.” The CSV download contains every matching note, not only the ones shown on the page, with one row for each reading, one row for each case where an edition prints the main-text reading in brackets, and one row where ECM prints a split guiding line. When a note is also one of the fifty variants, the last column of its rows lists the manuscripts cited for each reading, with the readings separated by ‖, with raised marks written as superscript characters (for example 399ᶜᵛⁱᵈ).</p>
     </div>
   </section>
 
@@ -184,6 +191,7 @@
 <script src="greekinput.js"></script>
 <script src="manuscripts-data.js"></script>
 <script src="english.js"></script>
+<script src="english-effect.js"></script>
 <script src="stats.js"></script>
 <script src="explorer.js"></script>
 <script src="menu.js"></script>
