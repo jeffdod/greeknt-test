@@ -1,9 +1,9 @@
 /* Self-hosted fonts (SIL Open Font License; see fonts/OFL-*.txt) */
-@font-face{font-family:"EB Garamond";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/EBGaramond-Regular.woff") format("woff")}
-@font-face{font-family:"EB Garamond";font-style:normal;font-weight:500;font-display:swap;src:url("fonts/EBGaramond-Medium.woff") format("woff")}
-@font-face{font-family:"EB Garamond";font-style:normal;font-weight:600;font-display:swap;src:url("fonts/EBGaramond-SemiBold.woff") format("woff")}
-@font-face{font-family:"EB Garamond";font-style:italic;font-weight:400;font-display:swap;src:url("fonts/EBGaramond-Italic.woff") format("woff")}
-@font-face{font-family:"GFS Didot";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/GFSDidot-Regular.woff") format("woff")}
+@font-face{font-family:"EB Garamond";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/EBGaramond-Regular.woff2") format("woff2")}
+@font-face{font-family:"EB Garamond";font-style:normal;font-weight:500;font-display:swap;src:url("fonts/EBGaramond-Medium.woff2") format("woff2")}
+@font-face{font-family:"EB Garamond";font-style:normal;font-weight:600;font-display:swap;src:url("fonts/EBGaramond-SemiBold.woff2") format("woff2")}
+@font-face{font-family:"EB Garamond";font-style:italic;font-weight:400;font-display:swap;src:url("fonts/EBGaramond-Italic.woff2") format("woff2")}
+@font-face{font-family:"GFS Didot";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/GFSDidot-Regular.woff2") format("woff2")}
 
 /* ---------- Colors: stone paper, iron-gall ink, rubric red ---------- */
 :root{
