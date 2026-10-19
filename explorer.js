@@ -300,7 +300,7 @@ function renderPick(){
   V.forEach(function(v){var o=el('option',null,v.ref);o.value=v.id;s.appendChild(o);});
   s.addEventListener('change',function(){tlState.variant=s.value;clearMs();renderContentFilter();renderTimeline();});
 }
-function pickVariant(id){clearMs();tlState.variant=id;$('variantPick').value=id;renderContentFilter();renderTimeline();document.getElementById('timeline').scrollIntoView({behavior:'smooth',block:'start'});}
+function pickVariant(id,instant){clearMs();tlState.variant=id;$('variantPick').value=id;renderContentFilter();renderTimeline();document.getElementById('timeline').scrollIntoView({behavior:instant?'instant':'smooth',block:'start'});}
 function isCorr(f){f=f||[];if(f.indexOf('orig')>=0)return false;return f.some(function(x){return x==='corr'||/^corr\d+$/.test(x);});}
 function witnessMap(v){
   /* per manuscript: the reading of the manuscript itself (original hand or unmarked), and separately any corrector readings */
@@ -411,10 +411,10 @@ function selectMs(ga){
   host.appendChild(ul);
   if(window.matchMedia('(max-width:980px)').matches)host.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-function showOnTimeline(ga,vid){tlState.variant=vid;$('variantPick').value=vid;renderContentFilter();
+function showOnTimeline(ga,vid,instant){tlState.variant=vid;$('variantPick').value=vid;renderContentFilter();
   /* make sure the manuscript's content type is visible */
   var m=byGa[ga];if(!m.c.split('').some(function(c){return tlState.content[c];})){m.c.split('').forEach(function(c){tlState.content[c]=true;});renderContentFilter();}
-  renderTimeline();document.getElementById('timeline').scrollIntoView({behavior:'smooth',block:'start'});selectMs(ga);}
+  renderTimeline();document.getElementById('timeline').scrollIntoView({behavior:instant?'instant':'smooth',block:'start'});selectMs(ga);}
 
 
 /* ---------- Edition agreement grid ---------- */
@@ -480,11 +480,21 @@ window.GNTOpenVariant=function(id,ids){
   openVariant(id);
 };
 if(location.hash&&location.hash.indexOf('#v=')===0){var v0=location.hash.slice(3);hist('replaceState',null,'');openVariant(v0);}
+/* Arriving from another page with a link to the timeline: jump there at once, and again as the page finishes loading
+   (fonts and images above the timeline can still move it), until the visitor scrolls on their own. */
+function settleOnTimeline(){
+  var stop=false;
+  function jump(){if(!stop)document.getElementById('timeline').scrollIntoView({block:'start'});}
+  ['wheel','touchstart','keydown','mousedown'].forEach(function(ev){window.addEventListener(ev,function(){stop=true;},{once:true,passive:true});});
+  if(document.readyState!=='complete')window.addEventListener('load',jump,{once:true});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(jump);
+  setTimeout(jump,300);setTimeout(function(){stop=true;},2500);
+}
 if(onVariantsPage){
   if(location.hash&&location.hash.indexOf('#ms=')===0){
     var hp=location.hash.slice(4).split('&v='),g0=decodeURIComponent(hp[0]);
-    if(byGa[g0]){if(hp[1]&&V.some(function(x){return x.id===hp[1];}))showOnTimeline(g0,hp[1]);else{selectMs(g0);document.getElementById('timeline').scrollIntoView({block:'start'});}}
+    if(byGa[g0]){if(hp[1]&&V.some(function(x){return x.id===hp[1];}))showOnTimeline(g0,hp[1],true);else{selectMs(g0);document.getElementById('timeline').scrollIntoView({block:'start'});}settleOnTimeline();}
   }
-  if(location.hash&&location.hash.indexOf('#tl=')===0){var t0=location.hash.slice(4);if(V.some(function(x){return x.id===t0;}))pickVariant(t0);}
+  if(location.hash&&location.hash.indexOf('#tl=')===0){var t0=location.hash.slice(4);if(V.some(function(x){return x.id===t0;})){pickVariant(t0,true);settleOnTimeline();}}
 }
 })();
