@@ -166,7 +166,6 @@ function buildKinds(){
       var tr=el('span','ktr'),bar=el('span','kbar k-'+pick);bar.style.width=(top?x.sh/top*100:0)+'%';tr.appendChild(bar);
       row.appendChild(nm);row.appendChild(tr);
       row.appendChild(el('span','kpct',Math.round(x.sh*100)+'%'));
-      row.appendChild(el('span','kcnt',fmt(c)+' of '+fmt(r.t)));
       g.appendChild(row);
     });
   }
