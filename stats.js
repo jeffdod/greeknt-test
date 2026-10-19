@@ -252,6 +252,70 @@ function buildRP(){
   $('cnote').textContent='The Greek is shown as it is printed in the apparatus, where most words appear without accents or breathing marks.';
 }
 
+/* ---------- standing alone ---------- */
+/* Which reading of the note an edition has: its index among the note's readings, -1 for the main text, -2 for ECM's split line */
+function ridx(n,e){
+  var b=BIT[e];
+  for(var i=0;i<n[5].length;i++){var r=n[5][i];if(r[1]!=='txt'&&(r[0]&b))return i;}
+  if(e==='ECM'&&ecmBothBranchesDiffer(n))return -2;
+  return -1;
+}
+/* Does entity e (an edition, or 'MT' for the main text) read alone in note n?
+   Returns 'agree' when everyone else reads alike, 'div' when the others are divided, or '' when e is not alone. */
+function aloneKind(n,e){
+  var g=groupOf(n);if(e!=='MT'&&!edApplies(e,g))return '';
+  var others=SHOWN.filter(function(x){return x!==e&&edApplies(x,g);});
+  if(e==='MT'){
+    var seen={},k=0;
+    for(var i=0;i<others.length;i++){var v=ridx(n,others[i]);if(v===-1)return '';if(!seen[v]){seen[v]=1;k++;}}
+    return k===1?'agree':'div';
+  }
+  var mine=ridx(n,e);if(mine<0)return '';
+  var allMain=true;
+  for(var j=0;j<others.length;j++){var o=ridx(n,others[j]);if(o===mine)return '';if(o!==-1)allMain=false;}
+  return allMain?'agree':'div';
+}
+function aloneTest(n,spec){
+  var p=spec.split('.'),k=aloneKind(n,p[0]);
+  return !!k&&(!p[1]||p[1]===k);
+}
+function buildAlone(){
+  var rows=['MT'].concat(SHOWN);
+  var res=rows.map(function(e){
+    var c={agree:0,div:0},t=0;
+    N.forEach(function(n){
+      var g=groupOf(n);if(e!=='MT'&&!edApplies(e,g))return;t++;
+      var k=aloneKind(n,e);if(k)c[k]++;
+    });
+    return {e:e,c:c,t:t};
+  });
+  var mx=0;res.forEach(function(r){var s=r.c.agree+r.c.div;if(s>mx)mx=s;});
+  $('alolede').textContent='In some notes one edition reads differently from every other edition, or the main text itself reads differently from every edition. Each bar counts those notes. The darker part is the notes where everything else agrees. The lighter part is the notes where the others are divided among themselves. Select a part to list those notes.';
+  var key=$('alokey');
+  [['Everything else agrees','al-agree'],['The others are divided','al-div']].forEach(function(x){var s=el('span');s.appendChild(el('i','swatch '+x[1]));s.appendChild(document.createTextNode(x[0]));key.appendChild(s);});
+  var grid=$('agrid');
+  res.forEach(function(r){
+    var row=el('div','arow');
+    var nm=el('span','aname',r.e==='MT'?'Main text':r.e);
+    if(r.e!=='MT'){nm.title=EDNAME[r.e];}
+    var colr=r.e==='MT'?'var(--ink)':FAMCOL[FAM[r.e]];
+    var tr=el('span','atrack');
+    var tot=r.c.agree+r.c.div,label=r.e==='MT'?'the main text':EDNAME[r.e];
+    [['agree','al-agree','everything else agrees'],['div','al-div','the others are divided']].forEach(function(p){
+      var c=r.c[p[0]];if(!c)return;
+      var a=el('a','aseg '+p[1]);a.href=searchUrl({alone:r.e+'.'+p[0]});
+      a.style.width=(c/mx*100)+'%';a.style.background=colr;
+      a.title=label.charAt(0).toUpperCase()+label.slice(1)+' reads alone in '+fmt(c)+' notes where '+p[2]+'. List them.';
+      a.setAttribute('aria-label',(r.e==='MT'?'Main text':r.e)+', '+p[2]+': '+fmt(c)+' notes. List them.');
+      tr.appendChild(a);
+    });
+    row.appendChild(nm);row.appendChild(tr);
+    row.appendChild(el('span','aval',fmt(tot)+' · '+pct(r.t?tot/r.t:0)));
+    grid.appendChild(row);
+  });
+  $('alonote').innerHTML='A note counts here when the edition (or the main text) has a reading that no other edition shares. “Everything else agrees” means that every other edition reads the main text, or, for the main text row, that every edition reads alike. Percentages are shares of the notes in which the edition is compared: the Editio Critica Maior (ECM) only in Mark, Acts, the Catholic Epistles, and Revelation. Alternate readings marked RP<sup>mg</sup> are not counted as an edition.';
+}
+
 /* Show a segment's percentage only when it fits inside the segment */
 function fitLabels(){
   var segs=document.querySelectorAll('.seg > span');
@@ -367,6 +431,7 @@ function matches(n,i,f){
   }
   if(f.rel==='split'&&f.kind){var ok2=false;n[5].forEach(function(r){if(r[3].indexOf(f.kind)>=0)ok2=true;});if(!ok2)return false;}
   if(f.share&&!shareTest(n,f.share))return false;
+  if(f.alone&&!aloneTest(n,f.alone))return false;
   if(f.cat){
     var b2=f.ed?BIT[f.ed]:0,okc=false,seen=false;
     n[5].forEach(function(r){if(r[1]!=='txt'&&(!b2||(r[0]&b2))){seen=true;if(catOf(r)===f.cat)okc=true;}});
@@ -399,7 +464,7 @@ var BOOKSTART=[];BOOKS.forEach(function(_,bi){var m=1e9;N.forEach(function(n){if
 
 function getFilters(){
   var rf=parseRef($('fRef').value);
-  return {ed:$('fEd').value,rel:$('fRel').value,where:$('fWhere').value,kind:$('fKind').value,pat:$('fPat').value,ref:rf&&!rf.bad?rf:null,refBad:!!(rf&&rf.bad),greek:greekPieces($('fGreek').value),cat:CAT,share:SHARE};
+  return {ed:$('fEd').value,rel:$('fRel').value,where:$('fWhere').value,kind:$('fKind').value,pat:$('fPat').value,ref:rf&&!rf.bad?rf:null,refBad:!!(rf&&rf.bad),greek:greekPieces($('fGreek').value),cat:CAT,share:SHARE,alone:ALONE};
 }
 function tag(e){
   if(e==='RPmg'){var t=el('span','etag f-byz','RP');t.appendChild(el('sup',null,'mg'));t.title='Robinson-Pierpont, alternate Byzantine reading';return t;}
@@ -543,11 +608,12 @@ function update(){
   var c=$('rcount');
   if(f.refBad)c.textContent='I could not read that passage. Try a form like “Romans 8”, “John 1:18”, or “1 Cor 13”.';
   else c.textContent=out.length===0?'No notes match these choices.':fmt(out.length)+' note'+(out.length===1?'':'s')+' ('+pct(out.length/N.length)+' of all '+fmt(N.length)+') on '+fmt(new Set(out.map(function(i){return N[i][0];})).size)+(new Set(out.map(function(i){return N[i][0];})).size===1?' page.':' pages.');
-  $('catnote').hidden=!((CAT||SHARE)&&!f.refBad);
+  $('catnote').hidden=!((CAT||SHARE||ALONE)&&!f.refBad);
   var cm=[];
   if(CAT)cm.push('readings whose one kind of difference is “'+CATNAME[CAT]+'”');
   if(SHARE)cm.push('notes with an alternate Byzantine reading that is '+SHARENAME[SHARE]);
-  if(CAT||SHARE)$('catnote').textContent='Showing only '+cm.join(', and ')+', as counted on the Stats page. Change any other choice above to see them all.';
+  if(ALONE){var ap=ALONE.split('.');cm.push((ap[0]==='MT'?'notes where the main text reads alone':'notes where '+ap[0]+' reads alone')+(ap[1]==='agree'?', and every other reading is the same':ap[1]==='div'?', and the others are divided':''));}
+  if(CAT||SHARE||ALONE)$('catnote').textContent='Showing only '+cm.join(', and ')+', as counted on the Stats page. Change any other choice above to see them all.';
   $('fCsv').disabled=!out.length;
   showMore();drawStrip(out);writeUrl();
 }
@@ -578,6 +644,7 @@ function downloadCsv(){
   a.href=url;a.download='greek-nt-notes.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);
   setTimeout(function(){URL.revokeObjectURL(url);},1000);
 }
+var ALONE='';   /* set only by a link from the Stats page: an edition (or the main text) reading alone */
 var SHARE='';   /* set only by a link from the Stats page: who else reads an alternate Byzantine reading */
 var CAT='';   /* set only by a link from the Stats page: a kind of difference chosen there */
 var URLMAP={ed:'fEd',rel:'fRel',where:'fWhere',kind:'fKind',pat:'fPat',ref:'fRef',greek:'fGreek'};
@@ -588,6 +655,7 @@ function writeUrl(){
   Object.keys(URLMAP).forEach(function(k){var v=$(URLMAP[k]).value;if(v&&v!==(URLDEF[k]||''))p.set(k,v);});
   if(CAT)p.set('cat',CAT);
   if(SHARE)p.set('share',SHARE);
+  if(ALONE)p.set('alone',ALONE);
   var qs=p.toString();
   try{history.replaceState(null,'',location.pathname+(qs?'?'+qs+'#find':''));}catch(e){}
 }
@@ -596,17 +664,18 @@ function readUrl(){
   Object.keys(URLMAP).forEach(function(k){if(p.has(k)){$(URLMAP[k]).value=p.get(k);any=true;}});
   if(p.has('cat')&&/^(form|omit|add|diff|order|mixed)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;}
   if(p.has('share')&&/^(byz|crit|tr|none|critonly)$/.test(p.get('share'))){SHARE=p.get('share');any=true;}
+  if(p.has('alone')&&/^(MT|HF|PCK|PT|ECM|NA27|NA28|SBL|TH|WH|SCR|ST)(\.(agree|div))?$/.test(p.get('alone'))){ALONE=p.get('alone');any=true;}
   return any;
 }
 function init(){
   if($('filters'))$('filters').addEventListener('submit',function(ev){ev.preventDefault();});
-  if($('cgrid')){buildKey();buildChart();buildDensity();buildKinds();buildRP();fitLabels();window.addEventListener('load',fitLabels);window.addEventListener('resize',fitLabels);}
+  if($('cgrid')){buildKey();buildChart();buildDensity();buildKinds();buildRP();buildAlone();fitLabels();window.addEventListener('load',fitLabels);window.addEventListener('resize',fitLabels);}
   if(!$('filters'))return;
   buildFilters();stripHover();
-  ['fEd','fRel','fWhere','fKind','fPat'].forEach(function(id){$(id).addEventListener('change',function(){if(id==='fKind'||id==='fRel'||id==='fPat')CAT='';if(id==='fEd'||id==='fRel'||id==='fPat')SHARE='';update();});});
+  ['fEd','fRel','fWhere','fKind','fPat'].forEach(function(id){$(id).addEventListener('change',function(){if(id==='fKind'||id==='fRel'||id==='fPat')CAT='';if(id==='fEd'||id==='fRel'||id==='fPat')SHARE='';if(id!=='fWhere')ALONE='';update();});});
   var tm;['fRef','fGreek'].forEach(function(id){$(id).addEventListener('input',function(){clearTimeout(tm);tm=setTimeout(update,200);});});
   $('fReset').addEventListener('click',function(){
-    $('fEd').value='';$('fRel').value='differs';$('fWhere').value='';$('fKind').value='';$('fPat').value='';$('fRef').value='';$('fGreek').value='';CAT='';SHARE='';update();
+    $('fEd').value='';$('fRel').value='differs';$('fWhere').value='';$('fKind').value='';$('fPat').value='';$('fRef').value='';$('fGreek').value='';CAT='';SHARE='';ALONE='';update();
   });
   $('more').addEventListener('click',showMore);
   var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){drawStrip(hits);},150);});
