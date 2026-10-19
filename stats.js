@@ -406,19 +406,40 @@ function buildFilters(){
 }
 var BOOKKEY=BOOKS.map(function(b){return b.toLowerCase().replace(/[^a-z0-9]/g,'');});
 var ALIAS={mt:0,matt:0,mk:1,mar:1,lk:2,luk:2,jn:3,joh:3,ac:4,rom:5,ro:5,rm:5,'1co':6,'1cor':6,'2co':7,'2cor':7,gal:8,eph:9,php:10,phil:10,col:11,'1th':12,'1thess':12,'2th':13,'2thess':13,'1ti':14,'1tim':14,'2ti':15,'2tim':15,tit:16,phm:17,philem:17,heb:18,jas:19,jam:19,'1pe':20,'1pet':20,'2pe':21,'2pet':21,'1jn':22,'1jo':22,'1john':22,'2jn':23,'2jo':23,'2john':23,'3jn':24,'3jo':24,'3john':24,jud:25,rev:26,re:26};
+/* A passage such as "Romans 8", "John 1:18", "Romans 8-10", "Matthew 5:3-12", or "John 1:18-2:5".
+   Returns {book, from:[chapter,verse], to:[chapter,verse]}; from is null when only a book is named. */
 function parseRef(s){
-  s=s.trim().toLowerCase();
+  s=s.trim().toLowerCase().replace(/[\u2012-\u2015\u2212]/g,'-');
+  s=s.replace(/\s+(?:to|through|thru)\s+/,'-');
   if(!s)return null;
-  var m=s.match(/^([1-3]?\s*[a-z]+\.?)\s*(?:(\d+)(?:\s*[:.]\s*(\d+))?)?\s*$/);
+  var m=s.match(/^([1-3]?\s*[a-z]+\.?)\s*(.*)$/);
   if(!m)return {bad:true};
+  var rest=m[2].match(/^(?:(\d+)(?:\s*[:.]\s*(\d+))?(?:\s*-\s*(\d+)(?:\s*[:.]\s*(\d+))?)?)?\s*$/);
+  if(!rest)return {bad:true};
   var k=m[1].replace(/[^a-z0-9]/g,''),bi=-1;
   if(ALIAS.hasOwnProperty(k))bi=ALIAS[k];
   else{
     for(var i=0;i<BOOKKEY.length;i++){if(BOOKKEY[i].indexOf(k)===0){bi=i;break;}}
   }
   if(bi<0)return {bad:true};
-  return {book:bi,ch:m[2]?m[2]:null,vs:m[3]?m[3]:null};
+  var c1=rest[1]?+rest[1]:0,v1=rest[2]?+rest[2]:0,x=rest[3]?+rest[3]:0,y=rest[4]?+rest[4]:0;
+  if(!c1)return {book:bi,from:null,to:null};
+  var from=[c1,v1],to;
+  if(!x)to=v1?[c1,v1]:[c1,9999];                 /* one chapter, or one verse */
+  else if(y)to=[x,y];                            /* 1:18-2:5 */
+  else if(v1)to=[c1,x];                          /* 5:3-12: verses of one chapter */
+  else to=[x,9999];                              /* 8-10: whole chapters */
+  if(to[0]<from[0]||(to[0]===from[0]&&to[1]<from[1]))return {bad:true};
+  return {book:bi,from:from,to:to};
 }
+/* The span of a note's own reference: "1:10", "1:7–8", or "7:53–8:11" */
+function noteSpan(r){
+  var m=r.match(/^(\d+):(\d+)(?:[–-](\d+)(?::(\d+))?)?$/);
+  if(!m)return null;
+  var c=+m[1],v=+m[2];
+  return {a:[c,v],b:m[4]?[+m[3],+m[4]]:m[3]?[c,+m[3]]:[c,v]};
+}
+function posCmp(p,q){return p[0]!==q[0]?p[0]-q[0]:p[1]-q[1];}
 function norm(s){return s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/ς/g,'σ').replace(/\s+/g,' ').trim();}
 /* Greek pieces (typed as Unicode or beta code) and quoted Latin pieces must each occur in the note */
 function greekPieces(v){var p=window.GNTGreek?window.GNTGreek.pieces(v):{greek:[v],latin:[]};return p.greek.concat(p.latin).map(norm).filter(Boolean);}
@@ -441,10 +462,9 @@ function matches(n,i,f){
   }
   if(f.ref){
     if(n[1]!==f.ref.book)return false;
-    var r=n[2];
-    if(f.ref.ch){
-      var cm=r.match(/^(\d+):(\d+)/);if(!cm||cm[1]!==f.ref.ch)return false;
-      if(f.ref.vs&&cm[2]!==f.ref.vs)return false;
+    if(f.ref.from){
+      var sp=noteSpan(n[2]);
+      if(!sp||posCmp(sp.b,f.ref.from)<0||posCmp(sp.a,f.ref.to)>0)return false;   /* the note's verses must overlap the passage */
     }
   }
   for(var gi=0;gi<f.greek.length;gi++)if(SEARCH[i].indexOf(f.greek[gi])<0)return false;
@@ -641,7 +661,7 @@ function update(){
   if(!f.refBad){for(var i=0;i<N.length;i++)if(matches(N[i],i,f))out.push(i);}
   hits=out;shown=0;$('results').textContent='';
   var c=$('rcount');
-  if(f.refBad)c.textContent='I could not read that passage. Try a form like “Romans 8”, “John 1:18”, or “1 Cor 13”.';
+  if(f.refBad)c.textContent='I could not read that passage. Try a form like “Romans 8”, “John 1:18”, “Romans 8:1-17”, or “1 Cor 12-14”.';
   else c.textContent=out.length===0?'No notes match these choices.':fmt(out.length)+' note'+(out.length===1?'':'s')+' ('+pct(out.length/N.length)+' of all '+fmt(N.length)+') on '+fmt(new Set(out.map(function(i){return N[i][0];})).size)+(new Set(out.map(function(i){return N[i][0];})).size===1?' page.':' pages.');
   $('catnote').hidden=!((CAT||SHARE||ALONE)&&!f.refBad);
   var cm=[];
