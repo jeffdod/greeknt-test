@@ -24,6 +24,7 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="explorer.css">
 <link rel="stylesheet" href="xhero.css">
+<link rel="stylesheet" href="vdialog.css">
 <link rel="stylesheet" href="stats.css">
 <link rel="stylesheet" href="pageviewer.css">
 <link rel="stylesheet" href="print.css" media="print">
@@ -126,7 +127,7 @@
         <button type="button" class="btn btn-quiet" id="fCsv" title="Download every matching note as a spreadsheet file (CSV)">Download results as CSV</button>
       </form>
       <p class="specnote" id="restored" hidden>This is your last search on this device. Choose “Clear all” to start again.</p>
-      <div class="chips" id="chips" aria-label="Choices in force" hidden></div>
+      <div class="achips" id="achips" aria-label="Choices in force" hidden></div>
       <div class="rhead">
         <p id="rcount" aria-live="polite"></p>
         <p id="catnote" class="specnote" hidden></p>
@@ -150,6 +151,17 @@
 
 </main>
 
+<dialog id="vdialog" aria-labelledby="vtitle">
+  <div class="vd">
+    <div class="vd-bar">
+      <button type="button" class="vd-nav" id="vprev" aria-label="Previous variant">‹</button>
+      <button type="button" class="vd-nav" id="vnext" aria-label="Next variant">›</button>
+      <button type="button" class="vd-close" id="vclose" aria-label="Close">Close</button>
+    </div>
+    <div class="vd-body" id="vbody"></div>
+  </div>
+</dialog>
+
 <footer>
   <div class="wrap">
     <span>Guardian Press</span>
@@ -162,7 +174,9 @@
 <script src="copy.js"></script>
 <script src="pageviewer.js"></script>
 <script src="greekinput.js"></script>
+<script src="manuscripts-data.js"></script>
 <script src="stats.js"></script>
+<script src="explorer.js"></script>
 <script src="menu.js"></script>
 <script src="backnav.js"></script>
 <script src="pwa.js" defer></script>

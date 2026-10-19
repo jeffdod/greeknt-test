@@ -154,8 +154,8 @@ a.rrow:hover,a.rrow:focus-visible{color:var(--ink)}
 }
 
 /* choices in force, and the no-results help */
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
-.chips[hidden],.nores[hidden]{display:none}
+.achips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.achips[hidden],.nores[hidden]{display:none}
 .chip{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:4px 12px;font:inherit;font-size:.95rem;line-height:1.3;color:var(--ink);background:var(--vellum);border:1px solid var(--rule);border-radius:18px;cursor:pointer;text-align:left}
 .chip sup{font-size:.7em;line-height:0;margin-left:1px}
 .chip .chx{font-size:1.15rem;line-height:1;color:var(--rubric)}

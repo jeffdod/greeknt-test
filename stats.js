@@ -648,6 +648,13 @@ function renderItem(n){
     sp.appendChild(el('b',null,'One of the fifty variants. '));
     sp.appendChild(document.createTextNode(sv.what+' '));
     var la=el('a',null,'See the manuscript evidence');la.href='variants.html#v='+sv.id;
+    /* the pop-up opens right here, and closing it returns to these results; the arrows step through the fifty variants among them */
+    la.addEventListener('click',function(ev){
+      if(ev.ctrlKey||ev.metaKey||ev.shiftKey||ev.button||!window.GNTOpenVariant)return;
+      ev.preventDefault();
+      var ids=[];hits.forEach(function(i){var x=SPEC[N[i][1]+'/'+N[i][0]+'/'+N[i][3]];if(x&&ids.indexOf(x.id)<0)ids.push(x.id);});
+      window.GNTOpenVariant(sv.id,ids);
+    });
     sp.appendChild(la);
     li.appendChild(sp);
   }
@@ -678,8 +685,8 @@ function drawStrip(hitsArr){
   s.setAttribute('aria-label',hitsArr.length?('Matching notes fall on '+counts.filter(Boolean).length+' pages of the edition.'):'No matching notes.');
   // scale
   var sc=$('stripscale');sc.textContent='';
-  [[0,'Matthew'],[BOOKSTART[1],'Mark'],[BOOKSTART[2],'Luke'],[BOOKSTART[3],'John'],[BOOKSTART[4],'Acts'],[BOOKSTART[5],'Romans'],[BOOKSTART[18],'Hebrews'],[BOOKSTART[26],'Rev.']].forEach(function(a){
-    var sp=el('span',null,a[1]);sp.style.left=(Math.max(0,a[0]-1)/W*100)+'%';sc.appendChild(sp);
+  [[0,'Mt','Matthew'],[BOOKSTART[1],'Mk','Mark'],[BOOKSTART[2],'Lk','Luke'],[BOOKSTART[3],'Jn','John'],[BOOKSTART[4],'Ac','Acts'],[BOOKSTART[5],'Rom','Romans'],[BOOKSTART[18],'Heb','Hebrews'],[BOOKSTART[26],'Rev','Revelation']].forEach(function(a){
+    var sp=el('span',null,a[1]);sp.title=a[2];sp.style.left=(Math.max(0,a[0]-1)/W*100)+'%';sc.appendChild(sp);
   });
 }
 function stripHover(){
@@ -767,7 +774,7 @@ function activeChips(f){
 }
 function countFor(f){var c=0;for(var i=0;i<N.length;i++)if(matches(N[i],i,f))c++;return c;}
 function buildChips(f){
-  var box=$('chips'),nr=$('nores');if(!box)return;
+  var box=$('achips'),nr=$('nores');if(!box)return;
   box.textContent='';nr.textContent='';
   var L=activeChips(f);
   box.hidden=!L.length;
