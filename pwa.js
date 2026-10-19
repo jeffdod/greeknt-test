@@ -5,7 +5,8 @@
   function url(i) { return FOLDER + 'p' + pad(i) + '.webp'; }
   var secure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
   if ('serviceWorker' in navigator && secure) {
-    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+    /* wait a few seconds after the page has loaded, so saving the site for offline use does not compete with the page for the connection */
+    window.addEventListener('load', function () { setTimeout(function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }, 4000); });
   }
 
   var box = document.getElementById('offlineBox');

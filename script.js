@@ -29,9 +29,9 @@ const parts = {
   folio:   {name:"Page number", html:"<p>Page numbers appear on the outer edge of each page.</p>"}
 };
 const zooms = {
-  text:       {src:"images/zoom-caller-text.jpg",       w:796, h:223, cap:"In the main text, the letter e sits just before the words it marks."},
-  edition:    {src:"images/zoom-caller-edition.jpg",    w:1057, h:257, cap:"Edition Apparatus, note e."},
-  manuscript: {src:"images/zoom-caller-manuscript.jpg", w:1053, h:183, cap:"Manuscript Apparatus: the same letter e begins the entry."}
+  text:       {src:"images/zoom-caller-text.webp",       w:796, h:223, cap:"In the main text, the letter e sits just before the words it marks."},
+  edition:    {src:"images/zoom-caller-edition.webp",    w:1057, h:257, cap:"Edition Apparatus, note e."},
+  manuscript: {src:"images/zoom-caller-manuscript.webp", w:1053, h:183, cap:"Manuscript Apparatus: the same letter e begins the entry."}
 };
 const info = document.getElementById('info');
 const chips = document.getElementById('chips');
@@ -121,18 +121,18 @@ lb.addEventListener('click',e=>{ if(e.target===lb) lb.close(); });
    To add or change a page: put the image in the "images" folder
    and add a line below with its file name and a caption.          */
 const samples = [
-  {src:"images/matthew-1.jpg",    title:"Matthew 1, page 1"},
-  {src:"images/matthew-1-23.jpg", title:"Matthew 1:23–2:9, with both apparatuses"},
-  {src:"images/john-1.jpg",       title:"The opening of John"},
-  {src:"images/1-john-5.jpg",     title:"1 John 5, with manuscript evidence for 5:7–8"},
-  {src:"images/appendix-a.jpg",   title:"Appendix A: Robinson-Pierpont edition changes"},
-  {src:"images/appendix-d.jpg",   title:"Appendix D: List of cited manuscripts"}
+  {src:"images/matthew-1.webp",    title:"Matthew 1, page 1"},
+  {src:"images/matthew-1-23.webp", title:"Matthew 1:23–2:9, with both apparatuses"},
+  {src:"images/john-1.webp",       title:"The opening of John"},
+  {src:"images/1-john-5.webp",     title:"1 John 5, with manuscript evidence for 5:7–8"},
+  {src:"images/appendix-a.webp",   title:"Appendix A: Robinson-Pierpont edition changes"},
+  {src:"images/appendix-d.webp",   title:"Appendix D: List of cited manuscripts"}
 ];
 const track=document.getElementById('track'), dots=document.getElementById('dots'), cap=document.getElementById('sampleCaption');
 samples.forEach((s,i)=>{
   const slide=document.createElement('div'); slide.className='slide';
   slide.setAttribute('role','group'); slide.setAttribute('aria-label',`${i+1} of ${samples.length}: ${s.title}`);
-  slide.innerHTML=`<a href="${s.src}" target="_blank" rel="noopener"><img src="${s.src}" width="1000" height="1480" alt="Sample page: ${s.title}" ${i>1?'loading="lazy"':''}></a>`;
+  slide.innerHTML=`<a href="${s.src}" target="_blank" rel="noopener"><img src="${s.src}" width="1000" height="1480" alt="Sample page: ${s.title}" loading="lazy" decoding="async"></a>`;
   track.appendChild(slide);
   const d=document.createElement('button'); d.className='dot'; d.setAttribute('aria-label',`Go to page ${i+1}`);
   d.onclick=()=>go(i); dots.appendChild(d);
