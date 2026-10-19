@@ -599,21 +599,37 @@ function hlRanges(text){
   return out;
 }
 /* Add text[from,to) to parent, wrapping the parts inside ranges in <mark> */
+var WK=null;   /* the note and part being drawn ([note position, 0 for the main text or reading number]), so each Greek word can be pointed at */
+function greekCount(text,upto){var c=0,re=/\S+/g,m;while((m=re.exec(text))&&m.index<upto){if(GNT_TIP.fold(m[0]))c++;}return c;}
 function putMarked(parent,text,ranges,from,to,cls){
-  var at=from;
-  function put(a,b,hit){
+  function put(host,a,b,hit){
     if(b<=a)return;
     var t=text.slice(a,b),n=document.createTextNode(t);
     if(hit){var m=el('mark','hit');m.appendChild(n);n=m;}
     if(cls){var w=el(cls[0],cls[1]);w.appendChild(n);n=w;}
-    parent.appendChild(n);
+    host.appendChild(n);
   }
-  ranges.forEach(function(r){
-    var a=Math.max(r[0],from),b=Math.min(r[1],to);
-    if(b<=a)return;
-    put(at,a,false);put(a,b,true);at=b;
-  });
-  put(at,to,false);
+  function run(host,a0,b0){
+    var at=a0;
+    ranges.forEach(function(r){
+      var a=Math.max(r[0],a0),b=Math.min(r[1],b0);
+      if(b<=a)return;
+      put(host,at,a,false);put(host,a,b,true);at=b;
+    });
+    put(host,at,b0,false);
+  }
+  if(!WK||cls||!window.GNT_TIP){run(parent,from,to);return;}
+  /* each Greek word goes in its own span */
+  var re=/\S+/g,m,at=from,n=greekCount(text,from);
+  re.lastIndex=from;
+  while((m=re.exec(text))&&m.index<to){
+    var a=m.index,b=Math.min(a+m[0].length,to);
+    if(a>at)run(parent,at,a);
+    if(GNT_TIP.fold(text.slice(a,b))){var w=el('span','gw');w.dataset.ni=WK[0];w.dataset.j=WK[1];w.dataset.n=n++;parent.appendChild(w);run(w,a,b);}
+    else run(parent,a,b);
+    at=b;
+  }
+  if(at<to)run(parent,at,to);
 }
 function markedText(parent,text){putMarked(parent,text,hlRanges(text),0,text.length);}
 function lemmaInto(p,t){
@@ -632,14 +648,14 @@ function renderItem(n,idx){
   var pgs=el('span','pg');pgs.appendChild(document.createTextNode('page '));pgs.appendChild(window.GNTPages.link(String(n[0]),n[0]));head.appendChild(pgs);
   head.appendChild(el('span','caller',' note '+n[3]));
   li.appendChild(head);
-  var lem=el('div','lem');lem.appendChild(el('span','lab','Main text: '));var gr=el('span','gk');gr.lang='grc';lemmaInto(gr,n[4]);lem.appendChild(gr);li.appendChild(lem);
-  n[5].forEach(function(r){
+  var lem=el('div','lem');lem.appendChild(el('span','lab','Main text: '));var gr=el('span','gk');gr.lang='grc';WK=[idx,0];lemmaInto(gr,n[4]);WK=null;lem.appendChild(gr);li.appendChild(lem);
+  n[5].forEach(function(r,ri){
     var d=el('div','rd');
     var tags=el('span','tags');
     edsOf(r[0]).forEach(function(e){tags.appendChild(tag(e));});
     if(r[0]&BIT.RPmg){}
     d.appendChild(tags);
-    var t=el('span','gk');t.lang='grc';if(r[1]==='txt')t.textContent='reads the main text';else markedText(t,r[1]);d.appendChild(t);
+    var t=el('span','gk');t.lang='grc';if(r[1]==='txt')t.textContent='reads the main text';else{WK=[idx,ri+1];markedText(t,r[1]);WK=null;}d.appendChild(t);
     var kk=kindOrder(r[3].filter(function(k){return k!=='special';}));if(kk.length&&r[1]!=='txt'){d.appendChild(el('span','kd',' ('+kk.map(function(k){return KINDS[k];}).join('; ')+')'));}
     li.appendChild(d);
   });

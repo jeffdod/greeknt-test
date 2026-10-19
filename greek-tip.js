@@ -40,10 +40,20 @@
   function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
 
   function parse(p) { var a = p.split('.'); return [+a[0], +a[1]]; }
+  /* A parsing marked "UNPARSED" is left out when the same word has a real one */
+  function dropUnparsed(an) {
+    var good = an.filter(function (a) { var c = GNT_WORDS.codes[a[1]]; return !c || c[0] !== 'UNPARSED'; });
+    return good.length ? good : an;
+  }
   /* The analyses of a word: [[strongs, code index], ...]. A word in a verse has one. A word in a reading was found in the
      comparison editions' own text (one or more analyses); failing that it is looked up by its spelling in the whole edition. */
   function analyses(w) {
     var W = window.GNT_WORDS;
+    if (w.dataset.ni) {
+      var nn = W.nt && W.nt[+w.dataset.ni], t2 = nn && nn[+w.dataset.j], e2 = t2 && t2.split(' ')[+w.dataset.n];
+      if (e2 && e2 !== '-') return dropUnparsed(e2.split('|').map(parse));
+      return [];
+    }
     if (w.dataset.v) {
       var rs = W.rd && W.rd[w.dataset.v], t = rs && rs[+w.dataset.i], e = t && t.split(' ')[+w.dataset.n];
       if (e && e !== '-') return e.split('|').map(parse);
@@ -68,7 +78,8 @@
     if (d && d[1]) box.appendChild(el('div', 'gt-gloss', d[1]));
     codes.forEach(function (ci) {
       var c = W.codes[ci];
-      if (c) { var pr = el('div', 'gt-parse'); pr.appendChild(el('span', 'gt-code', c[0])); pr.appendChild(document.createTextNode(' ' + c[1])); box.appendChild(pr); }
+      if (c && c[0] === 'UNPARSED') box.appendChild(el('div', 'gt-parse gt-soft', c[1]));
+      else if (c) { var pr = el('div', 'gt-parse'); pr.appendChild(el('span', 'gt-code', c[0])); pr.appendChild(document.createTextNode(' ' + c[1])); box.appendChild(pr); }
     });
     if (d && d[2]) box.appendChild(el('div', 'gt-count', 'This word occurs ' + d[2].toLocaleString('en-US') + (d[2] === 1 ? ' time' : ' times') + ' in the edition’s text.'));
     return box;

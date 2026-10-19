@@ -37,6 +37,7 @@
 .gwtip .gt-hw{font-size:1.05rem}
 .gwtip .gt-gloss{margin:2px 0 4px}
 .gwtip .gt-code{font-weight:600;color:var(--rubric)}
+.gwtip .gt-soft{color:var(--ink-soft);font-size:.9rem}
 .gwtip .gt-count,.gwtip .gt-many,.gwtip .gt-none,.gwtip .gt-load{color:var(--ink-soft);font-size:.9rem;margin-top:4px}
 
 @media (max-width:640px){.sortrow .showen,.sortrow .showgr{margin-left:0;flex:1 1 100%}}
