@@ -202,7 +202,12 @@ function openVariant(id){
   /* the English of the verses, once the English text has loaded */
   var enBox=el('div','enhold');b.appendChild(enBox);
   if(window.GNT_EN){var enBook=GNT_EN.bookIndex(v.ref.slice(0,v.ref.lastIndexOf(' ')));var enRef=v.ref.slice(v.ref.lastIndexOf(' ')+1);
-    GNT_EN.load(function(){if(!enBox.isConnected)return;var ln=GNT_EN.line(enBook,enRef);if(ln)enBox.appendChild(ln);});}
+    GNT_EN.load(function(){if(!enBox.isConnected)return;var ln=GNT_EN.line(enBook,enRef,null,true);if(!ln)return;
+      var sw=el('label','enswitch'),cb=document.createElement('input');cb.type='checkbox';sw.appendChild(cb);sw.appendChild(document.createTextNode(' Show the English'));
+      enBox.appendChild(sw);enBox.appendChild(ln);
+      var follow=function(){if(!enBox.isConnected){document.removeEventListener('gntenglish',follow);return;}cb.checked=GNT_EN.shown();enBox.classList.toggle('en-off',!cb.checked);};
+      follow();cb.addEventListener('change',function(){GNT_EN.setShown(cb.checked);});
+      document.addEventListener('gntenglish',follow);});}
   b.appendChild(el('h4',null,'The readings and the manuscripts cited for each'));
   v.readings.forEach(function(r,i){
     var stat=!r.greek&&r.status;

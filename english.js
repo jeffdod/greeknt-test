@@ -29,8 +29,13 @@
 
   /* Whether to show the English at all: a choice kept on this device (shown unless the visitor has turned it off) */
   var KEY = 'gnt-show-english';
-  EN.shown = function () { try { return localStorage.getItem(KEY) !== 'no'; } catch (e) { return true; } };
-  EN.setShown = function (on) { try { if (on) localStorage.removeItem(KEY); else localStorage.setItem(KEY, 'no'); } catch (e) {} };
+  var state_shown = true;   /* used when this device will not keep the choice */
+  EN.shown = function () { try { return localStorage.getItem(KEY) !== 'no'; } catch (e) { return state_shown; } };
+  EN.setShown = function (on) {
+    try { if (on) localStorage.removeItem(KEY); else localStorage.setItem(KEY, 'no'); } catch (e) {}
+    state_shown = on;
+    document.dispatchEvent(new Event('gntenglish'));   /* every switch on the page follows the choice */
+  };
 
   EN.bookIndex = function (name) { return booksList().indexOf(name); };
 

@@ -905,6 +905,7 @@ function init(){
       var applyEn=function(){$('results').classList.toggle('no-en',!se.checked);};
       se.checked=GNT_EN.shown();applyEn();
       se.addEventListener('change',function(){GNT_EN.setShown(se.checked);applyEn();});
+      document.addEventListener('gntenglish',function(){se.checked=GNT_EN.shown();applyEn();});
     }
   }
   var bl=$('bookList');if(bl)BOOKS.forEach(function(b){bl.appendChild(new Option(b));});
