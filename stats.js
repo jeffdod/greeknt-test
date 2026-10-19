@@ -527,7 +527,7 @@ var BOOKSTART=[];BOOKS.forEach(function(_,bi){var m=1e9;N.forEach(function(n){if
 
 function getFilters(){
   var rf=parseRef($('fRef').value);
-  return {ed:$('fEd').value,rel:$('fRel').value,where:$('fWhere').value,kind:$('fKind').value,pat:$('fPat').value,ref:rf&&!rf.bad?rf:null,refBad:!!(rf&&rf.bad),greek:greekPieces($('fGreek').value),cat:CAT,share:SHARE,alone:ALONE};
+  return {ed:$('fEd').value,rel:$('fRel').value,where:$('fWhere').value,kind:CAT?'':$('fKind').value,pat:$('fPat').value,ref:rf&&!rf.bad?rf:null,refBad:!!(rf&&rf.bad),greek:greekPieces($('fGreek').value),cat:CAT,share:SHARE,alone:ALONE};
 }
 function tag(e){
   if(e==='RPmg'){var t=el('span','etag f-byz','RP');t.appendChild(el('sup',null,'mg'));t.title='Robinson-Pierpont, alternate Byzantine reading';return t;}
@@ -725,7 +725,7 @@ function writeUrl(){
 function readUrl(){
   var p=new URLSearchParams(location.search),any=false;
   Object.keys(URLMAP).forEach(function(k){if(p.has(k)){$(URLMAP[k]).value=p.get(k);any=true;}});
-  if(p.has('cat')&&/^(form|omit|add|diff|order|repl|minor)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;}
+  if(p.has('cat')&&/^(form|omit|add|diff|order|repl|minor)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;if(CAT!=='minor')$('fKind').value=CAT;}
   if(p.has('share')&&/^(byz|crit|tr|none|critonly|with:(HF|PCK|PT|ECM|NA27|NA28|SBL|TH|WH|SCR|ST))$/.test(p.get('share'))){SHARE=p.get('share');any=true;}
   if(p.has('alone')&&/^(MT|HF|PCK|PT|ECM|NA27|NA28|SBL|TH|WH|SCR|ST)(\.(agree|div))?$/.test(p.get('alone'))){ALONE=p.get('alone');any=true;}
   return any;
