@@ -12,7 +12,7 @@ var FAMCOL={byz:'var(--r3)',crit:'var(--r1)',tr:'var(--r2)'};
 var EDNAME={HF:'Hodges-Farstad',PCK:'Pickering',PT:'Antoniades (Patriarchal Text)',ECM:'Editio Critica Maior',NA27:'Nestle-Aland 27',NA28:'Nestle-Aland 28',SBL:'SBL Greek New Testament',TH:'Tyndale House',WH:'Westcott-Hort',SCR:'Scrivener',ST:'Stephanus'};
 var OPTNAME={PCK:'Pickering',PT:'Antoniades Patriarchal Text',SBL:'SBL Greek NT'};
 function kindOrder(a){return a.slice().sort(function(x,y){return (x==='brk')-(y==='brk');});}
-var KINDS={bracket:'only brackets or parentheses differ',omit:'omits words',add:'adds words',order:'changes the word order',diff:'a different word',elide:'elision',brk:'with brackets',krasis:'krasis, two words written as one',form:'same word, different spelling or form',repl:'replaces text',special:'descriptive note'};
+var KINDS={bracket:'only brackets or parentheses differ',omit:'omits words',add:'adds words',order:'changes the word order',diff:'a different word',elide:'elision',brk:'with brackets',krasis:'crasis, two words written as one',form:'same word, different spelling or form',repl:'replaces text',special:'descriptive note'};
 var $=function(id){return document.getElementById(id);};
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
 function fmt(n){return n.toLocaleString('en-US');}
@@ -106,7 +106,7 @@ function buildChart(){
 }
 
 /* ---------- kinds of difference ---------- */
-/* One label per reading: its one main kind (spelling or form, omits, adds, a different word, word order, or replaces text). A reading that adds or omits words and also rearranges the rest is counted under adds or omits. Elision, krasis and brackets ride along and do not change it. A reading with none of the main kinds is filed under "minor". */
+/* One label per reading: its one main kind (spelling or form, omits, adds, a different word, word order, or replaces text). A reading that adds or omits words and also rearranges the rest is counted under adds or omits. Elision, crasis and brackets ride along and do not change it. A reading with none of the main kinds is filed under "minor". */
 var CATS=[
   {k:'form',  name:'Spelling or form only', short:'Spelling or form'},
   {k:'omit',  name:'Omits words',           short:'Omits words'},
@@ -114,7 +114,7 @@ var CATS=[
   {k:'diff',  name:'A different word',      short:'Different word'},
   {k:'order', name:'Word order',            short:'Word order'},
   {k:'repl',  name:'Replaces text',         short:'Replaces text'},
-  {k:'minor', name:'Elision, krasis, or brackets only', short:'Elision, krasis, brackets'}
+  {k:'minor', name:'Elision, crasis, or brackets only', short:'Elision, crasis, brackets'}
 ];
 var CATNAME={};CATS.forEach(function(c){CATNAME[c.k]=c.name;});
 var MAIN={form:1,omit:1,add:1,diff:1,order:1,repl:1};
@@ -170,7 +170,7 @@ function buildKinds(){
     });
   }
   draw();
-  $('kindnote').textContent='Bars are scaled to the longest one shown. A reading that adds (or omits) words and also puts the other words in a different order is counted under “Adds words” (or “Omits words”). “Replaces text” gathers readings that both remove and add words, or change words in a way that no single simpler label describes. Differences of spelling or form, word order alone, elision, krasis, and brackets are not charted here; the kind filter in Variant search finds them. ECM is counted only where it exists, in Mark, Acts, the Catholic Epistles, and Revelation.';
+  $('kindnote').textContent='Bars are scaled to the longest one shown. A reading that adds (or omits) words and also puts the other words in a different order is counted under “Adds words” (or “Omits words”). “Replaces text” gathers readings that both remove and add words, or change words in a way that no single simpler label describes. Differences of spelling or form, word order alone, elision, crasis, and brackets are not charted here; the kind filter in Variant search finds them. ECM is counted only where it exists, in Mark, Acts, the Catholic Epistles, and Revelation.';
   var h='<thead><tr><th class="corner" scope="col">Edition</th><th scope="col">Word-level differences</th>';
   WORDKINDS.forEach(function(k){h+='<th scope="col">'+NAMES[k]+'</th>';});
   h+='</tr></thead><tbody>';
