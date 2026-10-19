@@ -635,6 +635,12 @@ function renderItem(n,idx){
   var lem=el('div','lem');lem.appendChild(el('span','lab','Main text: '));var gr=el('span','gk');gr.lang='grc';lemmaInto(gr,n[4]);lem.appendChild(gr);li.appendChild(lem);
   var grh=el('div','grhold');grh.dataset.i=idx;grh.dataset.b=n[1];grh.dataset.r=n[2];li.appendChild(grh);
   var enh=el('div','enhold');enh.dataset.b=n[1];enh.dataset.r=n[2];li.appendChild(enh);
+  var cph=el('div','copyhold'),cpb=el('button','encopy','Copy verse');cpb.type='button';cpb.title='Copy the reference and the Greek and English that are showing, without the underlining';
+  cpb.addEventListener('click',function(){
+    var t=window.GNT_EN?GNT_EN.copyText(n[1],n[2],{english:GNT_EN.ready&&GNT_EN.shown(),greek:!!(window.GNT_GR&&GNT_GR.ready&&GNT_GR.shown())}):'';
+    if(t)window.GNT_copy(t,cpb,'Copied');
+  });
+  cph.appendChild(cpb);li.appendChild(cph);
   n[5].forEach(function(r){
     var d=el('div','rd');
     var tags=el('span','tags');
@@ -724,7 +730,7 @@ function fillEnglish(){
   if(!window.GNT_EN||!GNT_EN.ready)return;
   var hs=$('results').querySelectorAll('.enhold[data-b]');
   for(var i=0;i<hs.length;i++){
-    var h=hs[i],ln=GNT_EN.line(+h.dataset.b,h.dataset.r,ENPIECES,true);
+    var h=hs[i],ln=GNT_EN.line(+h.dataset.b,h.dataset.r,ENPIECES,true,true);
     h.removeAttribute('data-b');if(ln)h.appendChild(ln);
   }
 }

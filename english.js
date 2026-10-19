@@ -140,13 +140,21 @@
     return vs.length;
   };
 
-  /* Text for the clipboard: the citation, then the verses */
-  EN.copyText = function (bi, ref) {
-    var vs = EN.verses(bi, ref), name = booksList()[bi];
-    if (!vs.length) return '';
-    var head = name + ' ' + ref + ' (ASV)';
-    if (vs.length === 1) return head + '\n' + vs[0].text;
-    return head + '\n' + vs.map(function (v) { return v.label + ' ' + v.text; }).join('\n');
+  /* Text for the clipboard: the citation, then the verses. With no options it is the English alone.
+     opt.greek and opt.english say which of the two to include; the Greek is plain text, without underlining. */
+  function lines(vs) { return vs.map(function (v) { return v.label + ' ' + v.text; }).join('\n'); }
+  EN.copyText = function (bi, ref, opt) {
+    var name = booksList()[bi], useEn = !opt || opt.english !== false, useGr = !!(opt && opt.greek);
+    var en = useEn ? EN.verses(bi, ref) : [], gr = (useGr && window.GNT_GR) ? GNT_GR.verses(bi, ref) : [];
+    if (!en.length && !gr.length) return '';
+    if (!gr.length) {
+      var head = name + ' ' + ref + ' (ASV)';
+      return en.length === 1 ? head + '\n' + en[0].text : head + '\n' + lines(en);
+    }
+    function block(label, vs) { return vs.length === 1 ? label + ': ' + vs[0].text : label + ':\n' + lines(vs); }
+    var parts = [name + ' ' + ref, block('Greek', gr)];
+    if (en.length) parts.push(block('English (ASV)', en));
+    return parts.join('\n');
   };
   EN.copyButton = function (bi, ref) {
     var b = document.createElement('button'); b.type = 'button'; b.className = 'encopy'; b.textContent = 'Copy verse';
@@ -155,13 +163,13 @@
     return b;
   };
   /* The English line for a note or variant: a label, the verses, and the copy button */
-  EN.line = function (bi, ref, pieces, force) {
+  EN.line = function (bi, ref, pieces, force, nocopy) {
     if (!force && !EN.shown()) return null;
     var d = document.createElement('div'); d.className = 'enline';
     var lab = document.createElement('span'); lab.className = 'enlab'; lab.textContent = 'English: '; d.appendChild(lab);
     var body = document.createElement('span'); body.className = 'entext'; d.appendChild(body);
     if (!EN.render(body, bi, ref, pieces)) return null;
-    d.appendChild(EN.copyButton(bi, ref));
+    if (!nocopy) d.appendChild(EN.copyButton(bi, ref));
     return d;
   };
 })();
