@@ -685,8 +685,8 @@ function renderItem(n,idx){
   }
   /* the verse itself, in Greek and English, goes below the main text and the readings so those stay together */
   var vt=el('div','vtext');li.appendChild(vt);
-  var grh=el('div','grhold');grh.dataset.i=idx;grh.dataset.b=n[1];grh.dataset.r=n[2];vt.appendChild(grh);
-  var enh=el('div','enhold');enh.dataset.b=n[1];enh.dataset.r=n[2];vt.appendChild(enh);
+  var grh=el('div','grhold');grh.dataset.i=idx;grh.dataset.b=n[1];grh.dataset.r=n[2];grh.appendChild(el('span','ldwait','Loading the Greek…'));vt.appendChild(grh);
+  var enh=el('div','enhold');enh.dataset.b=n[1];enh.dataset.r=n[2];enh.appendChild(el('span','ldwait','Loading the English…'));vt.appendChild(enh);
   var cph=el('div','copyhold'),cpb=el('button','encopy','Copy verse');cpb.type='button';cpb.title='Copy the reference and the Greek and English that are showing, without the underlining';
   cpb.addEventListener('click',function(){
     var t=window.GNT_EN?GNT_EN.copyText(n[1],n[2],{english:GNT_EN.ready&&GNT_EN.shown(),greek:!!(window.GNT_GR&&GNT_GR.ready&&GNT_GR.shown())}):'';
@@ -749,7 +749,7 @@ function fillEnglish(){
   var hs=$('results').querySelectorAll('.enhold[data-b]');
   for(var i=0;i<hs.length;i++){
     var h=hs[i],ln=GNT_EN.line(+h.dataset.b,h.dataset.r,ENPIECES,true,true);
-    h.removeAttribute('data-b');if(ln)h.appendChild(ln);
+    h.removeAttribute('data-b');h.textContent='';if(ln)h.appendChild(ln);
   }
 }
 /* Put the Greek of each result's verse, with the note's words underlined, once the Greek text is here */
@@ -758,7 +758,7 @@ function fillGreek(){
   var hs=$('results').querySelectorAll('.grhold[data-i]');
   for(var i=0;i<hs.length;i++){
     var h=hs[i],ln=GNT_GR.line(+h.dataset.i,+h.dataset.b,h.dataset.r,true);
-    h.removeAttribute('data-i');if(ln)h.appendChild(ln);
+    h.removeAttribute('data-i');h.textContent='';if(ln)h.appendChild(ln);
   }
 }
 var ENPIECES=[];
