@@ -289,7 +289,8 @@ function buildAlone(){
     });
     return {e:e,c:c,t:t};
   });
-  $('alolede').textContent='In some notes one edition reads differently from every other edition, or the main text itself reads differently from every edition. Each bar is all of the notes where that one reads alone, divided in two. The darker part is the notes where everything else agrees. The lighter part is the notes where the others are divided among themselves. The figure at the right is the total, with its share of the notes in which the edition is compared. Select a part, or the total, to list those notes.';
+  res.sort(function(a,b){return (b.c.agree+b.c.div)-(a.c.agree+a.c.div);});
+  $('alolede').textContent='In some notes one edition reads differently from every other edition, or the main text itself reads differently from every edition. The rows run from the one that reads alone most often to the one that reads alone least often. The large figure is the number of notes. Each bar divides those notes in two: the darker part is where everything else agrees, and the lighter part is where the others are divided among themselves. Select a figure or a part to list those notes.';
   var key=$('alokey');
   [['Everything else agrees','al-agree'],['The others are divided','al-div']].forEach(function(x){var s=el('span');s.appendChild(el('i','swatch '+x[1]));s.appendChild(document.createTextNode(x[0]));key.appendChild(s);});
   var grid=$('agrid');
@@ -310,12 +311,13 @@ function buildAlone(){
       a.appendChild(el('span',null,fmt(c)));
       tr.appendChild(a);
     });
-    row.appendChild(nm);row.appendChild(tr);
-    var tl=el('a','aval',fmt(tot)+' · '+pct(r.t?tot/r.t:0));tl.href=searchUrl({alone:r.e});tl.title='All '+fmt(tot)+' notes where '+label+' reads alone. List them.';
-    row.appendChild(tl);
+    var tl=el('a','acount',fmt(tot));tl.href=searchUrl({alone:r.e});tl.title='All '+fmt(tot)+' notes where '+label+' reads alone. List them.';
+    tl.setAttribute('aria-label',who+': '+fmt(tot)+' notes read alone. List them.');
+    row.appendChild(nm);row.appendChild(tl);row.appendChild(tr);
+    row.appendChild(el('span','apct',pct(r.t?tot/r.t:0)));
     grid.appendChild(row);
   });
-  $('alonote').innerHTML='A note counts here when the edition (or the main text) has a reading that no other edition shares. “Everything else agrees” means that every other edition reads the main text, or, for the main text row, that every edition reads alike. Every bar is drawn to the same full width, whatever its total, so that small totals can be seen and selected. Percentages are shares of the notes in which the edition is compared: the Editio Critica Maior (ECM) only in Mark, Acts, the Catholic Epistles, and Revelation. Alternate readings marked RP<sup>mg</sup> are not counted as an edition.';
+  $('alonote').innerHTML='A note counts here when the edition (or the main text) has a reading that no other edition shares. “Everything else agrees” means that every other edition reads the main text, or, for the main text row, that every edition reads alike. Every bar is drawn to the same full width, whatever its total, so that small totals can be seen and selected. The percentage at the right is the share of the notes in which the edition is compared: the Editio Critica Maior (ECM) only in Mark, Acts, the Catholic Epistles, and Revelation. Alternate readings marked RP<sup>mg</sup> are not counted as an edition.';
 }
 
 /* Show a segment's percentage only when it fits inside the segment */
