@@ -224,11 +224,11 @@ function buildRP(){
       var row=el('div','arow wide');
       row.appendChild(el('span','aname',BOOKS[bi]));
       var cnt=el('a','acount',r.toFixed(1));cnt.href=searchUrl({ed:'RPmg',where:'b:'+bi});
-      cnt.title=BOOKS[bi]+': '+fmt(v)+' notes with an alternate reading in '+fmt(VERSES[bi])+' verses. List them.';
-      cnt.setAttribute('aria-label',BOOKS[bi]+': '+r.toFixed(1)+' notes per 100 verses ('+fmt(v)+' notes in '+fmt(VERSES[bi])+' verses). List them.');
+      cnt.title=BOOKS[bi]+': '+fmt(v)+(v===1?' note':' notes')+' with an alternate reading in '+fmt(VERSES[bi])+' verses. List them.';
+      cnt.setAttribute('aria-label',BOOKS[bi]+': '+r.toFixed(1)+' notes per 100 verses ('+fmt(v)+(v===1?' note':' notes')+' in '+fmt(VERSES[bi])+' verses). List them.');
       row.appendChild(cnt);
       var tr=el('span','atrack'),a=el('a','seg aseg');a.href=cnt.href;a.style.width=(r/mx*100)+'%';a.style.background='var(--r3)';a.title=cnt.title;a.setAttribute('aria-label',cnt.getAttribute('aria-label'));tr.appendChild(a);row.appendChild(tr);
-      row.appendChild(el('span','apct',fmt(v)+' notes · '+fmt(VERSES[bi])+' verses'));
+      row.appendChild(el('span','apct',fmt(v)+(v===1?' note':' notes')+' · '+fmt(VERSES[bi])+' verses'));
       g.appendChild(row);
     });
     $('rnote').textContent=withRev
@@ -353,10 +353,9 @@ function buildAlone(){
     var tl=el('a','acount',fmt(tot));tl.href=searchUrl({alone:r.e});tl.title='All '+fmt(tot)+' notes where '+label+' reads alone. List them.';
     tl.setAttribute('aria-label',who+': '+fmt(tot)+' notes read alone. List them.');
     row.appendChild(nm);row.appendChild(tl);row.appendChild(tr);
-    row.appendChild(el('span','apct',pct(r.t?tot/r.t:0)));
     grid.appendChild(row);
   });
-  $('alonote').innerHTML='A note counts here when the edition (or the main text) has a reading that no other edition shares. “Everything else agrees” means that every other edition reads the main text, or, for the main text row, that every edition reads alike. Every bar is drawn to the same full width, whatever its total, so that small totals can be seen and selected. The percentage at the right is the share of the notes in which the edition is compared: the Editio Critica Maior (ECM) only in Mark, Acts, the Catholic Epistles, and Revelation. Alternate readings marked RP<sup>mg</sup> are not counted as an edition.';
+  $('alonote').innerHTML='A note counts here when the edition (or the main text) has a reading that no other edition shares. “Everything else agrees” means that every other edition reads the main text, or, for the main text row, that every edition reads alike. Every bar is drawn to the same full width, whatever its total, so that small totals can be seen and selected. The Editio Critica Maior (ECM) is compared only in Mark, Acts, the Catholic Epistles, and Revelation, so its count covers only those books. Alternate readings marked RP<sup>mg</sup> are not counted as an edition.';
 }
 
 /* Show a segment's percentage only when it fits inside the segment */
