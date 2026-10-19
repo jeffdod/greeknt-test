@@ -12,7 +12,8 @@
 
 /* the switches that hide the English and the Greek under the notes */
 .no-en .enhold,.no-gr .grhold{display:none}
-.no-en.no-gr .copyhold{display:none}
+.vtext{margin-top:10px;padding-top:2px;border-top:1px solid var(--rule)}
+.no-en.no-gr .vtext{display:none}
 .copyhold{margin:0 0 12px}
 .copyhold .encopy{font:inherit;font-size:.88rem;line-height:1.2;color:var(--rubric);background:transparent;border:1px solid var(--rule);border-radius:3px;padding:.15em .6em;cursor:pointer;white-space:nowrap}
 .copyhold .encopy:hover,.copyhold .encopy:focus-visible{border-color:var(--rubric)}

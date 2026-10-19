@@ -633,14 +633,6 @@ function renderItem(n,idx){
   head.appendChild(el('span','caller',' note '+n[3]));
   li.appendChild(head);
   var lem=el('div','lem');lem.appendChild(el('span','lab','Main text: '));var gr=el('span','gk');gr.lang='grc';lemmaInto(gr,n[4]);lem.appendChild(gr);li.appendChild(lem);
-  var grh=el('div','grhold');grh.dataset.i=idx;grh.dataset.b=n[1];grh.dataset.r=n[2];li.appendChild(grh);
-  var enh=el('div','enhold');enh.dataset.b=n[1];enh.dataset.r=n[2];li.appendChild(enh);
-  var cph=el('div','copyhold'),cpb=el('button','encopy','Copy verse');cpb.type='button';cpb.title='Copy the reference and the Greek and English that are showing, without the underlining';
-  cpb.addEventListener('click',function(){
-    var t=window.GNT_EN?GNT_EN.copyText(n[1],n[2],{english:GNT_EN.ready&&GNT_EN.shown(),greek:!!(window.GNT_GR&&GNT_GR.ready&&GNT_GR.shown())}):'';
-    if(t)window.GNT_copy(t,cpb,'Copied');
-  });
-  cph.appendChild(cpb);li.appendChild(cph);
   n[5].forEach(function(r){
     var d=el('div','rd');
     var tags=el('span','tags');
@@ -675,6 +667,16 @@ function renderItem(n,idx){
     sp.appendChild(la);
     li.appendChild(sp);
   }
+  /* the verse itself, in Greek and English, goes below the main text and the readings so those stay together */
+  var vt=el('div','vtext');li.appendChild(vt);
+  var grh=el('div','grhold');grh.dataset.i=idx;grh.dataset.b=n[1];grh.dataset.r=n[2];vt.appendChild(grh);
+  var enh=el('div','enhold');enh.dataset.b=n[1];enh.dataset.r=n[2];vt.appendChild(enh);
+  var cph=el('div','copyhold'),cpb=el('button','encopy','Copy verse');cpb.type='button';cpb.title='Copy the reference and the Greek and English that are showing, without the underlining';
+  cpb.addEventListener('click',function(){
+    var t=window.GNT_EN?GNT_EN.copyText(n[1],n[2],{english:GNT_EN.ready&&GNT_EN.shown(),greek:!!(window.GNT_GR&&GNT_GR.ready&&GNT_GR.shown())}):'';
+    if(t)window.GNT_copy(t,cpb,'Copied');
+  });
+  cph.appendChild(cpb);vt.appendChild(cph);
   return li;
 }
 function drawStrip(hitsArr){
