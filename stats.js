@@ -209,7 +209,7 @@ function buildRP(){
   $('rplede').innerHTML='In '+fmt(tot)+' of the '+fmt(N.length)+' notes ('+pct(tot/N.length)+'), the Robinson-Pierpont edition offers an alternate Byzantine reading, marked RP<sup>mg</sup>. These are the places where its editors judged that the Byzantine tradition is divided. Select any bar to list those notes.';
   /* books, ranked by alternate readings per 100 verses, so that long books do not win just by being long */
   var VERSES=[1071,678,1150,879,1004,433,437,257,149,155,104,95,89,47,113,83,46,25,303,108,105,61,105,13,14,25,404];
-  $('rpwho').textContent='A long book has more places where a second reading could be noted, so the books are compared by size. Each bar is the number of notes with an alternate reading for every 100 verses of the book, and the large figure is that rate. The text at the right gives the notes and the verses behind it. Select a bar to list those notes.';
+  $('rpwho').innerHTML='The books are ranked by how many RP<sup>mg</sup> notes they have for every 100 verses, with the highest at the top. Using the number of verses as the measure of size puts long and short books on an equal footing: a book with 5 notes in 50 verses, for example, has 10 notes per 100 verses. The large figure beside each book is that number, the bar is drawn to match it, and the small text gives the notes and verses behind it. Select a bar to list those notes.';
   var per=BOOKS.map(function(){return 0;});
   hit.forEach(function(i){per[N[i][1]]++;});
   var REV=BOOKS.indexOf('Revelation');
@@ -232,8 +232,8 @@ function buildRP(){
       g.appendChild(row);
     });
     $('rnote').textContent=withRev
-      ?'Revelation stands far above the rest, with '+rate(REV).toFixed(1)+' notes per 100 verses. Switch it off to compare the other books at a readable scale. The verse counts are the verses that have text in this edition (7,953 in all). A verse number printed with no text of its own is not counted: Luke 17:36, Acts 8:37, 15:34 and 24:7, and Romans 16:25-27, whose closing doxology is printed in full at 14:24-26 instead. 3 John has 14 verses. A very short book, such as Jude, can rank high on only a few notes, so read its rate with the note count at the right.'
-      :'With Revelation left out, the bars are scaled to the book with the highest rate among the rest. The verse counts are the verses that have text in this edition (7,953 in all). A verse number printed with no text of its own is not counted: Luke 17:36, Acts 8:37, 15:34 and 24:7, and Romans 16:25-27, whose closing doxology is printed in full at 14:24-26 instead. 3 John has 14 verses. A very short book, such as Jude, can rank high on only a few notes, so read its rate with the note count at the right.';
+      ?'Revelation stands far above the rest, with '+rate(REV).toFixed(1)+' notes per 100 verses. Switch it off to compare the other books at a readable scale. Verses are counted as this edition prints them, and only verses that have text are counted (7,953 in all). A verse number printed with no text of its own is not counted: Luke 17:36, Acts 8:37, 15:34 and 24:7, and Romans 16:25-27, whose closing doxology is printed in full at 14:24-26 instead. 3 John has 14 verses. A very short book, such as Jude, can rank high on only a few notes, so read its figure together with the note count at the right.'
+      :'With Revelation left out, the bars are scaled to the book with the highest notes-per-100-verses figure among the rest. Only verses that have text are counted (7,953 in all). A verse number printed with no text of its own is not counted: Luke 17:36, Acts 8:37, 15:34 and 24:7, and Romans 16:25-27, whose closing doxology is printed in full at 14:24-26 instead. 3 John has 14 verses. A very short book, such as Jude, can rank high on only a few notes, so read its figure together with the note count at the right.';
   }
   $('rpRev').addEventListener('change',drawBooks);
   drawBooks();
