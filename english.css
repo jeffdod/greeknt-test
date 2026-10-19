@@ -1,0 +1,13 @@
+/* The English text under a note or a variant (see english.js) */
+.enline{margin:8px 0 12px;font-size:1.02rem;line-height:1.55;color:var(--ink)}
+.enline .enlab{color:var(--ink-soft)}
+.enline .envn{font-size:.72em;line-height:0;vertical-align:super;color:var(--ink-soft);margin:0 2px 0 4px}
+.enline .enmore,.enline .encopy{font:inherit;font-size:.88rem;line-height:1.2;color:var(--rubric);background:transparent;border:1px solid var(--rule);border-radius:3px;padding:.15em .6em;margin-left:8px;cursor:pointer;white-space:nowrap}
+.enline .enmore:hover,.enline .encopy:hover,.enline .enmore:focus-visible,.enline .encopy:focus-visible{border-color:var(--rubric)}
+.vd-body .enline{max-width:var(--measure);margin:0 0 22px;font-size:1.1rem}
+
+/* the switch that hides the English under the notes */
+.no-en .enhold{display:none}
+.sortrow .showen{display:inline-flex;align-items:center;gap:8px;margin-left:12px;cursor:pointer;color:var(--ink)}
+.sortrow .showen input{width:20px;height:20px;margin:0;accent-color:var(--rubric)}
+@media (max-width:640px){.sortrow .showen{margin-left:0;flex:1 1 100%}}

@@ -199,6 +199,10 @@ function openVariant(id){
   b.appendChild(el('h3',null,v.ref)).id='vtitle';
   var wh=el('p','where');wh.appendChild(document.createTextNode('Page '));wh.appendChild(window.GNTPages.link(String(v.page),v.page));wh.appendChild(document.createTextNode(' of the edition · footnote “'+v.caller+'” · '+KIND[v.kind]));b.appendChild(wh);
   b.appendChild(el('p','summary',v.what));
+  /* the English of the verses, once the English text has loaded */
+  var enBox=el('div','enhold');b.appendChild(enBox);
+  if(window.GNT_EN){var enBook=GNT_EN.bookIndex(v.ref.slice(0,v.ref.lastIndexOf(' ')));var enRef=v.ref.slice(v.ref.lastIndexOf(' ')+1);
+    GNT_EN.load(function(){if(!enBox.isConnected)return;var ln=GNT_EN.line(enBook,enRef);if(ln)enBox.appendChild(ln);});}
   b.appendChild(el('h4',null,'The readings and the manuscripts cited for each'));
   v.readings.forEach(function(r,i){
     var stat=!r.greek&&r.status;

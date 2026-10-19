@@ -451,6 +451,7 @@ function posCmp(p,q){return p[0]!==q[0]?p[0]-q[0]:p[1]-q[1];}
 function norm(s){return s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/ς/g,'σ').replace(/\s+/g,' ').trim();}
 /* Greek pieces (typed as Unicode or beta code) and quoted Latin pieces must each occur in the note */
 function greekPieces(v){var p=window.GNTGreek?window.GNTGreek.pieces(v):{greek:[v],latin:[]};return p.greek.concat(p.latin).map(norm).filter(Boolean);}
+var ENHAY=[];   /* each note's English verses, prepared for searching the first time they are needed */
 var SEARCH=N.map(function(n){
   var t=[n[4]];n[5].forEach(function(r){t.push(r[1]);});
   return norm(t.join(' | '));
@@ -476,6 +477,10 @@ function matches(n,i,f){
     }
   }
   for(var gi=0;gi<f.greek.length;gi++)if(SEARCH[i].indexOf(f.greek[gi])<0)return false;
+  if(f.eng.length&&GNT_EN.ready){
+    var hay=ENHAY[i];if(hay===undefined)hay=ENHAY[i]=GNT_EN.haystack(n[1],n[2]);
+    if(!GNT_EN.matches(hay,f.eng))return false;
+  }
   if(f.rel==='split'){ if(!n[7])return false; }
   else if(f.rel==='bracket'){
     if(f.ed){if(!bracketed(n,f.ed))return false;} else if(!n[6].length)return false;
@@ -527,7 +532,7 @@ var BOOKSTART=[];BOOKS.forEach(function(_,bi){var m=1e9;N.forEach(function(n){if
 
 function getFilters(){
   var rf=parseRef($('fRef').value);
-  return {ed:ALONE?'':$('fEd').value,rel:$('fRel').value,where:$('fWhere').value,kind:CAT?'':$('fKind').value,pat:$('fPat').value,ref:rf&&!rf.bad?rf:null,refBad:!!(rf&&rf.bad),greek:greekPieces($('fGreek').value),cat:CAT,share:SHARE,alone:ALONE,sort:$('fSort')?$('fSort').value:''};
+  return {ed:ALONE?'':$('fEd').value,rel:$('fRel').value,where:$('fWhere').value,kind:CAT?'':$('fKind').value,pat:$('fPat').value,ref:rf&&!rf.bad?rf:null,refBad:!!(rf&&rf.bad),greek:greekPieces($('fGreek').value),cat:CAT,share:SHARE,alone:ALONE,sort:$('fSort')?$('fSort').value:'',eng:window.GNT_EN?GNT_EN.pieces($('fEng').value):[]};
 }
 function tag(e){
   if(e==='RPmg'){var t=el('span','etag f-byz','RP');t.appendChild(el('sup',null,'mg'));t.title='Robinson-Pierpont, alternate Byzantine reading';return t;}
@@ -624,6 +629,7 @@ function renderItem(n){
   head.appendChild(el('span','caller',' note '+n[3]));
   li.appendChild(head);
   var lem=el('div','lem');lem.appendChild(el('span','lab','Main text: '));var gr=el('span','gk');gr.lang='grc';lemmaInto(gr,n[4]);lem.appendChild(gr);li.appendChild(lem);
+  var enh=el('div','enhold');enh.dataset.b=n[1];enh.dataset.r=n[2];li.appendChild(enh);
   n[5].forEach(function(r){
     var d=el('div','rd');
     var tags=el('span','tags');
@@ -708,9 +714,20 @@ function stripHover(){
     }
   });
 }
+/* Put the English under each result once the English text is here */
+function fillEnglish(){
+  if(!window.GNT_EN||!GNT_EN.ready)return;
+  var hs=$('results').querySelectorAll('.enhold[data-b]');
+  for(var i=0;i<hs.length;i++){
+    var h=hs[i],ln=GNT_EN.line(+h.dataset.b,h.dataset.r,ENPIECES,true);
+    h.removeAttribute('data-b');if(ln)h.appendChild(ln);
+  }
+}
+var ENPIECES=[];
 function showMore(){
   var ul=$('results'),end=Math.min(hits.length,shown+PER);
   for(;shown<end;shown++)ul.appendChild(renderItem(N[hits[shown]]));
+  fillEnglish();
   $('more').hidden=shown>=hits.length;
   if(!$('more').hidden)$('more').textContent='Show more ('+fmt(hits.length-shown)+' left)';
 }
@@ -718,12 +735,16 @@ function update(){
   var f=getFilters();
   $('fEd').disabled=(f.rel==='split');
   var out=[];
-  if(!f.refBad){for(var i=0;i<N.length;i++)if(matches(N[i],i,f))out.push(i);}
+  var enWait=f.eng.length&&!GNT_EN.ready;
+  if(enWait)GNT_EN.load(update);
+  if(!f.refBad&&!enWait){for(var i=0;i<N.length;i++)if(matches(N[i],i,f))out.push(i);}
+  ENPIECES=f.eng;
   if(f.sort==='most')out=sortByMost(out);
   HLP=f.greek;
   hits=out;shown=0;$('results').textContent='';
   var c=$('rcount');
-  if(f.refBad)c.textContent='I could not read that passage. Try a form like “Romans 8”, “John 1:18”, “Romans 8:1-17”, or “1 Cor 12-14”.';
+  if(enWait)c.textContent='Loading the English text…';
+  else if(f.refBad)c.textContent='I could not read that passage. Try a form like “Romans 8”, “John 1:18”, “Romans 8:1-17”, or “1 Cor 12-14”.';
   else c.textContent=out.length===0?'No notes match these choices.':fmt(out.length)+' note'+(out.length===1?'':'s')+' ('+pct(out.length/N.length)+' of all '+fmt(N.length)+') on '+fmt(new Set(out.map(function(i){return N[i][0];})).size)+(new Set(out.map(function(i){return N[i][0];})).size===1?' page.':' pages.');
   $('catnote').hidden=!((CAT||SHARE||ALONE)&&!f.refBad);
   var cm=[];
@@ -765,6 +786,7 @@ function activeChips(f){
   if(!CAT&&$('fKind').value)add('Kind: '+optText('fKind'),null,function(){$('fKind').value='';dropStats('fKind');},function(g){g.kind='';g.cat='';});
   if($('fPat').value)add('Pattern: '+optText('fPat'),null,function(){$('fPat').value='';dropStats('fPat');},function(g){g.pat='';g.cat='';g.share='';g.alone='';});
   if($('fRef').value.trim())add('Passage: '+$('fRef').value.trim(),null,function(){$('fRef').value='';},function(g){g.ref=null;g.refBad=false;});
+  if($('fEng').value.trim())add('English: '+$('fEng').value.trim(),null,function(){$('fEng').value='';},function(g){g.eng=[];});
   if($('fGreek').value.trim())add('Greek: '+$('fGreek').value.trim(),null,function(){$('fGreek').value='';},function(g){g.greek=[];});
   if(CAT)add('Kind: '+CATNAME[CAT],null,function(){CAT='';$('fKind').value='';},function(g){g.cat='';g.kind='';});
   if(SHARE)add('Alternate reading: '+(SHARE.indexOf('with:')===0?'also the reading of '+SHARE.slice(5):SHARENAME[SHARE]),null,function(){SHARE='';},function(g){g.share='';});
@@ -790,7 +812,7 @@ function buildChips(f){
     box.appendChild(b);
   });
   nr.hidden=true;
-  if(f.refBad||hits.length)return;
+  if(f.refBad||hits.length||(f.eng.length&&!GNT_EN.ready))return;
   if(L.length){
     var opts=L.map(function(c){var g=getFilters();c.drop(g);return {c:c,n:countFor(g)};}).filter(function(o){return o.n>0;}).sort(function(a,b){return b.n-a.n;}).slice(0,3);
     nr.hidden=false;
@@ -849,7 +871,7 @@ function downloadCsv(){
 var ALONE='';   /* set only by a link from the Stats page: an edition (or the main text) reading alone */
 var SHARE='';   /* set only by a link from the Stats page: who else reads an alternate Byzantine reading */
 var CAT='';   /* set only by a link from the Stats page: a kind of difference chosen there */
-var URLMAP={ed:'fEd',rel:'fRel',where:'fWhere',kind:'fKind',pat:'fPat',ref:'fRef',greek:'fGreek',sort:'fSort'};
+var URLMAP={ed:'fEd',rel:'fRel',where:'fWhere',kind:'fKind',pat:'fPat',ref:'fRef',greek:'fGreek',eng:'fEng',sort:'fSort'};
 var URLDEF={rel:'differs'};
 var LASTKEY='gnt-last-search',RESTORED=0;
 function writeUrl(){
@@ -876,12 +898,21 @@ function init(){
   if($('cgrid')){buildKey();buildChart();buildDensity();buildKinds();buildRP();buildAlone();fitLabels();window.addEventListener('load',fitLabels);window.addEventListener('resize',fitLabels);}
   if(!$('filters'))return;
   buildFilters();stripHover();
+  if(window.GNT_EN){
+    GNT_EN.load(fillEnglish);
+    var se=$('fShowEn');
+    if(se){
+      var applyEn=function(){$('results').classList.toggle('no-en',!se.checked);};
+      se.checked=GNT_EN.shown();applyEn();
+      se.addEventListener('change',function(){GNT_EN.setShown(se.checked);applyEn();});
+    }
+  }
   var bl=$('bookList');if(bl)BOOKS.forEach(function(b){bl.appendChild(new Option(b));});
   ['fEd','fRel','fWhere','fKind','fPat'].forEach(function(id){$(id).addEventListener('change',function(){dropStats(id);update();});});
   $('fSort').addEventListener('change',update);
-  var tm;['fRef','fGreek'].forEach(function(id){$(id).addEventListener('input',function(){clearTimeout(tm);tm=setTimeout(update,200);});});
+  var tm;['fRef','fGreek','fEng'].forEach(function(id){$(id).addEventListener('input',function(){clearTimeout(tm);tm=setTimeout(update,200);});});
   $('fReset').addEventListener('click',function(){
-    $('fEd').value='';$('fRel').value='differs';$('fWhere').value='';$('fKind').value='';$('fPat').value='';$('fRef').value='';$('fGreek').value='';$('fSort').value='';CAT='';SHARE='';ALONE='';update();
+    $('fEd').value='';$('fRel').value='differs';$('fWhere').value='';$('fKind').value='';$('fPat').value='';$('fRef').value='';$('fGreek').value='';$('fEng').value='';$('fSort').value='';CAT='';SHARE='';ALONE='';update();
   });
   $('more').addEventListener('click',showMore);
   var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){drawStrip(hits);},150);});
