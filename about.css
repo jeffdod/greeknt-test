@@ -6,3 +6,11 @@
 .prose ul{padding-left:1.3em}
 .prose li{margin-bottom:10px}
 .lost{list-style:none;padding:0;margin:0}.lost li{padding:10px 0;border-bottom:1px solid var(--rule)}.lost a{font-size:1.15rem;color:var(--rubric)}
+
+/* Offline use */
+.offline{margin-top:18px;max-width:var(--measure,68ch);padding:16px 18px;background:var(--vellum);border:1px solid var(--rule)}
+.offline p{margin:0 0 10px}
+.offline progress{display:block;width:100%;height:12px;margin:0 0 14px;accent-color:var(--rubric)}
+.offline-actions{display:flex;flex-wrap:wrap;gap:10px}
+.offline .btn:disabled{opacity:.5;cursor:default}
+@media (max-width:560px){.offline{padding:14px}.offline-actions .btn{width:100%;text-align:center}}

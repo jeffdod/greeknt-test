@@ -6,6 +6,10 @@
 <link rel="icon" href="favicon.ico" sizes="32x32">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#e8e6df">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Greek NT">
 <title>About this edition · The Greek New Testament According to the Byzantine Text</title>
 <meta name="description" content="Who prepared the edition, what is in it, how the comparisons were made, and how the numbers on this website were produced and checked.">
 <link rel="canonical" href="https://greeknt.org/about.html">
@@ -111,6 +115,23 @@
     </div>
   </section>
 
+  <section id="offline">
+    <div class="wrap prose">
+      <h2>Use it without a connection</h2>
+      <p>This website can be added to the home screen of a phone or tablet, where it opens like an app and keeps working with no internet connection. The pages, charts, search and manuscript information are stored on the device the first time you visit it. Whenever you are online, you get the newest version.</p>
+      <p><b>iPhone and iPad:</b> open the site in Safari, tap the Share button, and choose “Add to Home Screen.” <b>Android:</b> open the site in Chrome, open the menu, and choose “Install app” or “Add to Home screen.”</p>
+      <p>The page images of the edition are large, about 76 MB in all. Pages you view are saved as you read. To have the whole edition available offline, save it here once, preferably on Wi-Fi.</p>
+      <div class="offline" id="offlineBox">
+        <p id="offlineStatus" role="status" aria-live="polite">Checking what is saved on this device.</p>
+        <progress id="offlineBar" value="0" max="752" aria-label="Pages saved"></progress>
+        <div class="offline-actions">
+          <button type="button" class="btn btn-primary" id="offlineSave">Save every page for offline use</button>
+          <button type="button" class="btn btn-quiet" id="offlineClear" hidden>Remove the saved pages</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="cite">
     <div class="wrap">
       <div class="head">
@@ -135,6 +156,7 @@
 <script src="cite.js"></script>
 <script src="menu.js"></script>
 <script src="backnav.js"></script>
+<script src="pwa.js" defer></script>
 <script src="scrolljump.js"></script>
 <script data-goatcounter="https://greeknt.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>

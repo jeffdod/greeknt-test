@@ -1,0 +1,16 @@
+{
+  "name": "The Greek New Testament According to the Byzantine Text",
+  "short_name": "Greek NT",
+  "description": "The public-domain Byzantine Greek New Testament, with the edition apparatus, statistics, and manuscript evidence.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e8e6df",
+  "theme_color": "#e8e6df",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
