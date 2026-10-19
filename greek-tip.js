@@ -25,12 +25,12 @@
   };
 
   /* Put a reading's words into parent, each in a span that can be pointed at. Anything that is not Greek (such as "om.") stays plain text. */
-  TIP.forms = function (parent, text) {
-    var re = /\S+/g, m, at = 0;
+  TIP.forms = function (parent, text, vid, ri) {
+    var re = /\S+/g, m, at = 0, n = 0;
     while ((m = re.exec(text))) {
       if (m.index > at) parent.appendChild(document.createTextNode(text.slice(at, m.index)));
       var f = TIP.fold(m[0]);
-      if (f) { var w = document.createElement('span'); w.className = 'gw'; w.dataset.f = f; w.textContent = m[0]; parent.appendChild(w); }
+      if (f) { var w = document.createElement('span'); w.className = 'gw'; w.dataset.f = f; if (vid) { w.dataset.v = vid; w.dataset.i = ri; w.dataset.n = n; } n++; w.textContent = m[0]; parent.appendChild(w); }
       else parent.appendChild(document.createTextNode(m[0]));
       at = m.index + m[0].length;
     }
@@ -39,9 +39,15 @@
 
   function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
 
-  /* The analyses of a word: [[strongs, code index], ...], one for a word in a verse, one or more for a spelling */
+  function parse(p) { var a = p.split('.'); return [+a[0], +a[1]]; }
+  /* The analyses of a word: [[strongs, code index], ...]. A word in a verse has one. A word in a reading was found in the
+     comparison editions' own text (one or more analyses); failing that it is looked up by its spelling in the whole edition. */
   function analyses(w) {
     var W = window.GNT_WORDS;
+    if (w.dataset.v) {
+      var rs = W.rd && W.rd[w.dataset.v], t = rs && rs[+w.dataset.i], e = t && t.split(' ')[+w.dataset.n];
+      if (e && e !== '-') return e.split('|').map(parse);
+    }
     if (w.dataset.f) {
       var s = W.forms[w.dataset.f];
       return s ? s.split(',').map(function (p) { var a = p.split('.'); return [+a[0], +a[1]]; }) : [];
@@ -52,15 +58,18 @@
     var a = p.split('.'); return [[+a[0], +a[1]]];
   }
 
-  function entry(a, show) {
-    var W = GNT_WORDS, d = W.dict[a[0]], box = el('div', 'gt-an');
+  /* One dictionary entry with the parsings that go with it (a list of code indexes) */
+  function entry(num, codes) {
+    var W = GNT_WORDS, d = W.dict[num], box = el('div', 'gt-an');
     var h = el('div', 'gt-head');
-    h.appendChild(el('span', 'gt-num', 'Strong’s ' + a[0]));
+    h.appendChild(el('span', 'gt-num', 'Strong’s ' + num));
     if (d) { var hw = el('span', 'gt-hw', d[0]); hw.lang = 'grc'; h.appendChild(hw); }
     box.appendChild(h);
     if (d && d[1]) box.appendChild(el('div', 'gt-gloss', d[1]));
-    var c = W.codes[a[1]];
-    if (c) { var pr = el('div', 'gt-parse'); pr.appendChild(el('span', 'gt-code', c[0])); pr.appendChild(document.createTextNode(' ' + c[1])); box.appendChild(pr); }
+    codes.forEach(function (ci) {
+      var c = W.codes[ci];
+      if (c) { var pr = el('div', 'gt-parse'); pr.appendChild(el('span', 'gt-code', c[0])); pr.appendChild(document.createTextNode(' ' + c[1])); box.appendChild(pr); }
+    });
     if (d && d[2]) box.appendChild(el('div', 'gt-count', 'This word occurs ' + d[2].toLocaleString('en-US') + (d[2] === 1 ? ' time' : ' times') + ' in the edition’s text.'));
     return box;
   }
@@ -69,10 +78,12 @@
     var an = analyses(w), box = el('div', 'gt-body');
     var g = el('div', 'gt-word', w.textContent.replace(/[^Ͱ-Ͽἀ-῿̀-ͯ]/g, '')); g.lang = 'grc'; box.appendChild(g);
     if (!an.length) box.appendChild(el('div', 'gt-none', 'This spelling does not occur in the edition’s text, so there is no entry to show.'));
-    else if (an.length === 1) box.appendChild(entry(an[0]));
     else {
-      box.appendChild(el('div', 'gt-many', 'This spelling occurs with more than one meaning or form:'));
-      an.slice(0, 4).forEach(function (a) { box.appendChild(entry(a)); });
+      var groups = [], at = {};
+      an.forEach(function (a) { if (!(a[0] in at)) { at[a[0]] = groups.length; groups.push([a[0], []]); } if (groups[at[a[0]]][1].indexOf(a[1]) < 0) groups[at[a[0]]][1].push(a[1]); });
+      if (groups.length > 1) box.appendChild(el('div', 'gt-many', 'This spelling occurs with more than one meaning:'));
+      else if (groups[0][1].length > 1) box.appendChild(el('div', 'gt-many', 'This form can be parsed more than one way:'));
+      groups.slice(0, 4).forEach(function (g2) { box.appendChild(entry(g2[0], g2[1])); });
     }
     return box;
   }

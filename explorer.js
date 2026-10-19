@@ -217,7 +217,7 @@ function openVariant(id){
     rl.appendChild(el('b',null,r.label));
     box.appendChild(rl);
     if(r.expl)box.appendChild(el('p','keyline',r.expl));
-    if(!stat&&r.greek){var g=el('p','gk');g.lang='grc';if(window.GNT_TIP)GNT_TIP.forms(g,r.greek);else g.textContent=r.greek;box.appendChild(g);}
+    if(!stat&&r.greek){var g=el('p','gk');g.lang='grc';if(window.GNT_TIP)GNT_TIP.forms(g,r.greek,v.id,i);else g.textContent=r.greek;box.appendChild(g);}
     if(r.eds&&r.eds.length){box.appendChild(el('p','keyline','The printed note adds: '+r.eds.map(function(e){return e.replace('RP^mg','the alternate Byzantine reading (Robinson-Pierpont)').replace('RPmg','the alternate Byzantine reading (Robinson-Pierpont)');}).join(', ')+' ('+(r.eds.indexOf('CT')>=0?'agreement of the critical editions':'edition note')+').'));}
     var e=earliest(r);if(e&&!stat)box.appendChild(e);
     var chips=el('div','chips');
