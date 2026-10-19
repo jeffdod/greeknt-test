@@ -566,10 +566,53 @@ function evidenceCsv(v){
 }
 function edsOf(mask){return EDS.filter(function(e){return mask&BIT[e];});}
 /* A label such as "(Pericope Adulterae: See Appendix C ...)" is printed in bold in the edition */
+/* Greek search words, shown highlighted in the results (set by update) */
+var HLP=[];
+function foldChar(c){return c.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\u03c2/g,'\u03c3');}
+/* Character ranges of text that match any search piece, using the same folding as the search itself */
+function hlRanges(text){
+  if(!HLP.length)return [];
+  var ns='',map=[],sp=true;
+  for(var i=0;i<text.length;i++){
+    var ch=text.charAt(i);
+    if(/\s/.test(ch)){if(!sp){ns+=' ';map.push(i);sp=true;}continue;}
+    var f=foldChar(ch);
+    for(var j=0;j<f.length;j++){ns+=f.charAt(j);map.push(i);}
+    sp=false;
+  }
+  var r=[];
+  HLP.forEach(function(pc){
+    for(var at=ns.indexOf(pc);at>=0;at=ns.indexOf(pc,at+1))r.push([map[at],map[at+pc.length-1]+1]);
+  });
+  r.sort(function(a,b){return a[0]-b[0];});
+  var out=[];
+  r.forEach(function(x){var l=out[out.length-1];if(l&&x[0]<=l[1]){if(x[1]>l[1])l[1]=x[1];}else out.push([x[0],x[1]]);});
+  return out;
+}
+/* Add text[from,to) to parent, wrapping the parts inside ranges in <mark> */
+function putMarked(parent,text,ranges,from,to,cls){
+  var at=from;
+  function put(a,b,hit){
+    if(b<=a)return;
+    var t=text.slice(a,b),n=document.createTextNode(t);
+    if(hit){var m=el('mark','hit');m.appendChild(n);n=m;}
+    if(cls){var w=el(cls[0],cls[1]);w.appendChild(n);n=w;}
+    parent.appendChild(n);
+  }
+  ranges.forEach(function(r){
+    var a=Math.max(r[0],from),b=Math.min(r[1],to);
+    if(b<=a)return;
+    put(at,a,false);put(a,b,true);at=b;
+  });
+  put(at,to,false);
+}
+function markedText(parent,text){putMarked(parent,text,hlRanges(text),0,text.length);}
 function lemmaInto(p,t){
+  var rg=hlRanges(t);
   var m=/^(.*?\()([A-Z][A-Za-z]*(?: [A-Z][A-Za-z]*)*)(: .*)$/.exec(t);
-  if(!m){p.appendChild(document.createTextNode(t));return;}
-  p.appendChild(document.createTextNode(m[1]));p.appendChild(el('b','en',m[2]));p.appendChild(document.createTextNode(m[3]));
+  if(!m){putMarked(p,t,rg,0,t.length);return;}
+  var a=m[1].length,b=a+m[2].length;
+  putMarked(p,t,rg,0,a);putMarked(p,t,rg,a,b,['b','en']);putMarked(p,t,rg,b,t.length);
 }
 function renderItem(n){
   var li=el('li','res');
@@ -587,7 +630,7 @@ function renderItem(n){
     edsOf(r[0]).forEach(function(e){tags.appendChild(tag(e));});
     if(r[0]&BIT.RPmg){}
     d.appendChild(tags);
-    var t=el('span','gk',r[1]==='txt'?'reads the main text':r[1]);t.lang='grc';d.appendChild(t);
+    var t=el('span','gk');t.lang='grc';if(r[1]==='txt')t.textContent='reads the main text';else markedText(t,r[1]);d.appendChild(t);
     var kk=kindOrder(r[3].filter(function(k){return k!=='special';}));if(kk.length&&r[1]!=='txt'){d.appendChild(el('span','kd',' ('+kk.map(function(k){return KINDS[k];}).join('; ')+')'));}
     li.appendChild(d);
   });
@@ -670,6 +713,7 @@ function update(){
   var out=[];
   if(!f.refBad){for(var i=0;i<N.length;i++)if(matches(N[i],i,f))out.push(i);}
   if(f.sort==='most')out=sortByMost(out);
+  HLP=f.greek;
   hits=out;shown=0;$('results').textContent='';
   var c=$('rcount');
   if(f.refBad)c.textContent='I could not read that passage. Try a form like “Romans 8”, “John 1:18”, “Romans 8:1-17”, or “1 Cor 12-14”.';
@@ -684,6 +728,7 @@ function update(){
   showMore();drawStrip(out);writeUrl();
   buildChips(f);
   scheduleCounts();
+  var rn=$('restored');if(rn){rn.hidden=RESTORED!==1;RESTORED=RESTORED===1?2:0;}
 }
 
 /* ---------- sorting ---------- */
@@ -799,6 +844,7 @@ var SHARE='';   /* set only by a link from the Stats page: who else reads an alt
 var CAT='';   /* set only by a link from the Stats page: a kind of difference chosen there */
 var URLMAP={ed:'fEd',rel:'fRel',where:'fWhere',kind:'fKind',pat:'fPat',ref:'fRef',greek:'fGreek',sort:'fSort'};
 var URLDEF={rel:'differs'};
+var LASTKEY='gnt-last-search',RESTORED=0;
 function writeUrl(){
   if(!window.history||!history.replaceState)return;
   var p=new URLSearchParams();
@@ -807,10 +853,11 @@ function writeUrl(){
   if(SHARE)p.set('share',SHARE);
   if(ALONE)p.set('alone',ALONE);
   var qs=p.toString();
+  try{if(qs)localStorage.setItem(LASTKEY,qs);else localStorage.removeItem(LASTKEY);}catch(e){}
   try{history.replaceState(null,'',location.pathname+(qs?'?'+qs+'#find':''));}catch(e){}
 }
-function readUrl(){
-  var p=new URLSearchParams(location.search),any=false;
+function readUrl(qs){
+  var p=new URLSearchParams(qs===undefined?location.search:qs),any=false;
   Object.keys(URLMAP).forEach(function(k){if(p.has(k)){$(URLMAP[k]).value=p.get(k);any=true;}});
   if(p.has('cat')&&/^(form|omit|add|diff|order|repl|minor)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;if(CAT!=='minor')$('fKind').value=CAT;}
   if(p.has('share')&&/^(byz|crit|tr|none|critonly|with:(HF|PCK|PT|ECM|NA27|NA28|SBL|TH|WH|SCR|ST))$/.test(p.get('share'))){SHARE=p.get('share');any=true;}
@@ -822,6 +869,7 @@ function init(){
   if($('cgrid')){buildKey();buildChart();buildDensity();buildKinds();buildRP();buildAlone();fitLabels();window.addEventListener('load',fitLabels);window.addEventListener('resize',fitLabels);}
   if(!$('filters'))return;
   buildFilters();stripHover();
+  var bl=$('bookList');if(bl)BOOKS.forEach(function(b){bl.appendChild(new Option(b));});
   ['fEd','fRel','fWhere','fKind','fPat'].forEach(function(id){$(id).addEventListener('change',function(){dropStats(id);update();});});
   $('fSort').addEventListener('change',update);
   var tm;['fRef','fGreek'].forEach(function(id){$(id).addEventListener('input',function(){clearTimeout(tm);tm=setTimeout(update,200);});});
@@ -834,6 +882,7 @@ function init(){
   var sh=$('fShare');
   if(sh)sh.addEventListener('click',function(){writeUrl();window.GNT_copy(location.href,sh,'Link copied');});
   var had=readUrl();
+  if(!had){try{var sv=localStorage.getItem(LASTKEY);if(sv&&readUrl(sv))RESTORED=1;}catch(e){}}
   update();
   if(had){var fd=$('find');if(fd)fd.scrollIntoView();}
 }

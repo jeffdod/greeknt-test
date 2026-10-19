@@ -65,7 +65,7 @@
   <div class="xhero">
     <div class="wrap">
       <h1>Variant search</h1>
-      <p class="lede">Choose an edition, a passage, a kind of difference, or a Greek word, and see every matching note in the Edition Apparatus with its page number. The strip shows where in the edition the matches fall. For the totals instead, see the <a href="stats.html">stats</a>.</p>
+      <p class="lede">Choose an edition, a passage, a kind of difference, or a Greek word, and see every matching note in the Edition Apparatus with its page number. Your Greek words are highlighted in the results, and the strip shows where in the edition the matches fall. Each choice you make appears as a button above the results, which you can click to remove it, and the number beside each choice in the lists is how many notes it would show. For the totals instead, see the <a href="stats.html">stats</a>.</p>
     </div>
   </div>
 
@@ -114,7 +114,8 @@
           </select>
         </label>
         <label>Passage
-          <input id="fRef" type="text" placeholder="e.g. Romans 8, John 1:18, or Romans 8:1-17" autocomplete="off">
+          <input id="fRef" type="text" list="bookList" placeholder="e.g. Romans 8 or John 1:18-25" autocomplete="off" spellcheck="false">
+          <datalist id="bookList"></datalist>
         </label>
         <label class="wide">Greek word or phrase
           <input id="fGreek" type="text" placeholder="accents optional, e.g. και" autocomplete="off" lang="grc" data-beta aria-describedby="fGreekHint">
@@ -124,6 +125,7 @@
         <button type="button" class="btn btn-quiet" id="fShare">Copy link to this search</button>
         <button type="button" class="btn btn-quiet" id="fCsv" title="Download every matching note as a spreadsheet file (CSV)">Download results as CSV</button>
       </form>
+      <p class="specnote" id="restored" hidden>This is your last search on this device. Choose “Clear all” to start again.</p>
       <div class="chips" id="chips" aria-label="Choices in force" hidden></div>
       <div class="rhead">
         <p id="rcount" aria-live="polite"></p>
