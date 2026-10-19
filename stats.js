@@ -187,42 +187,71 @@ function shareTest(n,kind){
   if(kind==='crit')return !!(m&M_CRIT);
   if(kind==='tr')return !!(m&M_TR);
   if(kind==='none')return (m&~BIT.RPmg)===0;
+  if(kind.indexOf('with:')===0){var eb=BIT[kind.slice(5)];return !!eb&&n[5].some(function(r){return r[1]!=='txt'&&(r[0]&BIT.RPmg)&&(r[0]&eb);});}
   if(kind==='critonly')return !!(m&M_CRIT)&&!(m&M_BYZ)&&!(m&M_TR);
   return false;
 }
-var SHARENAME={byz:'also read by another Byzantine edition',crit:'also read by a critical edition',tr:'also read by a Textus Receptus edition',none:'read by no other edition',critonly:'read by critical editions and by no other Byzantine or Textus Receptus edition'};
+var SHARENAME={'with:':'',byz:'also read by another Byzantine edition',crit:'also read by a critical edition',tr:'also read by a Textus Receptus edition',none:'read by no other edition',critonly:'read by critical editions and by no other Byzantine or Textus Receptus edition'};
 function buildRP(){
   var hit=[];
   N.forEach(function(n,i){if(rpShared(n)>=0)hit.push(i);});
   var tot=hit.length;
   $('rplede').innerHTML='In '+fmt(tot)+' of the '+fmt(N.length)+' notes ('+pct(tot/N.length)+'), the Robinson-Pierpont edition offers an alternate Byzantine reading, marked RP<sup>mg</sup>. These are the places where its editors judged that the Byzantine tradition is divided. Select any bar to list those notes.';
-  /* books, most alternate readings first; Revelation can be switched off so that it does not dwarf the rest */
-  $('rpwho').textContent='Each bar is the number of notes in a book that have an alternate reading. The figure at the right adds the share of that book’s notes. Select a bar to list those notes.';
-  var per=BOOKS.map(function(){return 0;}),bt=BOOKS.map(function(){return 0;});
-  N.forEach(function(n){bt[n[1]]++;});
+  /* books, ranked by alternate readings per 100 verses, so that long books do not win just by being long */
+  var VERSES=[1071,678,1151,879,1007,436,437,257,149,155,104,95,89,47,113,83,46,25,303,108,105,61,105,13,14,25,404];
+  $('rpwho').textContent='A long book has more places where a second reading could be noted, so the books are compared by size. Each bar is the number of notes with an alternate reading for every 100 verses of the book, and the large figure is that rate. The text at the right gives the notes and the verses behind it. Select a bar to list those notes.';
+  var per=BOOKS.map(function(){return 0;});
   hit.forEach(function(i){per[N[i][1]]++;});
   var REV=BOOKS.indexOf('Revelation');
+  function rate(bi){return per[bi]/VERSES[bi]*100;}
   function drawBooks(){
     var withRev=$('rpRev').checked,g=$('rgrid');g.textContent='';
     var order=BOOKS.map(function(_,i){return i;}).filter(function(i){return withRev||i!==REV;});
-    order.sort(function(a,b){return per[b]-per[a]||a-b;});
-    var mx=per[order[0]]||1;
+    order.sort(function(a,b){return rate(b)-rate(a)||a-b;});
+    var mx=rate(order[0])||1;
     order.forEach(function(bi){
-      var v=per[bi],sh=bt[bi]?v/bt[bi]:0;
-      var a=el('a','rrow');a.href=searchUrl({ed:'RPmg',where:'b:'+bi});
-      a.title=BOOKS[bi]+': '+fmt(v)+' of '+fmt(bt[bi])+' notes ('+pct(sh)+') have an alternate Byzantine reading. List them.';
-      a.setAttribute('aria-label',BOOKS[bi]+': '+fmt(v)+' of '+fmt(bt[bi])+' notes, '+pct(sh)+'. List them.');
-      a.appendChild(el('span','rname',BOOKS[bi]));
-      var tr=el('span','rtrack'),bar=el('span','rbar');bar.style.width=(v/mx*100)+'%';tr.appendChild(bar);a.appendChild(tr);
-      a.appendChild(el('span','rval',fmt(v)+' · '+pct(sh)));
-      g.appendChild(a);
+      var v=per[bi],r=rate(bi);
+      var row=el('div','arow wide');
+      row.appendChild(el('span','aname',BOOKS[bi]));
+      var cnt=el('a','acount',r.toFixed(1));cnt.href=searchUrl({ed:'RPmg',where:'b:'+bi});
+      cnt.title=BOOKS[bi]+': '+fmt(v)+' notes with an alternate reading in '+fmt(VERSES[bi])+' verses. List them.';
+      cnt.setAttribute('aria-label',BOOKS[bi]+': '+r.toFixed(1)+' notes per 100 verses ('+fmt(v)+' notes in '+fmt(VERSES[bi])+' verses). List them.');
+      row.appendChild(cnt);
+      var tr=el('span','atrack'),a=el('a','seg aseg');a.href=cnt.href;a.style.width=(r/mx*100)+'%';a.style.background='var(--r3)';a.title=cnt.title;a.setAttribute('aria-label',cnt.getAttribute('aria-label'));tr.appendChild(a);row.appendChild(tr);
+      row.appendChild(el('span','apct',fmt(v)+' notes · '+fmt(VERSES[bi])+' verses'));
+      g.appendChild(row);
     });
     $('rnote').textContent=withRev
-      ?'Revelation alone holds '+fmt(per[REV])+' of the '+fmt(tot)+' notes ('+pct(per[REV]/tot)+'). Switch it off to compare the other books at a readable scale. The bars show how many notes have an alternate reading. The percentage shows how common they are within each book. A long book can have the longest bar and still a low percentage.'
-      :'With Revelation left out, the other books hold '+fmt(tot-per[REV])+' of the '+fmt(tot)+' notes. The bars are scaled to the longest one shown.';
+      ?'Revelation stands far above the rest, with '+rate(REV).toFixed(1)+' notes per 100 verses. Switch it off to compare the other books at a readable scale. The verse counts are the verse numbers printed in this edition (7,960 in all). Romans has 436 because its closing doxology is printed at 14:24-26 and again at 16:25-27, so chapter 14 runs to verse 26. 3 John has 14 verses. A very short book, such as Jude, can rank high on only a few notes, so read its rate with the note count at the right.'
+      :'With Revelation left out, the bars are scaled to the book with the highest rate among the rest. The verse counts are the verse numbers printed in this edition (7,960 in all). Romans has 436 because its closing doxology is printed at 14:24-26 and again at 16:25-27, so chapter 14 runs to verse 26. 3 John has 14 verses. A very short book, such as Jude, can rank high on only a few notes, so read its rate with the note count at the right.';
   }
   $('rpRev').addEventListener('change',drawBooks);
   drawBooks();
+  /* editions: how often each one reads the same reading as RPmg */
+  var ER=SHOWN.map(function(e){
+    var c=0,t=0;
+    hit.forEach(function(i){
+      var n=N[i];if(!edApplies(e,groupOf(n)))return;t++;
+      for(var k=0;k<n[5].length;k++){var rd=n[5][k];if(rd[1]!=='txt'&&(rd[0]&BIT.RPmg)&&(rd[0]&BIT[e])){c++;break;}}
+    });
+    return {e:e,c:c,t:t};
+  });
+  ER.sort(function(a,b){return (b.c/b.t)-(a.c/a.t);});
+  $('rpwith').textContent='In how many of the alternate readings does each edition read the same thing? The rows run from the edition that agrees most often to the one that agrees least often. The large figure is the share of the notes in which the edition is compared, and each bar shows the same share. Select a figure or a bar to list those notes.';
+  var eg=$('egrid');
+  ER.forEach(function(r){
+    var sh=r.t?r.c/r.t:0;
+    var row=el('div','arow wide');
+    var nm=el('span','aname',r.e);nm.title=EDNAME[r.e];row.appendChild(nm);
+    var cnt=el('a','acount',Math.round(sh*100)+'%');cnt.href=searchUrl({ed:'RPmg',share:'with:'+r.e});
+    cnt.title=EDNAME[r.e]+' reads the alternate reading in '+fmt(r.c)+' of '+fmt(r.t)+' notes ('+pct(sh)+'). List them.';
+    cnt.setAttribute('aria-label',r.e+': '+fmt(r.c)+' of '+fmt(r.t)+' notes, '+pct(sh)+'. List them.');
+    row.appendChild(cnt);
+    var tr=el('span','atrack'),a=el('a','seg aseg');a.href=cnt.href;a.style.width=(sh*100)+'%';a.style.background=FAMCOL[FAM[r.e]];a.title=cnt.title;a.setAttribute('aria-label',cnt.getAttribute('aria-label'));tr.appendChild(a);row.appendChild(tr);
+    row.appendChild(el('span','apct',fmt(r.c)+' of '+fmt(r.t)+' notes'));
+    eg.appendChild(row);
+  });
+  $('enote').textContent='Each edition is compared only in the notes where it exists, so ECM is measured against the notes in Mark, Acts, the Catholic Epistles, and Revelation. An edition can agree with the alternate reading in a note and also with the main text elsewhere in the same note, so a high share does not mean the edition prefers the alternate reading.';
   /* the notes where the alternate reading is shared only with critical editions */
   var co=hit.filter(function(i){return shareTest(N[i],'critonly');});
   $('rpcrit').textContent='In '+fmt(co.length)+' notes, a critical edition reads the alternate reading, and no other Byzantine edition and no Textus Receptus edition does. In these places the margin of the Robinson-Pierpont edition points toward the critical text. Select a note to find it in the variant search.';
@@ -615,7 +644,7 @@ function update(){
   $('catnote').hidden=!((CAT||SHARE||ALONE)&&!f.refBad);
   var cm=[];
   if(CAT)cm.push('readings whose one kind of difference is “'+CATNAME[CAT]+'”');
-  if(SHARE)cm.push('notes with an alternate Byzantine reading that is '+SHARENAME[SHARE]);
+  if(SHARE)cm.push(SHARE.indexOf('with:')===0?'notes where the alternate Byzantine reading is also the reading of '+SHARE.slice(5):'notes with an alternate Byzantine reading that is '+SHARENAME[SHARE]);
   if(ALONE){var ap=ALONE.split('.');cm.push((ap[0]==='MT'?'notes where the main text reads alone':'notes where '+ap[0]+' reads alone')+(ap[1]==='agree'?', and every other reading is the same':ap[1]==='div'?', and the others are divided':''));}
   if(CAT||SHARE||ALONE)$('catnote').textContent='Showing only '+cm.join(', and ')+', as counted on the Stats page. Change any other choice above to see them all.';
   $('fCsv').disabled=!out.length;
@@ -667,7 +696,7 @@ function readUrl(){
   var p=new URLSearchParams(location.search),any=false;
   Object.keys(URLMAP).forEach(function(k){if(p.has(k)){$(URLMAP[k]).value=p.get(k);any=true;}});
   if(p.has('cat')&&/^(form|omit|add|diff|order|mixed)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;}
-  if(p.has('share')&&/^(byz|crit|tr|none|critonly)$/.test(p.get('share'))){SHARE=p.get('share');any=true;}
+  if(p.has('share')&&/^(byz|crit|tr|none|critonly|with:(HF|PCK|PT|ECM|NA27|NA28|SBL|TH|WH|SCR|ST))$/.test(p.get('share'))){SHARE=p.get('share');any=true;}
   if(p.has('alone')&&/^(MT|HF|PCK|PT|ECM|NA27|NA28|SBL|TH|WH|SCR|ST)(\.(agree|div))?$/.test(p.get('alone'))){ALONE=p.get('alone');any=true;}
   return any;
 }
