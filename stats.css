@@ -115,6 +115,12 @@ a.acount:hover,a.acount:focus-visible{color:var(--rubric);text-decoration:underl
 .swatch.al-div{background:color-mix(in srgb, var(--ink) 40%, #ebe8df)}
 .arow.wide{grid-template-columns:8.6em 3.6em 1fr 10.5em}
 .arow.wide .apct{text-align:left;font-size:.9rem}
+/* keep chart text readable on hover: the site's link-hover color is dark red, which vanishes on dark boxes and bars */
+a.dc:hover,a.dc:focus-visible{color:var(--ink)}
+a.dc.d3:hover,a.dc.d3:focus-visible,a.dc.d4:hover,a.dc.d4:focus-visible{color:#fff}
+a.seg:hover,a.seg:focus-visible{color:#fff}
+a.seg.k-form:hover,a.seg.k-form:focus-visible,a.seg.k-mixed:hover,a.seg.k-mixed:focus-visible{color:var(--ink)}
+a.rrow:hover,a.rrow:focus-visible{color:var(--ink)}
 @media (min-width:641px){.dhint{display:none}}
 #catnote{flex-basis:100%;order:3;margin:6px 0 0}
 @media (max-width:640px){
