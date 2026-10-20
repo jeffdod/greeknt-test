@@ -261,7 +261,7 @@ function buildRP(){
     row.appendChild(el('span','apct',fmt(r.c)+' of '+fmt(r.t)+' notes'));
     eg.appendChild(row);
   });
-  $('enote').textContent='Each edition is compared only in the notes where it exists, so ECM is measured against the notes in Mark, Acts, the Catholic Epistles, and Revelation. An edition can agree with the alternate reading in a note and also with the main text elsewhere in the same note, so a high share does not mean the edition prefers the alternate reading.';
+  $('enote').textContent='Each edition is compared only in the notes where it exists, so ECM is measured against the notes in Mark, Acts, the Catholic Epistles, and Revelation. ECM’s split readings count as agreeing with the alternate reading even where ECM also supports the main text, so a high ECMs share does not by itself show that ECM prefers the alternate reading.';
   /* the notes where the alternate reading is shared only with critical editions */
   var co=hit.filter(function(i){return shareTest(N[i],'critonly');});
   $('rpcrit').textContent='In '+fmt(co.length)+' notes, a critical edition reads the alternate reading, and no other Byzantine edition and no Textus Receptus edition does. In these places the margin of the Robinson-Pierpont edition points toward the critical text. Select a note to find it in the variant search.';
