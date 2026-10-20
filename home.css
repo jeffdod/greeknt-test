@@ -21,6 +21,14 @@
 .specimen figcaption b{color:#f3f1ea;font-weight:500}
 .specimen figcaption a{color:var(--gilt-lt)}
 
+/* the word of God */
+.epigraph{background:var(--vellum);padding:56px 0 52px;text-align:center;border-bottom:1px solid var(--rule)}
+.epigraph .ep-lead{font-size:1.3rem;color:var(--ink);max-width:46ch;margin:0 auto 30px;line-height:1.5}
+.epigraph .ep-quote{margin:0 auto;max-width:52ch;padding:0}
+.epigraph .ep-greek{font-size:1.5rem;line-height:1.55;margin:0 0 12px;color:var(--ink)}
+.epigraph .ep-en{font-size:1.2rem;font-style:italic;line-height:1.55;color:var(--ink-soft);margin:0}
+.epigraph .ep-cite{margin:16px 0 0;font-size:1.02rem;letter-spacing:.04em;color:var(--gilt)}
+
 /* tools */
 .tools{background:var(--stone);padding:88px 0 80px}
 .tools .head{margin-bottom:36px}
@@ -60,3 +68,4 @@
 @media (max-width:1060px){.toolgrid{grid-template-columns:1fr}}
 @media (max-width:900px){.hero{padding:56px 0 64px}.hero-grid{grid-template-columns:1fr;gap:44px}}
 @media (max-width:560px){.tool{grid-template-columns:1fr}.tool-viz{border-right:0;border-bottom:1px solid var(--rule);flex-direction:row;align-items:flex-end;gap:18px}.tool-viz .viz,.tool-viz .fake-search{flex:1 1 55%;max-width:55%;margin:0}.viz-cap{flex:1 1 40%;margin:0!important}.hero .sub,.hero .note{max-width:none}}
+@media (max-width:560px){.epigraph{padding:40px 0 38px}.epigraph .ep-lead{font-size:1.2rem;margin-bottom:24px}.epigraph .ep-greek{font-size:1.3rem}.epigraph .ep-en{font-size:1.1rem}}
