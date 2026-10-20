@@ -287,6 +287,7 @@ function buildRP(){
     var m=0;rd.forEach(function(r){m|=r[0];});
     var c4=el('td','ctags');c4.setAttribute('data-label','Also read by');
     edsOf(m&M_CRIT).forEach(function(e){c4.appendChild(el('span','etag f-crit',e));});
+    appendixLinks(c2);appendixLinks(c3);
     tr.appendChild(c1);tr.appendChild(c2);tr.appendChild(c3);tr.appendChild(c4);tb.appendChild(tr);
   });
   $('cnote').textContent='The Greek is shown as it is printed in the apparatus, where most words appear without accents or breathing marks.';
@@ -639,6 +640,30 @@ function lemmaInto(p,t){
   var a=m[1].length,b=a+m[2].length;
   putMarked(p,t,rg,0,a);putMarked(p,t,rg,a,b,['b','en']);putMarked(p,t,rg,b,t.length);
 }
+/* "Appendix C" in a note is a link that opens the first page of that appendix in the page viewer. The numbers are printed page numbers. */
+var APPENDIX_PAGE={C:714};
+function appendixLinks(root){
+  if(!window.GNTPages)return;
+  var hosts=[].slice.call(root.querySelectorAll('.gk'));
+  hosts.forEach(function(host){
+    var w=document.createTreeWalker(host,NodeFilter.SHOW_TEXT,null),nodes=[],at=[],s='',n;
+    while((n=w.nextNode())){nodes.push(n);at.push(s.length);s+=n.data;}
+    var re=/Appendix ([A-Z])\b/g,m,found=[];
+    while((m=re.exec(s)))if(APPENDIX_PAGE[m[1]])found.push([m.index,m.index+m[0].length,m[1]]);
+    function where(pos,isEnd){
+      for(var i=0;i<nodes.length;i++){var lo=at[i],hi=lo+nodes[i].data.length;if(isEnd?(pos>lo&&pos<=hi):(pos>=lo&&pos<hi))return [nodes[i],pos-lo];}
+      return null;
+    }
+    for(var k=found.length-1;k>=0;k--){
+      var a=where(found[k][0],false),z=where(found[k][1],true);
+      if(!a||!z)continue;
+      var rg=document.createRange();rg.setStart(a[0],a[1]);rg.setEnd(z[0],z[1]);
+      var text=rg.toString(),lk=GNTPages.link(text,APPENDIX_PAGE[found[k][2]]);
+      lk.lang='en';lk.title='Show the first page of Appendix '+found[k][2]+' in the edition';
+      rg.deleteContents();rg.insertNode(lk);
+    }
+  });
+}
 function renderItem(n,idx){
   var li=el('li','res');
   var head=el('div','rhd');
@@ -693,6 +718,7 @@ function renderItem(n,idx){
     if(t)window.GNT_copy(t,cpb,'Copied');
   });
   cph.appendChild(cpb);vt.appendChild(cph);
+  appendixLinks(li);
   return li;
 }
 function drawStrip(hitsArr){
