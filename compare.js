@@ -410,26 +410,32 @@
       fill(part);
     }
     function partOf(t) { var c = t.closest && t.closest('[data-p]'); return c && holder.contains(c) ? c.dataset.p : ''; }
+    /* Leaving a word clears the details only after a short wait, so crossing the gap to the next word does not flash the
+       instruction text in between */
+    var clearing = 0;
+    function clearSoon() { clearTimeout(clearing); clearing = setTimeout(function () { if (!pinned) mark(''); }, 150); }
+    function show(p) { clearTimeout(clearing); mark(p); }
     holder.addEventListener('mouseover', function (e) {
       var p = partOf(e.target);
       if (quiet) { if (p === quiet) return; quiet = ''; }
-      if (!pinned) mark(p);
+      if (pinned) return;
+      if (p) show(p); else clearSoon();
     });
-    holder.addEventListener('mouseleave', function () { quiet = ''; if (!pinned) mark(''); });
-    holder.addEventListener('focusin', function (e) { if (!pinned) mark(partOf(e.target)); });
-    holder.addEventListener('focusout', function () { if (!pinned) mark(''); });
+    holder.addEventListener('mouseleave', function () { quiet = ''; if (!pinned) clearSoon(); });
+    holder.addEventListener('focusin', function (e) { if (!pinned) { var p = partOf(e.target); if (p) show(p); else clearSoon(); } });
+    holder.addEventListener('focusout', function () { if (!pinned) clearSoon(); });
     holder.addEventListener('click', function (e) {
       var p = partOf(e.target);
-      if (!p) { if (pinned) { pinned = ''; quiet = ''; mark(''); } return; }
-      if (pinned === p) { pinned = ''; quiet = p; mark(''); } else { pinned = p; quiet = ''; mark(p); }
+      if (!p) { if (pinned) { pinned = ''; quiet = ''; show(''); } return; }
+      clearTimeout(clearing); if (pinned === p) { pinned = ''; quiet = p; mark(''); } else { pinned = p; quiet = ''; mark(p); }
       e.stopPropagation();
     });
     holder.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter' && e.key !== ' ') return;
       var p = partOf(e.target); if (!p) return; e.preventDefault();
-      if (pinned === p) { pinned = ''; quiet = p; mark(''); } else { pinned = p; quiet = ''; mark(p); }
+      clearTimeout(clearing); if (pinned === p) { pinned = ''; quiet = p; mark(''); } else { pinned = p; quiet = ''; mark(p); }
     });
-    document.addEventListener('click', function (e) { if (pinned && !holder.contains(e.target)) { pinned = ''; mark(''); } });
+    document.addEventListener('click', function (e) { if (pinned && !holder.contains(e.target)) { pinned = ''; show(''); } });
     fill('');
     wrap.appendChild(holder);
     return wrap;
