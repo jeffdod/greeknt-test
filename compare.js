@@ -156,6 +156,11 @@
   }
 
 
+  /* A word of the verse as the notes print it: no accents, breathings, diaeresis or iota subscript, lower case, no closing punctuation */
+  function plain(w) {
+    return w.replace(/[,.;·∙:!?)]+$/, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').normalize('NFC').toLowerCase();
+  }
+
   /* A main text whose note quotes only the ends of a stretch ("ει … υμων"): the whole stretch, taken from the verse text.
      Words the note quotes keep the note's own spelling and analysis; the rest are marked x. Returns null when it cannot be made. */
   function expandBase(n, idx, B) {
@@ -175,7 +180,7 @@
         if (v.key === last.k && s >= last.e) { on = on && v.key !== last.k ? on : on; continue; }
         var q = rs.some(function (r) { return r.k === v.key && s < r.e && e > r.s; });
         if (q) { var b = B[qi++]; if (!b) { ok = false; continue; } out.push(b); }
-        else out.push({ w: m[0].replace(/[,.;·]+$/, ''), o: false, c: false, m: false, x: true, a: analysis(tag) });
+        else out.push({ w: plain(m[0]), o: false, c: false, m: false, x: true, a: analysis(tag) });
       }
       if (v.key === last.k) on = false;
     });
