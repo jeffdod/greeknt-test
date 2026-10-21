@@ -818,7 +818,7 @@ function update(){
   if(CAT)cm.push('readings whose one kind of difference is “'+CATNAME[CAT]+'”');
   if(SHARE)cm.push(SHARE.indexOf('with:')===0?'notes where the alternate Byzantine reading is also the reading of '+SHARE.slice(5):'notes with an alternate Byzantine reading that is '+SHARENAME[SHARE]);
   if(ALONE){var ap=ALONE.split('.');cm.push((ap[0]==='MT'?'notes where the main text reads alone':'notes where '+ap[0]+' reads alone')+(ap[1]==='agree'?', and every other reading is the same':ap[1]==='div'?', and the others are divided':''));}
-  if(CAT||SHARE||ALONE)$('catnote').textContent='Showing only '+cm.join(', and ')+', as counted on the Editions compared page. Change any other choice above to see them all.';
+  if(CAT||SHARE||ALONE)$('catnote').textContent='Showing only '+cm.join(', and ')+', as counted on the Compare editions page. Change any other choice above to see them all.';
   $('fCsv').disabled=!out.length;
   showMore();drawStrip(out);writeUrl();
   buildChips(f);
