@@ -41,6 +41,8 @@
 .cmp-who,.cmp-same,.cmp-n{font-style:italic}
 .cmp-diff{background:#f3e0a8;color:var(--ink)}
 .cmp-none{font-style:italic;color:var(--ink-soft)}
+.cmp-uq,.cmp-uq .cmp-gk{color:#6a6a6a}
+.cmp-legend{margin:.6em 0 0;font-size:.88rem;color:var(--ink-soft)}
 @media (max-width:640px){
   .cmp-two{grid-template-columns:1fr}
 }

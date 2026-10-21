@@ -155,6 +155,55 @@
     return { pair: pair, fill: fill };
   }
 
+
+  /* A main text whose note quotes only the ends of a stretch ("ει … υμων"): the whole stretch, taken from the verse text.
+     Words the note quotes keep the note's own spelling and analysis; the rest are marked x. Returns null when it cannot be made. */
+  function expandBase(n, idx, B) {
+    var W = window.GNT_WORDS, G = window.GNT_GRK, GR = window.GNT_GR;
+    if (!G || !GR || !GR.ready || !G.m || !G.m[idx] || !W.v) return null;
+    var rs = G.m[idx].split(';').map(function (t) { var a = t.split(','); return { k: a[0], s: +a[1], e: +a[2] }; });
+    var vs = GR.verses(n[1], n[2]);
+    var first = rs[0], last = rs[rs.length - 1], on = false, out = [], qi = 0, i, ok = true;
+    vs.forEach(function (v) {
+      if (v.key === first.k) on = true;
+      if (!on) return;
+      var tags = (W.v[n[1]] && W.v[n[1]][v.key] || '').split(' '), re = /\S+/g, m, wi = 0;
+      while ((m = re.exec(v.text))) {
+        if (!fold(m[0])) continue;
+        var s = m.index, e = s + m[0].length, tag = tags[wi++];
+        if (v.key === first.k && e <= first.s) continue;
+        if (v.key === last.k && s >= last.e) { on = on && v.key !== last.k ? on : on; continue; }
+        var q = rs.some(function (r) { return r.k === v.key && s < r.e && e > r.s; });
+        if (q) { var b = B[qi++]; if (!b) { ok = false; continue; } out.push(b); }
+        else out.push({ w: m[0].replace(/[,.;·]+$/, ''), o: false, c: false, m: false, x: true, a: analysis(tag) });
+      }
+      if (v.key === last.k) on = false;
+    });
+    return ok && qi === B.length && out.length ? out : null;
+  }
+
+
+  /* Pairs that keep their order: the longest run of identical words, then words with the same Strong's number between them */
+  function alignOrdered(B, V) {
+    var pair = V.map(function () { return -1; }), n = B.length, m = V.length, L = [], i, j;
+    for (i = 0; i <= n; i++) { L[i] = []; for (j = 0; j <= m; j++) L[i][j] = 0; }
+    for (i = n - 1; i >= 0; i--) for (j = m - 1; j >= 0; j--)
+      L[i][j] = fold(B[i].w) === fold(V[j].w) ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+    i = 0; j = 0;
+    while (i < n && j < m) {
+      if (fold(B[i].w) === fold(V[j].w)) { pair[j] = i; i++; j++; }
+      else if (L[i + 1][j] >= L[i][j + 1]) i++; else j++;
+    }
+    var used = {}; pair.forEach(function (p) { if (p >= 0) used[p] = true; });
+    var lo = 0;
+    for (j = 0; j < m; j++) {
+      if (pair[j] >= 0) { lo = pair[j] + 1; continue; }
+      var hi = n; for (var t = j + 1; t < m; t++) if (pair[t] >= 0) { hi = pair[t]; break; }
+      for (i = lo; i < hi; i++) if (!used[i] && B[i].a && V[j].a && B[i].a.s === V[j].a.s) { pair[j] = i; used[i] = true; lo = i + 1; break; }
+    }
+    return pair;
+  }
+
   function detail(a, spelling) {
     var d = el('div', 'cmp-d');
     var g = el('div', 'cmp-g', spelling); g.lang = 'grc'; d.appendChild(g);
@@ -196,8 +245,10 @@
     var wrap = el('div', 'cmp-panel');
     if (!rows) { wrap.appendChild(el('p', 'cmp-none', 'No word-by-word data is available for this note.')); return wrap; }
     var B = words(n[4], rows[0]), V = words(n[5][ri][1], rows[ri + 1]);
-    var inGap = {}, pair;
-    if (B.gaps.length && !V.gaps.length && V.length) { var ae = alignEll(B, V); pair = ae.pair; inGap = ae.fill; }
+    var inGap = {}, pair, ex = null;
+    if (B.gaps.length && !V.gaps.length && V.length) ex = expandBase(n, idx, B);
+    if (ex) { B = ex; B.gaps = []; pair = alignOrdered(B, V); }
+    else if (B.gaps.length && !V.gaps.length && V.length) { var ae = alignEll(B, V); pair = ae.pair; inGap = ae.fill; }
     else pair = align(B, V);
     var inRead = {};
     pair.forEach(function (p) { if (p >= 0) inRead[p] = true; });
@@ -222,7 +273,7 @@
       var r1 = el('div', 'cmp-rowlab', 'Main text'), g1 = el('div', 'cmp-grid'); g1.style.setProperty('--n', cols);
       withGaps(B, B.gaps, function (k, i) {
         var om = !inRead[i];
-        return cell(k, i + 1, T(i), om ? 'cmp-om' : '', om ? 'not in this reading' : '', 'Main text word ' + (i + 1) + (om ? ', not in this reading' : ''), id + '-b' + i, partner(i));
+        return cell(k, i + 1, T(i), (om ? 'cmp-om' : '') + (k.x ? ' cmp-uq' : ''), om ? 'not in this reading' : '', 'Main text word ' + (i + 1) + (om ? ', not in this reading' : ''), id + '-b' + i, partner(i));
       }, 'cell', g1);
       var r2 = el('div', 'cmp-rowlab', 'Reading'), g2 = el('div', 'cmp-grid'); g2.style.setProperty('--n', cols);
       withGaps(V, V.gaps, function (k, j) {
@@ -257,7 +308,7 @@
         if (!sameSpelling(B[p].w, V[j].w) || !sameAnalysis(B[p].a, V[j].a)) tint[p] = T(next++);
       });
       var l1 = el('div', 'cmp-rowlab', 'Main text'), c1 = el('div', 'cmp-chips');
-      withGaps(B, B.gaps, function (k, i) { return chip(k, i + 1, inRead[i] ? (tint[i] || '') : 'cmp-om', id + '-b' + i, 'Main text word ' + (i + 1) + (inRead[i] ? '' : ', not in this reading'), partner(i)); }, 'chip', c1);
+      withGaps(B, B.gaps, function (k, i) { return chip(k, i + 1, (inRead[i] ? (tint[i] || '') : 'cmp-om') + (k.x ? ' cmp-uq' : ''), id + '-b' + i, 'Main text word ' + (i + 1) + (inRead[i] ? '' : ', not in this reading'), partner(i)); }, 'chip', c1);
       var l2 = el('div', 'cmp-rowlab', 'Reading'), c2 = el('div', 'cmp-chips');
       withGaps(V, V.gaps, function (k, j) {
         var p = pair[j];
@@ -266,6 +317,7 @@
       }, 'chip', c2);
       [l1, c1, l2, c2].forEach(function (e) { holder.appendChild(e); });
     }
+    if (ex) holder.appendChild(el('p', 'cmp-legend', 'The main text’s note quotes only the ends of this passage (“…”). The words in grey type are the ones in between, taken from the verse.'));
     holder.appendChild(info);
 
     function words2(part) {
@@ -349,13 +401,14 @@
         if (panel) { var open = panel.hidden; panel.hidden = !open; btn.setAttribute('aria-expanded', String(open)); btn.textContent = open ? 'Hide comparison' : 'Show comparison'; return; }
         btn.disabled = true; btn.textContent = 'Loading…';
         var giveUp = setTimeout(function () { btn.disabled = false; btn.textContent = 'Show comparison'; }, 20000);
-        window.GNT_TIP.load(function () {
+        var go = function () { window.GNT_TIP.load(function () {
           clearTimeout(giveUp); btn.disabled = false;
           if (!window.GNT_WORDS) { btn.textContent = 'Show comparison'; return; }
           panel = build(n, idx, ri);
           d.parentNode.insertBefore(panel, d.nextSibling);
           btn.setAttribute('aria-expanded', 'true'); btn.textContent = 'Hide comparison';
-        });
+        }); };
+        if (window.GNT_GR && n[4].indexOf('…') >= 0) window.GNT_GR.load(go); else go();
       });
       d.appendChild(btn);
     }
