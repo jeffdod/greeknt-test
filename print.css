@@ -21,3 +21,5 @@ p,li{orphans:3;widows:3}
 .gridwrap,table{break-inside:avoid;max-width:100%}
 img{max-width:100%!important;break-inside:avoid}
 .cite-row{border:1px solid #999!important}
+
+.cmp-btn{display:none!important}

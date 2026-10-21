@@ -685,6 +685,7 @@ function renderItem(n,idx){
     var t=el('span','gk');t.lang='grc';if(r[1]==='txt')t.textContent='reads the main text';else{WK=[idx,ri+1];markedText(t,r[1]);WK=null;}d.appendChild(t);
     var kk=r[3];if(kk.length&&r[1]!=='txt'){d.appendChild(el('span','kd',' ('+kk.map(function(k){return KINDS[k];}).join('; ')+')'));}
     li.appendChild(d);
+    if(window.GNT_CMP&&window.GNT_TIP&&r[1]!=='txt'&&r[3][0]!=='other')GNT_CMP.attach(d,n,idx,ri);
   });
   n[6].forEach(function(b){
     var d=el('div','rd br');
