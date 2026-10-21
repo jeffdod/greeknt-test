@@ -246,8 +246,29 @@
     if (!rows) { wrap.appendChild(el('p', 'cmp-none', 'No word-by-word data is available for this note.')); return wrap; }
     var B = words(n[4], rows[0]), V = words(n[5][ri][1], rows[ri + 1]);
     var inGap = {}, pair, ex = null;
-    if (B.gaps.length && !V.gaps.length && V.length) ex = expandBase(n, idx, B);
-    if (ex) { B = ex; B.gaps = []; pair = alignOrdered(B, V); }
+    if (B.gaps.length) ex = expandBase(n, idx, B);
+    if (ex) {
+      B = ex; B.gaps = [];
+      pair = alignOrdered(B, V);
+      if (V.gaps.length) {              /* an ellipsis in the reading covers the same words of the main text that lie between its neighbors */
+        var V2 = [], p2 = [], j2, g2;
+        V2.gaps = [];
+        for (j2 = 0; j2 <= V.length; j2++) {
+          V.gaps.forEach(function (g) {
+            if (g !== j2) return;
+            var lo = -1, hi = B.length, t;
+            for (t = j2 - 1; t >= 0; t--) if (pair[t] >= 0) { lo = pair[t]; break; }
+            for (t = j2; t < V.length; t++) if (pair[t] >= 0) { hi = pair[t]; break; }
+            for (g2 = lo + 1; g2 < hi; g2++) {
+              var cp = {}; for (var key in B[g2]) cp[key] = B[g2][key]; cp.x = true; cp.o = false; cp.c = false; cp.m = false;
+              V2.push(cp); p2.push(g2);
+            }
+          });
+          if (j2 < V.length) { V2.push(V[j2]); p2.push(pair[j2]); }
+        }
+        V = V2; pair = p2;
+      }
+    }
     else if (B.gaps.length && !V.gaps.length && V.length) { var ae = alignEll(B, V); pair = ae.pair; inGap = ae.fill; }
     else pair = align(B, V);
     var inRead = {};
@@ -280,7 +301,7 @@
         var p = pair[j];
         if (inGap[j]) return cell(k, '…', 'cmp-fillbg', 'cmp-fl', 'inside the ellipsis', 'Inside the ellipsis of the main text', id + '-v' + j);
         if (p < 0) return cell(k, '+', 'cmp-add', 'cmp-ad', 'added', 'Added word, not in the main text', id + '-v' + j);
-        return cell(k, p + 1, T(p), '', '', 'Matches main text word ' + (p + 1), id + '-b' + p, B[p]);
+        return cell(k, p + 1, T(p), k.x ? 'cmp-uq' : '', '', 'Matches main text word ' + (p + 1), id + '-b' + p, B[p]);
       }, 'cell', g2);
       if (!V.length) g2.appendChild(el('div', 'cmp-empty', 'The reading has no words here.'));
       [r1, g1, r2, g2].forEach(function (e) { holder.appendChild(e); });
@@ -313,7 +334,7 @@
       withGaps(V, V.gaps, function (k, j) {
         var p = pair[j];
         if (inGap[j]) return chip(k, '…', 'cmp-fillbg', id + '-v' + j, 'Inside the ellipsis of the main text');
-        return p < 0 ? chip(k, '+', 'cmp-add', id + '-v' + j, 'Added word, not in the main text') : chip(k, p + 1, tint[p] || '', id + '-b' + p, 'Matches main text word ' + (p + 1), B[p]);
+        return p < 0 ? chip(k, '+', 'cmp-add', id + '-v' + j, 'Added word, not in the main text') : chip(k, p + 1, (tint[p] || '') + (k.x ? ' cmp-uq' : ''), id + '-b' + p, 'Matches main text word ' + (p + 1), B[p]);
       }, 'chip', c2);
       [l1, c1, l2, c2].forEach(function (e) { holder.appendChild(e); });
     }
