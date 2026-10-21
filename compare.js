@@ -235,6 +235,7 @@
 
   /* One word as a full cell (short readings): its spelling, dictionary form, gloss and parsing */
   function cell(k, num, tint, cls, note, label, part, other) {
+    if (k.x) label += ', inside the ellipsis';
     var c = el('div', 'cmp-cell ' + tint + (cls ? ' ' + cls : ''));
     c.dataset.p = part; c.setAttribute('role', 'group'); c.setAttribute('aria-label', label); c.tabIndex = 0;
     c.appendChild(el('span', 'cmp-pos', String(num)));
@@ -252,6 +253,7 @@
   }
 
   function chip(k, num, tint, part, label, other) {
+    if (k.x) label += ', inside the ellipsis';
     var c = el('span', 'cmp-chip ' + tint);
     c.dataset.p = part; c.tabIndex = 0; c.setAttribute('role', 'group'); c.setAttribute('aria-label', label);
     c.appendChild(el('i', null, String(num)));
@@ -357,7 +359,7 @@
       }, 'chip', c2);
       [l1, c1, l2, c2].forEach(function (e) { holder.appendChild(e); });
     }
-    if (ex) holder.appendChild(el('p', 'cmp-legend', 'The main text’s note quotes only the ends of this passage (“…”). The words in light grey type, with a dotted outline, are the ones in between, taken from the verse.'));
+    if (ex) holder.appendChild(el('p', 'cmp-legend', 'The main text’s note quotes only the ends of this passage (“…”). The words with a small “…” beneath them are the ones in between, taken from the verse.'));
     holder.appendChild(info);
 
     function words2(part) {
