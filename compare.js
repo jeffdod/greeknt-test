@@ -204,6 +204,25 @@
     return pair;
   }
 
+
+  /* A word with a bracketed twin: when a reading has the same word inside brackets and outside them, the main-text word pairs with
+     the one that is bracketed the same way (an unbracketed main-text word with the unbracketed one) */
+  function preferSameBrackets(B, V, pair) {
+    var br = function (k) { return !!(k.o || k.c || k.m); };
+    var mono = function (pr) { var last = -1, ok = true; pr.forEach(function (p) { if (p >= 0) { if (p < last) ok = false; last = p; } }); return ok; };
+    var was = mono(pair);
+    V.forEach(function (v, j) {
+      var i = pair[j];
+      if (i < 0 || br(v) === br(B[i])) return;
+      for (var j2 = 0; j2 < V.length; j2++) {
+        if (pair[j2] >= 0 || br(V[j2]) !== br(B[i]) || fold(V[j2].w) !== fold(B[i].w)) continue;
+        var t = pair.slice(); t[j2] = i; t[j] = -1;
+        if (!was || mono(t)) { pair[j2] = i; pair[j] = -1; return; }
+      }
+    });
+    return pair;
+  }
+
   function detail(a, spelling) {
     var d = el('div', 'cmp-d');
     var g = el('div', 'cmp-g', spelling); g.lang = 'grc'; d.appendChild(g);
@@ -249,7 +268,7 @@
     if (B.gaps.length) ex = expandBase(n, idx, B);
     if (ex) {
       B = ex; B.gaps = [];
-      pair = alignOrdered(B, V);
+      pair = preferSameBrackets(B, V, alignOrdered(B, V));
       if (V.gaps.length) {              /* an ellipsis in the reading covers the same words of the main text that lie between its neighbors */
         var V2 = [], p2 = [], j2, g2;
         V2.gaps = [];
@@ -270,7 +289,7 @@
       }
     }
     else if (B.gaps.length && !V.gaps.length && V.length) { var ae = alignEll(B, V); pair = ae.pair; inGap = ae.fill; }
-    else pair = align(B, V);
+    else pair = preferSameBrackets(B, V, align(B, V));
     var inRead = {};
     pair.forEach(function (p) { if (p >= 0) inRead[p] = true; });
     function partner(i) { for (var j = 0; j < pair.length; j++) if (pair[j] === i) return V[j]; return null; }
