@@ -9,6 +9,8 @@
 
 /* the words a note is about, underlined in the Greek verse */
 .grline u.vw{text-decoration:underline;text-decoration-thickness:2px;text-decoration-color:var(--rubric);text-underline-offset:.2em}
+/* the words in the gaps of a note that spans an ellipsis */
+.grline u.vw.vg{text-decoration-thickness:1px;text-decoration-color:var(--rubric);text-decoration-color:color-mix(in srgb,var(--rubric) 45%,transparent)}
 
 /* the switches that hide the English and the Greek under the notes */
 .no-en .enhold,.no-gr .grhold{display:none}

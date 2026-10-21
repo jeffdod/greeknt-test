@@ -56,6 +56,31 @@
     if (s) s.split(';').forEach(function (t) { var p = t.split(','); (out[p[0]] = out[p[0]] || []).push([+p[1], +p[2]]); });
     return (MARKS[i] = out);
   }
+  /* A note whose main text has an ellipsis, and whose readings do not all have one (or has no reading but "reads the main text"):
+     its words are underlined from the first word to the last, with a lighter line under the words in the gaps. */
+  function spans(i) {
+    var n = GNT_NOTES.notes[i];
+    if (!n || n[4].indexOf('\u2026') < 0) return false;
+    var rs = n[5].filter(function (r) { return r[1] !== 'txt'; });
+    return !(rs.length && rs.every(function (r) { return r[1].indexOf('\u2026') >= 0; }));
+  }
+  /* The stretches to underline in each verse: the note's own, plus (for a spanning note) the gaps between them */
+  function withGaps(i, vs, mk) {
+    var out = {};
+    vs.forEach(function (v) { out[v.key] = (mk[v.key] || []).map(function (r) { return [r[0], r[1], 0]; }); });
+    if (!spans(i)) return out;
+    var first = -1, last = -1;
+    vs.forEach(function (v, n) { if ((mk[v.key] || []).length) { if (first < 0) first = n; last = n; } });
+    if (first < 0) return out;
+    for (var n = first; n <= last; n++) {
+      var v = vs[n], st = out[v.key].slice().sort(function (a, b) { return a[0] - b[0]; });
+      var from = n === first ? st[0][0] : 0, to = n === last ? st[st.length - 1][1] : v.text.length, at = from, all = [];
+      st.forEach(function (r) { if (r[0] > at) all.push([at, r[0], 1]); all.push(r); at = Math.max(at, r[1]); });
+      if (at < to) all.push([at, to, 1]);
+      out[v.key] = all;
+    }
+    return out;
+  }
   /* Put text into parent with every word in its own span (so a word can be tapped for its dictionary entry), and the
      stretches in rg underlined. b is the book and key the verse, so the word can be found in the word data. */
   function plain(host, text, a, z, rg) {
@@ -64,7 +89,7 @@
       var s = Math.max(r[0], a), e = Math.min(r[1], z);
       if (s >= e) return;
       if (s > at) host.appendChild(document.createTextNode(text.slice(at, s)));
-      var u = document.createElement('u'); u.className = 'vw'; u.textContent = text.slice(s, e); host.appendChild(u);
+      var u = document.createElement('u'); u.className = r[2] ? 'vw vg' : 'vw'; u.textContent = text.slice(s, e); host.appendChild(u);
       at = e;
     });
     if (at < z) host.appendChild(document.createTextNode(text.slice(at, z)));
@@ -90,7 +115,7 @@
     var d = document.createElement('div'); d.className = 'grline';
     var lab = document.createElement('span'); lab.className = 'grlab'; lab.textContent = 'Greek: '; d.appendChild(lab);
     var body = document.createElement('span'); body.className = 'grtext'; body.lang = 'grc'; d.appendChild(body);
-    var mk = marksOf(i), rest = null, LIM = 3;
+    var mk = withGaps(i, vs, marksOf(i)), rest = null, LIM = 3;
     vs.forEach(function (v, n) {
       var host = body;
       if (vs.length > LIM && n >= 2) {
