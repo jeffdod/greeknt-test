@@ -1,4 +1,4 @@
-/* Word-by-word comparison of a reading with the main text, for the notes in Variant search.
+/* Word-by-word comparison of a reading with the main text, for the notes in Explore variants.
    Each reading gets a "Show comparison" button. The words, their Strong's numbers and parsings come from greek-words.js
    (loaded the first time a button is pressed): W.nt[note][0] is the main text and W.nt[note][reading + 1] a reading,
    one "strongs.code" entry per Greek word, in the same order that stats.js counts the Greek words of a note. */

@@ -161,7 +161,7 @@ function buildKinds(){
     });
   }
   draw();
-  $('kindnote').textContent='Bars are scaled to the longest one shown. A reading that omits words, or replaces words with fewer, shortens the text. A reading that adds words, or replaces words with more, lengthens it. Differences that leave the number of words the same, such as spelling, word order, elision, and swapping one word for another, are not charted here; the kind filter in Variant search finds them. A word written as two in one reading and as one in another (crasis) counts as a change of one word. ECM is counted only where it exists, in Mark, Acts, the Catholic Epistles, and Revelation.';
+  $('kindnote').textContent='Bars are scaled to the longest one shown. A reading that omits words, or replaces words with fewer, shortens the text. A reading that adds words, or replaces words with more, lengthens it. Differences that leave the number of words the same, such as spelling, word order, elision, and swapping one word for another, are not charted here; the kind filter in Explore variants finds them. A word written as two in one reading and as one in another (crasis) counts as a change of one word. ECM is counted only where it exists, in Mark, Acts, the Catholic Epistles, and Revelation.';
   var h='<thead><tr><th class="corner" scope="col">Edition</th><th scope="col">Differences that change the word count</th>';
   WORDKINDS.forEach(function(k){h+='<th scope="col">'+NAMES[k]+'</th>';});
   h+='</tr></thead><tbody>';
@@ -255,7 +255,7 @@ function buildRP(){
   $('enote').textContent='Each edition is compared only in the notes where it exists, so ECM is measured against the notes in Mark, Acts, the Catholic Epistles, and Revelation. ECM’s split readings count as agreeing with the alternate reading even where ECM also supports the main text, so a high ECMs share does not by itself show that ECM prefers the alternate reading.';
   /* the notes where the alternate reading is shared only with critical editions */
   var co=hit.filter(function(i){return shareTest(N[i],'critonly');});
-  $('rpcrit').textContent='In '+fmt(co.length)+' notes, a critical edition reads the alternate reading, and no other Byzantine edition and no Textus Receptus edition does. In these places the margin of the Robinson-Pierpont edition points toward the critical text. Select a note to find it in the variant search.';
+  $('rpcrit').textContent='In '+fmt(co.length)+' notes, a critical edition reads the alternate reading, and no other Byzantine edition and no Textus Receptus edition does. In these places the margin of the Robinson-Pierpont edition points toward the critical text. Select a note to find it in Explore variants.';
   var tb=$('clist');
   function clip(t){return t.length>80?t.slice(0,80)+'…':t;}
   co.forEach(function(i){
@@ -264,7 +264,7 @@ function buildRP(){
     var tr=el('tr');
     var c1=el('th');c1.scope='row';c1.setAttribute('data-label','Passage');
     var a=el('a',null,BOOKS[n[1]]+' '+n[2]);a.href=searchUrl({ed:'RPmg',ref:vm?BOOKS[n[1]]+' '+vm[0]:BOOKS[n[1]]});
-    a.title='Find this note in the variant search';
+    a.title='Find this note in Explore variants';
     var pg=el('small',null,'page ');pg.appendChild(window.GNTPages.link(String(n[0]),n[0]));pg.appendChild(document.createTextNode(', note '+n[3]));
     c1.appendChild(a);c1.appendChild(pg);
     var c2=el('td');c2.setAttribute('data-label','Main text');c2.appendChild(el('span','gk',clip(n[4])));
