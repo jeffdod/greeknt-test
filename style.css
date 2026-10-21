@@ -266,6 +266,6 @@ details.fifty[open] summary::before{content:"−"}
 @media (max-width:860px) and (prefers-reduced-motion:reduce){.panel,.panel.open{transition:none}}
 
 /* The longer "Editions compared" link needs a little more room in the top bar */
-@media (max-width:1500px){.nav{gap:12px}}
+.nav{gap:12px}
 @media (max-width:940px){.nav{display:none}.navmenu{display:block}}
 @media (max-width:1130px){.nav{gap:10px}.nav a{font-size:.93rem}}
