@@ -55,8 +55,8 @@
 .specnote b{color:var(--ink);font-weight:600}
 
 /* ---- Where the notes fall, spelling or substance, kinds by edition ---- */
-.k-form{background:#9aa9b6}.k-omit{background:#8a2a1e}.k-add{background:#b9803c}.k-diff{background:#3f5670}.k-order{background:#5f8060}.k-repl{background:#7a5d86}.k-minor{background:#cdc6b3}
-.swatch.k-form,.swatch.k-omit,.swatch.k-add,.swatch.k-diff,.swatch.k-order,.swatch.k-repl,.swatch.k-minor{display:inline-block;width:14px;height:14px;min-width:0;padding:0;border:0}
+.k-form{background:#9aa9b6}.k-omit{background:#8a2a1e}.k-add{background:#b9803c}.k-diff{background:#3f5670}.k-order{background:#5f8060}.k-repl{background:#7a5d86}.k-minor{background:#cdc6b3}.k-omitall{background:#5b1c13}
+.swatch.k-omitall,.swatch.k-form,.swatch.k-omit,.swatch.k-add,.swatch.k-diff,.swatch.k-order,.swatch.k-repl,.swatch.k-minor{display:inline-block;width:14px;height:14px;min-width:0;padding:0;border:0}
 .seg{display:flex;align-items:center;justify-content:center;min-width:2px;height:100%;color:#fff;font-size:.9rem;font-variant-numeric:tabular-nums;text-decoration:none;box-shadow:inset -1px 0 0 rgba(255,255,255,.55);overflow:hidden}
 .seg.k-minor,.seg.k-form{color:var(--ink)}
 .seg>span{white-space:nowrap}

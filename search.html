@@ -94,16 +94,19 @@
         <label>Kind of difference
           <select id="fKind">
             <option value="">Any</option>
+            <option value="same">Reads the same as the base text</option>
+            <option value="spell">Different spelling</option>
+            <option value="order">Different word order</option>
+            <option value="omitall">Omits the base reading</option>
             <option value="omit">Omits words</option>
             <option value="add">Adds words</option>
-            <option value="order">Changes the word order</option>
-            <option value="diff">A different word</option>
+            <option value="repl">Replaces the base text</option>
             <option value="elide">Elision</option>
-            <option value="krasis">Crasis (two words written as one)</option>
-            <option value="form">Same word, different spelling or form</option>
-            <option value="bracket">Same words, in brackets, chevrons, or parentheses</option>
-            <option value="brk">With brackets in the reading</option>
-            <option value="repl">Replaces text (words both removed and added)</option>
+            <option value="krasis">Crasis</option>
+            <option value="br1">Single brackets around reading</option>
+            <option value="br2">Double brackets around reading</option>
+            <option value="br3">Chevrons around reading</option>
+            <option value="other">Other</option>
           </select>
         </label>
         <label>Pattern among editions
