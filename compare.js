@@ -11,8 +11,10 @@
   /* The Greek words of a text, each with its place in a bracketed stretch: o (opens one), c (closes one) */
   function tokens(text) {
     var re = /\S+/g, m, out = [], inside = false;
+    out.gaps = [];                       /* gaps[i] = how many Greek words come before the i-th ellipsis */
     while ((m = re.exec(text))) {
       var t = m[0], o = t.charAt(0) === '[', c = t.charAt(t.length - 1) === ']';
+      if (/^[\[\]]*…[\[\]]*$/.test(t)) { out.gaps.push(out.length); continue; }
       if (o) inside = true;
       if (window.GNT_TIP.fold(t)) {
         var bare = t.replace(/^\[+/, '').replace(/\]+$/, '');
@@ -36,7 +38,9 @@
 
   function words(text, row) {
     var ks = tokens(text), es = row ? row.split(' ') : [];
-    return ks.map(function (k, i) { k.a = analysis(es[i]); return k; });
+    var out = ks.map(function (k, i) { k.a = analysis(es[i]); return k; });
+    out.gaps = ks.gaps;
+    return out;
   }
 
   function fold(w) { return window.GNT_TIP.fold(w); }
@@ -129,6 +133,28 @@
     return pair;
   }
 
+  /* A main text with an ellipsis against a reading that has none: the words before the ellipsis are paired from the front of the
+     reading and the words after it from the back. Reading words between the two ends fill the ellipsis (fill[j] = true). */
+  function alignEll(B, V) {
+    var used = {}, pair = V.map(function () { return -1; }), g = B.gaps[0], fill = {};
+    var front = [], rear = [], i;
+    for (i = 0; i < B.length; i++) (i < g ? front : rear).push(i);
+    function find(b, from, to, step) {
+      var j, pass;
+      for (pass = 0; pass < 2; pass++)
+        for (j = from; step > 0 ? j <= to : j >= to; j += step) {
+          if (pair[j] >= 0) continue;
+          if (pass === 0 ? fold(V[j].w) === fold(B[b].w) : (V[j].a && B[b].a && V[j].a.s === B[b].a.s)) return j;
+        }
+      return -1;
+    }
+    var lo = 0, hi = V.length - 1, j;
+    front.forEach(function (b) { j = find(b, lo, hi, 1); if (j >= 0) { pair[j] = b; lo = j + 1; } });
+    rear.slice().reverse().forEach(function (b) { j = find(b, hi, lo, -1); if (j >= 0) { pair[j] = b; hi = j - 1; } });
+    for (j = lo; j <= hi; j++) if (pair[j] < 0) fill[j] = true;
+    return { pair: pair, fill: fill };
+  }
+
   function detail(a, spelling) {
     var d = el('div', 'cmp-d');
     var g = el('div', 'cmp-g', spelling); g.lang = 'grc'; d.appendChild(g);
@@ -170,53 +196,74 @@
     var wrap = el('div', 'cmp-panel');
     if (!rows) { wrap.appendChild(el('p', 'cmp-none', 'No word-by-word data is available for this note.')); return wrap; }
     var B = words(n[4], rows[0]), V = words(n[5][ri][1], rows[ri + 1]);
-    var pair = align(B, V), inRead = {};
+    var inGap = {}, pair;
+    if (B.gaps.length && !V.gaps.length && V.length) { var ae = alignEll(B, V); pair = ae.pair; inGap = ae.fill; }
+    else pair = align(B, V);
+    var inRead = {};
     pair.forEach(function (p) { if (p >= 0) inRead[p] = true; });
     function partner(i) { for (var j = 0; j < pair.length; j++) if (pair[j] === i) return V[j]; return null; }
     var long = B.length > SHORT || V.length > SHORT, id = 'cmp' + (++uid);
     var info = el('div', 'cmp-info'); info.setAttribute('aria-live', 'polite');
     var holder = el('div', 'cmp-body');
     var DEFAULT = 'Point at a word, or select it, to see its dictionary form, Strong’s number, gloss and parsing here, with its partner’s details if they differ.';
+    /* an ellipsis in the main text, or in the reading, is shown as a box of its own where it falls */
+    function gapBox(kind) { var g = el('div', 'cmp-gapbox', kind === 'cell' ? '… words not quoted' : '…'); g.setAttribute('aria-label', 'An ellipsis: words that the note does not quote'); return g; }
+    function withGaps(list, gaps, make, kind, host) {
+      list.forEach(function (k, i) {
+        gaps.forEach(function (g) { if (g === i) host.appendChild(gapBox(kind)); });
+        host.appendChild(make(k, i));
+      });
+      gaps.forEach(function (g) { if (g >= list.length) host.appendChild(gapBox(kind)); });
+    }
+    var T = function (q) { return 'cmp-t' + (q % TINTS + 1); };
 
     if (!long) {
-      var cols = Math.max(B.length, V.length, 1);
+      var cols = Math.max(B.length + B.gaps.length, V.length + V.gaps.length, 1);
       var r1 = el('div', 'cmp-rowlab', 'Main text'), g1 = el('div', 'cmp-grid'); g1.style.setProperty('--n', cols);
-      B.forEach(function (k, i) {
+      withGaps(B, B.gaps, function (k, i) {
         var om = !inRead[i];
-        g1.appendChild(cell(k, i + 1, 'cmp-t' + (i % TINTS + 1), om ? 'cmp-om' : '', om ? 'not in this reading' : '', 'Main text word ' + (i + 1) + (om ? ', not in this reading' : ''), id + '-b' + i, partner(i)));
-      });
+        return cell(k, i + 1, T(i), om ? 'cmp-om' : '', om ? 'not in this reading' : '', 'Main text word ' + (i + 1) + (om ? ', not in this reading' : ''), id + '-b' + i, partner(i));
+      }, 'cell', g1);
       var r2 = el('div', 'cmp-rowlab', 'Reading'), g2 = el('div', 'cmp-grid'); g2.style.setProperty('--n', cols);
-      V.forEach(function (k, j) {
+      withGaps(V, V.gaps, function (k, j) {
         var p = pair[j];
-        if (p < 0) g2.appendChild(cell(k, '+', 'cmp-add', 'cmp-ad', 'added', 'Added word, not in the main text', id + '-v' + j));
-        else g2.appendChild(cell(k, p + 1, 'cmp-t' + (p % TINTS + 1), '', '', 'Matches main text word ' + (p + 1), id + '-b' + p, B[p]));
-      });
+        if (inGap[j]) return cell(k, '…', 'cmp-fillbg', 'cmp-fl', 'inside the ellipsis', 'Inside the ellipsis of the main text', id + '-v' + j);
+        if (p < 0) return cell(k, '+', 'cmp-add', 'cmp-ad', 'added', 'Added word, not in the main text', id + '-v' + j);
+        return cell(k, p + 1, T(p), '', '', 'Matches main text word ' + (p + 1), id + '-b' + p, B[p]);
+      }, 'cell', g2);
       if (!V.length) g2.appendChild(el('div', 'cmp-empty', 'The reading has no words here.'));
       [r1, g1, r2, g2].forEach(function (e) { holder.appendChild(e); });
     } else {
-      /* blocks of words that keep their order together; the biggest block that did not move stays plain */
-      var blocks = [];
-      pair.forEach(function (p, j) {
-        var last = blocks.length ? blocks[blocks.length - 1] : null;
-        if (p >= 0 && last && last.p[last.p.length - 1] === p - 1 && last.j[last.j.length - 1] === j - 1) { last.p.push(p); last.j.push(j); }
-        else blocks.push({ p: [p], j: [j] });
+      /* a word is in place when it belongs to the longest run of paired words that keep their order; the rest moved, and
+         moved words that sit side by side in both texts share a shade */
+      var js = [], len = [], prv = [], bestEnd = -1, x, y;
+      pair.forEach(function (p, j) { if (p >= 0) js.push(j); });
+      js.forEach(function (j, x2) {
+        len[x2] = 1; prv[x2] = -1;
+        for (y = 0; y < x2; y++) if (pair[js[y]] < pair[j] && len[y] + 1 > len[x2]) { len[x2] = len[y] + 1; prv[x2] = y; }
+        if (bestEnd < 0 || len[x2] > len[bestEnd]) bestEnd = x2;
       });
-      var big = -1, bigN = 0;
-      blocks.forEach(function (b, q) { if (b.p[0] >= 0 && b.p.length > bigN) { big = q; bigN = b.p.length; } });
-      var tint = {}, next = 0, jb = {};
-      blocks.forEach(function (b, q) { b.j.forEach(function (j) { jb[j] = q; }); });
-      blocks.forEach(function (b, q) { if (q !== big && b.p[0] >= 0) { var t = 'cmp-t' + (next++ % TINTS + 1); b.p.forEach(function (p) { tint[p] = t; }); } });
+      var inPlace = {};
+      for (x = bestEnd; x >= 0; x = prv[x]) inPlace[js[x]] = true;
+      var tint = {}, next = 0, lastJ = -2, lastP = -2, cur = '';
+      js.forEach(function (j) {
+        var p = pair[j];
+        if (inPlace[j]) { lastJ = -2; return; }
+        if (!(lastJ === j - 1 && lastP === p - 1)) cur = T(next++);
+        tint[p] = cur; lastJ = j; lastP = p;
+      });
       pair.forEach(function (p, j) {
-        if (p < 0 || jb[j] !== big) return;
-        if (!sameSpelling(B[p].w, V[j].w) || !sameAnalysis(B[p].a, V[j].a)) tint[p] = 'cmp-t' + (next++ % TINTS + 1);
+        if (p < 0 || !inPlace[j]) return;
+        if (!sameSpelling(B[p].w, V[j].w) || !sameAnalysis(B[p].a, V[j].a)) tint[p] = T(next++);
       });
       var l1 = el('div', 'cmp-rowlab', 'Main text'), c1 = el('div', 'cmp-chips');
-      B.forEach(function (k, i) { c1.appendChild(chip(k, i + 1, inRead[i] ? (tint[i] || '') : 'cmp-om', id + '-b' + i, 'Main text word ' + (i + 1) + (inRead[i] ? '' : ', not in this reading'), partner(i))); });
+      withGaps(B, B.gaps, function (k, i) { return chip(k, i + 1, inRead[i] ? (tint[i] || '') : 'cmp-om', id + '-b' + i, 'Main text word ' + (i + 1) + (inRead[i] ? '' : ', not in this reading'), partner(i)); }, 'chip', c1);
       var l2 = el('div', 'cmp-rowlab', 'Reading'), c2 = el('div', 'cmp-chips');
-      V.forEach(function (k, j) {
+      withGaps(V, V.gaps, function (k, j) {
         var p = pair[j];
-        c2.appendChild(p < 0 ? chip(k, '+', 'cmp-add', id + '-v' + j, 'Added word, not in the main text') : chip(k, p + 1, tint[p] || '', id + '-b' + p, 'Matches main text word ' + (p + 1), B[p]));
-      });
+        if (inGap[j]) return chip(k, '…', 'cmp-fillbg', id + '-v' + j, 'Inside the ellipsis of the main text');
+        return p < 0 ? chip(k, '+', 'cmp-add', id + '-v' + j, 'Added word, not in the main text') : chip(k, p + 1, tint[p] || '', id + '-b' + p, 'Matches main text word ' + (p + 1), B[p]);
+      }, 'chip', c2);
       [l1, c1, l2, c2].forEach(function (e) { holder.appendChild(e); });
     }
     holder.appendChild(info);
@@ -255,7 +302,7 @@
         }
       } else {
         var lone = detail((b || v).a, (b || v).w);
-        lone.appendChild(el('div', 'cmp-same', 'This word has no partner in the other line.'));
+        lone.appendChild(el('div', 'cmp-same', !b && v && inGap[V.indexOf(v)] ? 'This word falls inside the ellipsis in the main text, which does not quote it.' : 'This word has no partner in the other line.'));
         info.appendChild(lone);
       }
     }
