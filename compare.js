@@ -197,21 +197,31 @@
       }
     }
 
-    var pinned = '';
+    var pinned = '', quiet = '';   /* quiet: a word just deselected by a click, which must not light up again while the pointer stays on it */
     function mark(part) {
       [].forEach.call(holder.querySelectorAll('.cmp-hl'), function (x) { x.classList.remove('cmp-hl'); });
       if (part) [].forEach.call(holder.querySelectorAll('[data-p="' + part + '"]'), function (x) { x.classList.add('cmp-hl'); });
       fill(part);
     }
     function partOf(t) { var c = t.closest && t.closest('[data-p]'); return c && holder.contains(c) ? c.dataset.p : ''; }
-    holder.addEventListener('mouseover', function (e) { if (!pinned) mark(partOf(e.target)); });
-    holder.addEventListener('mouseleave', function () { if (!pinned) mark(''); });
+    holder.addEventListener('mouseover', function (e) {
+      var p = partOf(e.target);
+      if (quiet) { if (p === quiet) return; quiet = ''; }
+      if (!pinned) mark(p);
+    });
+    holder.addEventListener('mouseleave', function () { quiet = ''; if (!pinned) mark(''); });
     holder.addEventListener('focusin', function (e) { if (!pinned) mark(partOf(e.target)); });
     holder.addEventListener('focusout', function () { if (!pinned) mark(''); });
-    holder.addEventListener('click', function (e) { var p = partOf(e.target); if (p) { pinned = pinned === p ? '' : p; mark(pinned || ''); e.stopPropagation(); } });
+    holder.addEventListener('click', function (e) {
+      var p = partOf(e.target);
+      if (!p) { if (pinned) { pinned = ''; quiet = ''; mark(''); } return; }
+      if (pinned === p) { pinned = ''; quiet = p; mark(''); } else { pinned = p; quiet = ''; mark(p); }
+      e.stopPropagation();
+    });
     holder.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter' && e.key !== ' ') return;
-      var p = partOf(e.target); if (!p) return; e.preventDefault(); pinned = pinned === p ? '' : p; mark(pinned || '');
+      var p = partOf(e.target); if (!p) return; e.preventDefault();
+      if (pinned === p) { pinned = ''; quiet = p; mark(''); } else { pinned = p; quiet = ''; mark(p); }
     });
     document.addEventListener('click', function (e) { if (pinned && !holder.contains(e.target)) { pinned = ''; mark(''); } });
     fill('');
