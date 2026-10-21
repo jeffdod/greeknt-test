@@ -89,16 +89,31 @@
     while (j < m) { fb[iy[j++]] = true; }
     return [x, fa, y, fb];
   }
-  /* Fill element e with word k; when other (its partner) is spelled differently, the letters that differ are marked */
+  /* How a word differs from its partner: '' (not at all), 'spell' (the same word, spelled differently), 'form' (the same dictionary
+     word in a different form), 'parse' (the same spelling, parsed differently) or 'word' (a different dictionary word).
+     When one side has no analysis, a spelling difference is all that can be told. */
+  var RELNOTE = { spell: 'spelled differently', form: 'different form', parse: 'parsed differently', word: 'different word' };
+  function relation(k, o) {
+    if (!o) return '';
+    var a = k.a, b = o.a, spell = spelledDifferently(k.w, o.w);
+    if (a && b) {
+      if (a.s !== b.s) return 'word';
+      if (a.p !== b.p) return spell ? 'form' : 'parse';
+    }
+    return spell ? 'spell' : '';
+  }
+  /* Fill element e with word k; when it and its partner are the same word spelled differently, the letters that differ are marked.
+     Returns how the two differ (see relation). */
   function fillWord(e, k, other) {
-    if (!other || !spelledDifferently(k.w, other.w)) { e.textContent = shown(k); return false; }
+    var rel = relation(k, other);
+    if (rel !== 'spell') { e.textContent = shown(k); return rel; }
     var d = diffMarks(k.w, other.w), x = d[0], f = d[1], run = '', on = false, any = false;
     function flush() { if (!run) return; if (on) { e.appendChild(el('mark', 'cmp-sp', run)); any = true; } else e.appendChild(document.createTextNode(run)); run = ''; }
     if (k.o) e.appendChild(document.createTextNode('['));
     x.forEach(function (c, i) { if (!!f[i] !== on) { flush(); on = !!f[i]; } run += c; });
     flush();
     if (k.c) e.appendChild(document.createTextNode(']'));
-    return true;
+    return rel;
   }
 
   /* pair[j] is the main-text word that word j of the reading matches, or -1 for an added word */
@@ -129,14 +144,14 @@
     var c = el('div', 'cmp-cell ' + tint + (cls ? ' ' + cls : ''));
     c.dataset.p = part; c.setAttribute('role', 'group'); c.setAttribute('aria-label', label); c.tabIndex = 0;
     c.appendChild(el('span', 'cmp-pos', String(num)));
-    var g = el('div', 'cmp-gk'); g.lang = 'grc'; var sp = fillWord(g, k, other); c.appendChild(g);
-    if (sp) { note = (note ? note + '; ' : '') + 'spelled differently'; label += ', spelled differently'; c.setAttribute('aria-label', label); }
+    var g = el('div', 'cmp-gk'); g.lang = 'grc'; var rel = fillWord(g, k, other); c.appendChild(g);
+    if (rel) { note = (note ? note + '; ' : '') + RELNOTE[rel]; label += ', ' + RELNOTE[rel]; c.setAttribute('aria-label', label); }
     var a = k.a;
     if (a) {
       var l = el('div', 'cmp-lm'); l.appendChild(el('b', null, a.lem)); l.appendChild(document.createTextNode(' · G' + a.s));
       c.appendChild(l);
       if (a.g) c.appendChild(el('div', 'cmp-gl', a.g));
-      if (a.p) c.appendChild(el('div', 'cmp-pc', a.p));
+      if (a.p) c.appendChild(el('div', 'cmp-pc' + (rel === 'form' || rel === 'parse' ? ' cmp-diff' : ''), a.p));
     } else c.appendChild(el('div', 'cmp-pc', 'No analysis available'));
     if (note) c.appendChild(el('div', 'cmp-nt', note));
     return c;
@@ -146,7 +161,7 @@
     var c = el('span', 'cmp-chip ' + tint);
     c.dataset.p = part; c.tabIndex = 0; c.setAttribute('role', 'group'); c.setAttribute('aria-label', label);
     c.appendChild(el('i', null, String(num)));
-    var g = el('span'); g.lang = 'grc'; if (fillWord(g, k, other)) c.setAttribute('aria-label', label + ', spelled differently'); c.appendChild(g);
+    var g = el('span'); g.lang = 'grc'; var rel = fillWord(g, k, other); if (rel) c.setAttribute('aria-label', label + ', ' + RELNOTE[rel]); c.appendChild(g);
     return c;
   }
 
