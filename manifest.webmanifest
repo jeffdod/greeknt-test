@@ -1,7 +1,7 @@
 {
   "name": "The Greek New Testament According to the Byzantine Text",
   "short_name": "Greek NT",
-  "description": "The public-domain Byzantine Greek New Testament, with the edition apparatus, statistics, and manuscript evidence.",
+  "description": "The public-domain Byzantine Greek New Testament, with the edition apparatus, comparisons of the editions, and manuscript evidence.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
