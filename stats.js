@@ -106,7 +106,7 @@ function buildChart(){
 
 /* ---------- kinds of difference ---------- */
 /* One label per reading, stored as r[3][0]: reads the same, different spelling, different word order, omits the base reading, omits words, adds words, replaces the base text, elision, crasis, brackets, or other. */
-var CATNAME=KINDS;
+var CATNAME=Object.assign({omitany:'omits the base reading or omits words'},KINDS);
 function catOf(r){return r[3][0]||'minor';}
 /* The kind of difference between edition ed and the main text in note n */
 function catFor(n,ed){
@@ -118,19 +118,19 @@ function searchUrl(o){
   var p=[];Object.keys(o).forEach(function(k){if(o[k])p.push(k+'='+encodeURIComponent(o[k]));});
   return 'search.html?'+p.join('&')+'#find';
 }
-/* What kind of difference: the four kinds that concern the words themselves, one kind at a time.
-   Each edition's figure is that kind's share of its word-level differences (omits the base reading, omits words, adds words, replaces the base text). */
-var WORDKINDS=['omitall','omit','add','repl'];
+/* What kind of difference: the three kinds that concern the words themselves, one kind at a time.
+   Each edition's figure is that kind's share of its word-level differences (omits, adds words, replaces the base text). */
+var WORDKINDS=['omit','add','repl'];
 function buildKinds(){
   var rows=[];
   SHOWN.forEach(function(e){
-    var c={omitall:0,omit:0,add:0,repl:0},t=0;
-    N.forEach(function(n){var g=groupOf(n);if(!edApplies(e,g)||!differs(n,e))return;var k=catFor(n,e);if(c.hasOwnProperty(k)){c[k]++;t++;}});
+    var c={omit:0,add:0,repl:0},t=0;
+    N.forEach(function(n){var g=groupOf(n);if(!edApplies(e,g)||!differs(n,e))return;var k=catFor(n,e);if(k==='omitall')k='omit';if(c.hasOwnProperty(k)){c[k]++;t++;}});
     rows.push({e:e,c:c,t:t});
   });
-  var NAMES={omitall:'Omits the base reading',omit:'Omits words',add:'Adds words',repl:'Replaces the base text'};
-  var pick='omitall',keyEl=$('kindkey'),g=$('kgrid');
-  $('kindlede').textContent='Choose a kind of change to rank the eleven editions by how often it makes up their word-level differences from the main text. A word-level difference is a reading that omits the whole base reading, omits some of its words, adds words, or replaces the base text. Each percentage is that kind’s share of the edition’s word-level differences, so an edition’s four shares add up to 100%. Select a row to list those notes.';
+  var NAMES={omit:'Omits',add:'Adds words',repl:'Replaces the base text'};
+  var pick='omit',keyEl=$('kindkey'),g=$('kgrid');
+  $('kindlede').textContent='Choose a kind of change to rank the eleven editions by how often it makes up their word-level differences from the main text. A word-level difference is a reading that omits words, adds words, or replaces the base text. Each percentage is that kind’s share of the edition’s word-level differences, so an edition’s three shares add up to 100%. Select a row to list those notes.';
   var btns={};
   WORDKINDS.forEach(function(k){
     var b=el('button','kbtn');b.type='button';b.appendChild(el('i','swatch k-'+k));b.appendChild(document.createTextNode(NAMES[k]));
@@ -144,7 +144,7 @@ function buildKinds(){
     g.textContent='';
     list.forEach(function(x){
       var r=x.r,c=r.c[pick];
-      var row=el('a','kr');row.href=searchUrl({ed:r.e,cat:pick});
+      var row=el('a','kr');row.href=searchUrl({ed:r.e,cat:pick==='omit'?'omitany':pick});
       row.title=EDNAME[r.e]+': '+fmt(c)+' of '+fmt(r.t)+' word-level differences are of this kind ('+pct(x.sh)+'). List them.';
       row.setAttribute('aria-label',r.e+', '+NAMES[pick]+': '+pct(x.sh)+' ('+fmt(c)+' of '+fmt(r.t)+' word-level differences). List them.');
       var nm=el('span','kname',r.e);nm.insertBefore(el('i','swatch sw-'+FAM[r.e]),nm.firstChild);
@@ -155,7 +155,7 @@ function buildKinds(){
     });
   }
   draw();
-  $('kindnote').textContent='Bars are scaled to the longest one shown. “Omits the base reading” means the edition leaves out all of the words of the note’s base reading. “Omits words” means it leaves out some of them, in one place or several, and the rest keep their order. “Adds words” means it adds words in one place or several, and the base words keep their order. “Replaces the base text” gathers every other word-level difference, including readings that both remove and add words. Differences of spelling only, word order only, elision, crasis, and brackets are not charted here; the kind filter in Variant search finds them. ECM is counted only where it exists, in Mark, Acts, the Catholic Epistles, and Revelation.';
+  $('kindnote').textContent='Bars are scaled to the longest one shown. “Omits” gathers readings that leave out all of the words of the note’s base reading and readings that leave out some of them, in one place or several, with the rest in the same order. “Adds words” means it adds words in one place or several, and the base words keep their order. “Replaces the base text” gathers every other word-level difference, including readings that both remove and add words. Differences of spelling only, word order only, elision, crasis, and brackets are not charted here; the kind filter in Variant search finds them. ECM is counted only where it exists, in Mark, Acts, the Catholic Epistles, and Revelation.';
   var h='<thead><tr><th class="corner" scope="col">Edition</th><th scope="col">Word-level differences</th>';
   WORDKINDS.forEach(function(k){h+='<th scope="col">'+NAMES[k]+'</th>';});
   h+='</tr></thead><tbody>';
@@ -493,7 +493,7 @@ function matches(n,i,f){
   if(f.alone&&!aloneTest(n,f.alone))return false;
   if(f.cat){
     var b2=f.ed?BIT[f.ed]:0,okc=false,seen=false;
-    n[5].forEach(function(r){if(r[1]!=='txt'&&(!b2||(r[0]&b2))){seen=true;if(catOf(r)===f.cat)okc=true;}});
+    n[5].forEach(function(r){if(r[1]!=='txt'&&(!b2||(r[0]&b2))){seen=true;var ck=catOf(r);if(ck===f.cat||(f.cat==='omitany'&&(ck==='omit'||ck==='omitall')))okc=true;}});
     if(!seen&&f.ed&&f.cat==='minor')okc=true;
     if(!okc)return false;
   }
@@ -941,7 +941,7 @@ function writeUrl(){
 function readUrl(qs){
   var p=new URLSearchParams(qs===undefined?location.search:qs),any=false;
   Object.keys(URLMAP).forEach(function(k){if(p.has(k)){$(URLMAP[k]).value=p.get(k);any=true;}});
-  if(p.has('cat')&&/^(same|brw|spell|order|omitall|omit|add|repl|elide|krasis|br1|br2|br3|other|minor)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;if(CAT!=='minor')$('fKind').value=CAT;}
+  if(p.has('cat')&&/^(same|brw|spell|order|omitall|omitany|omit|add|repl|elide|krasis|br1|br2|br3|other|minor)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;if(CAT!=='minor')$('fKind').value=CAT;}
   if(p.has('share')&&/^(byz|crit|tr|none|critonly|with:(HF|PCK|PT|ECM|NA27|NA28|SBL|TH|WH|SCR|ST))$/.test(p.get('share'))){SHARE=p.get('share');any=true;}
   if(p.has('alone')&&/^(MT|HF|PCK|PT|ECM|NA27|NA28|SBL|TH|WH|SCR|ST)(\.(agree|div))?$/.test(p.get('alone'))){ALONE=p.get('alone');any=true;if(ALONE.split('.')[0]!=='MT')$('fEd').value=ALONE.split('.')[0];}
   return any;
