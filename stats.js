@@ -11,7 +11,7 @@ var FAMNAME={byz:'Byzantine editions',crit:'Critical editions',tr:'Textus Recept
 var FAMCOL={byz:'var(--r3)',crit:'var(--r1)',tr:'var(--r2)'};
 var EDNAME={HF:'Hodges-Farstad',PCK:'Pickering',PT:'Antoniades (Patriarchal Text)',ECM:'Editio Critica Maior',NA27:'Nestle-Aland 27',NA28:'Nestle-Aland 28',SBL:'SBL Greek New Testament',TH:'Tyndale House',WH:'Westcott-Hort',SCR:'Scrivener',ST:'Stephanus'};
 var OPTNAME={PCK:'Pickering',PT:'Antoniades Patriarchal Text',SBL:'SBL Greek NT'};
-var KINDS={same:'reads the same as the base text',brw:'brackets around some words',spell:'different spelling',order:'different word order',omitall:'omits the base reading',omit:'omits words',add:'adds words',repl:'replaces the base text',elide:'elision',krasis:'crasis',br1:'single brackets around reading',br2:'double brackets around reading',br3:'chevrons around reading',other:'Other'};
+var KINDS={same:'reads the same as the base text',brw:'brackets around some words',bronly:'only the brackets differ',spell:'different spelling',order:'different word order',omitall:'omits the base reading',omit:'omits words',add:'adds words',repl:'replaces the base text',elide:'elision',krasis:'crasis',br1:'single brackets around reading',br2:'double brackets around reading',br3:'chevrons around reading',other:'Other'};
 var $=function(id){return document.getElementById(id);};
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
 function fmt(n){return n.toLocaleString('en-US');}
@@ -489,17 +489,17 @@ function matches(n,i,f){
   }
   if(f.kind&&(f.rel==='differs'||f.rel==='either')){
     var ok=false,b=f.ed?BIT[f.ed]:0;
-    n[5].forEach(function(r){if((!b||(r[0]&b))&&r[1]!=='txt'&&(f.kind==='short'?r[4]===-1:f.kind==='long'?r[4]===1:r[3].indexOf(f.kind)>=0))ok=true;});
+    n[5].forEach(function(r){if((!b||(r[0]&b))&&r[1]!=='txt'&&(f.kind==='short'?r[4]===-1:f.kind==='long'?r[4]===1:f.kind==='brw'?(r[3].indexOf('brw')>=0||r[3].indexOf('bronly')>=0):r[3].indexOf(f.kind)>=0))ok=true;});
     var bt={br1:1,br2:2,br3:3}[f.kind];
     if(bt&&n[6].some(function(x){return x[0]===bt&&(!b||(x[1]&b));}))ok=true;
     if(!ok)return false;
   }
-  if(f.rel==='split'&&f.kind){var ok2=false;n[5].forEach(function(r){if(f.kind==='short'?r[4]===-1:f.kind==='long'?r[4]===1:r[3].indexOf(f.kind)>=0)ok2=true;});if(!ok2)return false;}
+  if(f.rel==='split'&&f.kind){var ok2=false;n[5].forEach(function(r){if(f.kind==='short'?r[4]===-1:f.kind==='long'?r[4]===1:f.kind==='brw'?(r[3].indexOf('brw')>=0||r[3].indexOf('bronly')>=0):r[3].indexOf(f.kind)>=0)ok2=true;});if(!ok2)return false;}
   if(f.share&&!shareTest(n,f.share))return false;
   if(f.alone&&!aloneTest(n,f.alone))return false;
   if(f.cat){
     var b2=f.ed?BIT[f.ed]:0,okc=false,seen=false;
-    n[5].forEach(function(r){if(r[1]!=='txt'&&(!b2||(r[0]&b2))){seen=true;var ck=catOf(r);if(ck===f.cat||(f.cat==='omitany'&&(ck==='omit'||ck==='omitall'))||(f.cat==='short'&&r[4]===-1)||(f.cat==='long'&&r[4]===1))okc=true;}});
+    n[5].forEach(function(r){if(r[1]!=='txt'&&(!b2||(r[0]&b2))){seen=true;var ck=catOf(r);if(ck===f.cat||(f.cat==='omitany'&&(ck==='omit'||ck==='omitall'))||(f.cat==='brw'&&(r[3].indexOf('brw')>=0||ck==='bronly'))||(f.cat==='short'&&r[4]===-1)||(f.cat==='long'&&r[4]===1))okc=true;}});
     if(!seen&&f.ed&&f.cat==='minor')okc=true;
     if(!okc)return false;
   }
@@ -957,7 +957,7 @@ function writeUrl(){
 function readUrl(qs){
   var p=new URLSearchParams(qs===undefined?location.search:qs),any=false;
   Object.keys(URLMAP).forEach(function(k){if(p.has(k)){$(URLMAP[k]).value=p.get(k);any=true;}});
-  if(p.has('cat')&&/^(short|long|same|brw|spell|order|omitall|omitany|omit|add|repl|elide|krasis|br1|br2|br3|other|minor)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;if(CAT!=='minor')$('fKind').value=CAT;}
+  if(p.has('cat')&&/^(short|long|same|brw|bronly|spell|order|omitall|omitany|omit|add|repl|elide|krasis|br1|br2|br3|other|minor)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;if(CAT!=='minor')$('fKind').value=CAT;}
   if(p.has('share')&&/^(byz|crit|tr|none|critonly|with:(HF|PCK|PT|ECM|NA27|NA28|SBL|TH|WH|SCR|ST))$/.test(p.get('share'))){SHARE=p.get('share');any=true;}
   if(p.has('alone')&&/^(MT|HF|PCK|PT|ECM|NA27|NA28|SBL|TH|WH|SCR|ST)(\.(agree|div))?$/.test(p.get('alone'))){ALONE=p.get('alone');any=true;if(ALONE.split('.')[0]!=='MT')$('fEd').value=ALONE.split('.')[0];}
   return any;
