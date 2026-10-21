@@ -55,6 +55,34 @@
     return a.s === b.s && a.p === b.p;
   }
 
+  /* Do two words, taken as partners, differ in spelling? Accents and breathings count only when both words show them. */
+  function spelledDifferently(a, b) {
+    if (!sameSpelling(a, b)) return true;
+    var acc = function (w) { return /[\u0300-\u036f]/.test(w.normalize('NFD')); };
+    var strip = function (w) { return w.replace(/\([^)]*\)/g, '').normalize('NFC').toLowerCase(); };
+    return acc(a) && acc(b) && strip(a) !== strip(b);
+  }
+  /* The letters of a that differ from b: [start, end) after the letters the two share at the front and the back */
+  function diffSpan(a, b) {
+    var x = Array.from(a.normalize('NFC')), y = Array.from(b.normalize('NFC')), i = 0, j = 0;
+    while (i < x.length && i < y.length && x[i] === y[i]) i++;
+    while (j < x.length - i && j < y.length - i && x[x.length - 1 - j] === y[y.length - 1 - j]) j++;
+    var end = x.length - j;
+    if (end <= i) { if (i > 0) return [x, i - 1, i]; if (x.length) return [x, 0, 1]; return [x, 0, 0]; }
+    return [x, i, end];
+  }
+  /* Fill element e with word k; when other (its partner) is spelled differently, the letters that differ are marked */
+  function fillWord(e, k, other) {
+    if (!other || !spelledDifferently(k.w, other.w)) { e.textContent = shown(k); return false; }
+    var d = diffSpan(k.w, other.w), x = d[0];
+    if (k.o) e.appendChild(document.createTextNode('['));
+    e.appendChild(document.createTextNode(x.slice(0, d[1]).join('')));
+    var m = el('mark', 'cmp-sp', x.slice(d[1], d[2]).join('')); e.appendChild(m);
+    e.appendChild(document.createTextNode(x.slice(d[2]).join('')));
+    if (k.c) e.appendChild(document.createTextNode(']'));
+    return true;
+  }
+
   /* pair[j] is the main-text word that word j of the reading matches, or -1 for an added word */
   function align(B, V) {
     var used = {}, pair = V.map(function () { return -1; });
@@ -79,11 +107,12 @@
   }
 
   /* One word as a full cell (short readings): its spelling, dictionary form, gloss and parsing */
-  function cell(k, num, tint, cls, note, label, part) {
+  function cell(k, num, tint, cls, note, label, part, other) {
     var c = el('div', 'cmp-cell ' + tint + (cls ? ' ' + cls : ''));
     c.dataset.p = part; c.setAttribute('role', 'group'); c.setAttribute('aria-label', label); c.tabIndex = 0;
     c.appendChild(el('span', 'cmp-pos', String(num)));
-    var g = el('div', 'cmp-gk', shown(k)); g.lang = 'grc'; c.appendChild(g);
+    var g = el('div', 'cmp-gk'); g.lang = 'grc'; var sp = fillWord(g, k, other); c.appendChild(g);
+    if (sp) { note = (note ? note + '; ' : '') + 'spelled differently'; label += ', spelled differently'; c.setAttribute('aria-label', label); }
     var a = k.a;
     if (a) {
       var l = el('div', 'cmp-lm'); l.appendChild(el('b', null, a.lem)); l.appendChild(document.createTextNode(' · G' + a.s));
@@ -95,11 +124,11 @@
     return c;
   }
 
-  function chip(k, num, tint, part, label) {
+  function chip(k, num, tint, part, label, other) {
     var c = el('span', 'cmp-chip ' + tint);
     c.dataset.p = part; c.tabIndex = 0; c.setAttribute('role', 'group'); c.setAttribute('aria-label', label);
     c.appendChild(el('i', null, String(num)));
-    var g = el('span', null, shown(k)); g.lang = 'grc'; c.appendChild(g);
+    var g = el('span'); g.lang = 'grc'; if (fillWord(g, k, other)) c.setAttribute('aria-label', label + ', spelled differently'); c.appendChild(g);
     return c;
   }
 
@@ -110,6 +139,7 @@
     var B = words(n[4], rows[0]), V = words(n[5][ri][1], rows[ri + 1]);
     var pair = align(B, V), inRead = {};
     pair.forEach(function (p) { if (p >= 0) inRead[p] = true; });
+    function partner(i) { for (var j = 0; j < pair.length; j++) if (pair[j] === i) return V[j]; return null; }
     var long = B.length > SHORT || V.length > SHORT, id = 'cmp' + (++uid);
     var info = el('div', 'cmp-info'); info.setAttribute('aria-live', 'polite');
     var holder = el('div', 'cmp-body');
@@ -120,13 +150,13 @@
       var r1 = el('div', 'cmp-rowlab', 'Main text'), g1 = el('div', 'cmp-grid'); g1.style.setProperty('--n', cols);
       B.forEach(function (k, i) {
         var om = !inRead[i];
-        g1.appendChild(cell(k, i + 1, 'cmp-t' + (i % TINTS + 1), om ? 'cmp-om' : '', om ? 'not in this reading' : '', 'Main text word ' + (i + 1) + (om ? ', not in this reading' : ''), id + '-b' + i));
+        g1.appendChild(cell(k, i + 1, 'cmp-t' + (i % TINTS + 1), om ? 'cmp-om' : '', om ? 'not in this reading' : '', 'Main text word ' + (i + 1) + (om ? ', not in this reading' : ''), id + '-b' + i, partner(i)));
       });
       var r2 = el('div', 'cmp-rowlab', 'Reading'), g2 = el('div', 'cmp-grid'); g2.style.setProperty('--n', cols);
       V.forEach(function (k, j) {
         var p = pair[j];
         if (p < 0) g2.appendChild(cell(k, '+', 'cmp-add', 'cmp-ad', 'added', 'Added word, not in the main text', id + '-v' + j));
-        else g2.appendChild(cell(k, p + 1, 'cmp-t' + (p % TINTS + 1), '', '', 'Matches main text word ' + (p + 1), id + '-b' + p));
+        else g2.appendChild(cell(k, p + 1, 'cmp-t' + (p % TINTS + 1), '', '', 'Matches main text word ' + (p + 1), id + '-b' + p, B[p]));
       });
       if (!V.length) g2.appendChild(el('div', 'cmp-empty', 'The reading has no words here.'));
       [r1, g1, r2, g2].forEach(function (e) { holder.appendChild(e); });
@@ -148,11 +178,11 @@
         if (!sameSpelling(B[p].w, V[j].w) || !sameAnalysis(B[p].a, V[j].a)) tint[p] = 'cmp-t' + (next++ % TINTS + 1);
       });
       var l1 = el('div', 'cmp-rowlab', 'Main text'), c1 = el('div', 'cmp-chips');
-      B.forEach(function (k, i) { c1.appendChild(chip(k, i + 1, inRead[i] ? (tint[i] || '') : 'cmp-om', id + '-b' + i, 'Main text word ' + (i + 1) + (inRead[i] ? '' : ', not in this reading'))); });
+      B.forEach(function (k, i) { c1.appendChild(chip(k, i + 1, inRead[i] ? (tint[i] || '') : 'cmp-om', id + '-b' + i, 'Main text word ' + (i + 1) + (inRead[i] ? '' : ', not in this reading'), partner(i))); });
       var l2 = el('div', 'cmp-rowlab', 'Reading'), c2 = el('div', 'cmp-chips');
       V.forEach(function (k, j) {
         var p = pair[j];
-        c2.appendChild(p < 0 ? chip(k, '+', 'cmp-add', id + '-v' + j, 'Added word, not in the main text') : chip(k, p + 1, tint[p] || '', id + '-b' + p, 'Matches main text word ' + (p + 1)));
+        c2.appendChild(p < 0 ? chip(k, '+', 'cmp-add', id + '-v' + j, 'Added word, not in the main text') : chip(k, p + 1, tint[p] || '', id + '-b' + p, 'Matches main text word ' + (p + 1), B[p]));
       });
       [l1, c1, l2, c2].forEach(function (e) { holder.appendChild(e); });
     }
