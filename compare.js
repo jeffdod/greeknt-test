@@ -357,7 +357,7 @@
       }, 'chip', c2);
       [l1, c1, l2, c2].forEach(function (e) { holder.appendChild(e); });
     }
-    if (ex) holder.appendChild(el('p', 'cmp-legend', 'The main text’s note quotes only the ends of this passage (“…”). The words in grey type are the ones in between, taken from the verse.'));
+    if (ex) holder.appendChild(el('p', 'cmp-legend', 'The main text’s note quotes only the ends of this passage (“…”). The words in light grey type, with a dotted outline, are the ones in between, taken from the verse.'));
     holder.appendChild(info);
 
     function words2(part) {

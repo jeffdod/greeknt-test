@@ -41,7 +41,8 @@
 .cmp-who,.cmp-same,.cmp-n{font-style:italic}
 .cmp-diff{background:#f3e0a8;color:var(--ink)}
 .cmp-none{font-style:italic;color:var(--ink-soft)}
-.cmp-uq,.cmp-uq .cmp-gk{color:#6a6a6a}
+.cmp-uq .cmp-gk,.cmp-chip.cmp-uq{color:#8c8c8c}
+.cmp-cell.cmp-uq:not(.cmp-om),.cmp-chip.cmp-uq:not(.cmp-om){border-style:dotted;border-color:#9a9a9a}
 .cmp-legend{margin:.6em 0 0;font-size:.88rem;color:var(--ink-soft)}
 @media (max-width:640px){
   .cmp-two{grid-template-columns:1fr}
