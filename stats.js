@@ -106,7 +106,7 @@ function buildChart(){
 
 /* ---------- kinds of difference ---------- */
 /* One label per reading, stored as r[3][0]: reads the same, different spelling, different word order, omits the base reading, omits words, adds words, replaces the base text, elision, crasis, brackets, or other. */
-var CATNAME=Object.assign({omitany:'omits the base reading or omits words'},KINDS);
+var CATNAME=Object.assign({omitany:'omits the base reading or omits words',short:'has fewer words than the base reading',long:'has more words than the base reading'},KINDS);
 function catOf(r){return r[3][0]||'minor';}
 /* The kind of difference between edition ed and the main text in note n */
 function catFor(n,ed){
@@ -114,23 +114,29 @@ function catFor(n,ed){
   for(var i=0;i<n[5].length;i++){var r=n[5][i];if((r[0]&b)&&r[1]!=='txt')return catOf(r);}
   return 'minor';
 }
+/* Whether edition ed's reading in note n has fewer words (short), more words (long), or the same number as the base reading */
+function lenFor(n,ed){
+  var b=BIT[ed];
+  for(var i=0;i<n[5].length;i++){var r=n[5][i];if((r[0]&b)&&r[1]!=='txt')return r[4]===-1?'short':r[4]===1?'long':'same';}
+  return 'same';
+}
 function searchUrl(o){
   var p=[];Object.keys(o).forEach(function(k){if(o[k])p.push(k+'='+encodeURIComponent(o[k]));});
   return 'search.html?'+p.join('&')+'#find';
 }
 /* What kind of difference: the three kinds that concern the words themselves, one kind at a time.
-   Each edition's figure is that kind's share of its word-level differences (omits, adds words, replaces the base text). */
-var WORDKINDS=['omit','add','repl'];
+   Each edition's figure is that kind's share of its word-level differences (shortens the text or lengthens it). */
+var WORDKINDS=['short','long'];
 function buildKinds(){
   var rows=[];
   SHOWN.forEach(function(e){
-    var c={omit:0,add:0,repl:0},t=0;
-    N.forEach(function(n){var g=groupOf(n);if(!edApplies(e,g)||!differs(n,e))return;var k=catFor(n,e);if(k==='omitall')k='omit';if(c.hasOwnProperty(k)){c[k]++;t++;}});
+    var c={short:0,long:0},t=0;
+    N.forEach(function(n){var g=groupOf(n);if(!edApplies(e,g)||!differs(n,e))return;var k=lenFor(n,e);if(c.hasOwnProperty(k)){c[k]++;t++;}});
     rows.push({e:e,c:c,t:t});
   });
-  var NAMES={omit:'Omits',add:'Adds words',repl:'Replaces the base text'};
-  var pick='omit',keyEl=$('kindkey'),g=$('kgrid');
-  $('kindlede').textContent='Choose a kind of change to rank the eleven editions by how often it makes up their word-level differences from the main text. A word-level difference is a reading that omits words, adds words, or replaces the base text. Each percentage is that kind’s share of the edition’s word-level differences, so an edition’s three shares add up to 100%. Select a row to list those notes.';
+  var NAMES={short:'Shortens the text',long:'Lengthens the text'};
+  var pick='short',keyEl=$('kindkey'),g=$('kgrid');
+  $('kindlede').textContent='Choose shortening or lengthening to rank the eleven editions. A reading shortens the text when it has fewer words than the main text at that point, and lengthens it when it has more; the count is of words only, whatever the label of the reading. Each percentage is that kind’s share of the edition’s differences that change the number of words, so an edition’s two shares add up to 100%. Select a row to list those notes.';
   var btns={};
   WORDKINDS.forEach(function(k){
     var b=el('button','kbtn');b.type='button';b.appendChild(el('i','swatch k-'+k));b.appendChild(document.createTextNode(NAMES[k]));
@@ -144,9 +150,9 @@ function buildKinds(){
     g.textContent='';
     list.forEach(function(x){
       var r=x.r,c=r.c[pick];
-      var row=el('a','kr');row.href=searchUrl({ed:r.e,cat:pick==='omit'?'omitany':pick});
-      row.title=EDNAME[r.e]+': '+fmt(c)+' of '+fmt(r.t)+' word-level differences are of this kind ('+pct(x.sh)+'). List them.';
-      row.setAttribute('aria-label',r.e+', '+NAMES[pick]+': '+pct(x.sh)+' ('+fmt(c)+' of '+fmt(r.t)+' word-level differences). List them.');
+      var row=el('a','kr');row.href=searchUrl({ed:r.e,cat:pick});
+      row.title=EDNAME[r.e]+': '+fmt(c)+' of '+fmt(r.t)+' differences that change the word count are of this kind ('+pct(x.sh)+'). List them.';
+      row.setAttribute('aria-label',r.e+', '+NAMES[pick]+': '+pct(x.sh)+' ('+fmt(c)+' of '+fmt(r.t)+' differences that change the word count). List them.');
       var nm=el('span','kname',r.e);nm.insertBefore(el('i','swatch sw-'+FAM[r.e]),nm.firstChild);
       var tr=el('span','ktr'),bar=el('span','kbar k-'+pick);bar.style.width=(top?x.sh/top*100:0)+'%';tr.appendChild(bar);
       row.appendChild(nm);row.appendChild(tr);
@@ -155,8 +161,8 @@ function buildKinds(){
     });
   }
   draw();
-  $('kindnote').textContent='Bars are scaled to the longest one shown. “Omits” gathers readings that leave out all of the words of the note’s base reading and readings that leave out some of them, in one place or several, with the rest in the same order. “Adds words” means it adds words in one place or several, and the base words keep their order. “Replaces the base text” gathers every other word-level difference, including readings that both remove and add words. Differences of spelling only, word order only, elision, crasis, and brackets are not charted here; the kind filter in Variant search finds them. ECM is counted only where it exists, in Mark, Acts, the Catholic Epistles, and Revelation.';
-  var h='<thead><tr><th class="corner" scope="col">Edition</th><th scope="col">Word-level differences</th>';
+  $('kindnote').textContent='Bars are scaled to the longest one shown. A reading that omits words, or replaces words with fewer, shortens the text. A reading that adds words, or replaces words with more, lengthens it. Differences that leave the number of words the same, such as spelling, word order, elision, and swapping one word for another, are not charted here; the kind filter in Variant search finds them. A word written as two in one reading and as one in another (crasis) counts as a change of one word. ECM is counted only where it exists, in Mark, Acts, the Catholic Epistles, and Revelation.';
+  var h='<thead><tr><th class="corner" scope="col">Edition</th><th scope="col">Differences that change the word count</th>';
   WORDKINDS.forEach(function(k){h+='<th scope="col">'+NAMES[k]+'</th>';});
   h+='</tr></thead><tbody>';
   rows.forEach(function(r){
@@ -483,17 +489,17 @@ function matches(n,i,f){
   }
   if(f.kind&&(f.rel==='differs'||f.rel==='either')){
     var ok=false,b=f.ed?BIT[f.ed]:0;
-    n[5].forEach(function(r){if((!b||(r[0]&b))&&r[1]!=='txt'&&r[3].indexOf(f.kind)>=0)ok=true;});
+    n[5].forEach(function(r){if((!b||(r[0]&b))&&r[1]!=='txt'&&(f.kind==='short'?r[4]===-1:f.kind==='long'?r[4]===1:r[3].indexOf(f.kind)>=0))ok=true;});
     var bt={br1:1,br2:2,br3:3}[f.kind];
     if(bt&&n[6].some(function(x){return x[0]===bt&&(!b||(x[1]&b));}))ok=true;
     if(!ok)return false;
   }
-  if(f.rel==='split'&&f.kind){var ok2=false;n[5].forEach(function(r){if(r[3].indexOf(f.kind)>=0)ok2=true;});if(!ok2)return false;}
+  if(f.rel==='split'&&f.kind){var ok2=false;n[5].forEach(function(r){if(f.kind==='short'?r[4]===-1:f.kind==='long'?r[4]===1:r[3].indexOf(f.kind)>=0)ok2=true;});if(!ok2)return false;}
   if(f.share&&!shareTest(n,f.share))return false;
   if(f.alone&&!aloneTest(n,f.alone))return false;
   if(f.cat){
     var b2=f.ed?BIT[f.ed]:0,okc=false,seen=false;
-    n[5].forEach(function(r){if(r[1]!=='txt'&&(!b2||(r[0]&b2))){seen=true;var ck=catOf(r);if(ck===f.cat||(f.cat==='omitany'&&(ck==='omit'||ck==='omitall')))okc=true;}});
+    n[5].forEach(function(r){if(r[1]!=='txt'&&(!b2||(r[0]&b2))){seen=true;var ck=catOf(r);if(ck===f.cat||(f.cat==='omitany'&&(ck==='omit'||ck==='omitall'))||(f.cat==='short'&&r[4]===-1)||(f.cat==='long'&&r[4]===1))okc=true;}});
     if(!seen&&f.ed&&f.cat==='minor')okc=true;
     if(!okc)return false;
   }
@@ -941,7 +947,7 @@ function writeUrl(){
 function readUrl(qs){
   var p=new URLSearchParams(qs===undefined?location.search:qs),any=false;
   Object.keys(URLMAP).forEach(function(k){if(p.has(k)){$(URLMAP[k]).value=p.get(k);any=true;}});
-  if(p.has('cat')&&/^(same|brw|spell|order|omitall|omitany|omit|add|repl|elide|krasis|br1|br2|br3|other|minor)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;if(CAT!=='minor')$('fKind').value=CAT;}
+  if(p.has('cat')&&/^(short|long|same|brw|spell|order|omitall|omitany|omit|add|repl|elide|krasis|br1|br2|br3|other|minor)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;if(CAT!=='minor')$('fKind').value=CAT;}
   if(p.has('share')&&/^(byz|crit|tr|none|critonly|with:(HF|PCK|PT|ECM|NA27|NA28|SBL|TH|WH|SCR|ST))$/.test(p.get('share'))){SHARE=p.get('share');any=true;}
   if(p.has('alone')&&/^(MT|HF|PCK|PT|ECM|NA27|NA28|SBL|TH|WH|SCR|ST)(\.(agree|div))?$/.test(p.get('alone'))){ALONE=p.get('alone');any=true;if(ALONE.split('.')[0]!=='MT')$('fEd').value=ALONE.split('.')[0];}
   return any;
