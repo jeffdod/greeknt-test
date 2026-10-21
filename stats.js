@@ -513,6 +513,12 @@ function matches(n,i,f){
       if(st.every(function(x){return x===st[0];}))return false;
     } else if(f.pat==='byz'){
       if(!['HF','PCK','PT'].some(function(e){return differs(n,e);}))return false;
+    } else if(f.pat==='ct'){
+      if(!cs.concat(n[7]?['ECMs']:[]).some(function(e){return differs(n,e);}))return false;
+    } else if(f.pat==='na'){
+      if(!['NA27','NA28'].some(function(e){return differs(n,e);}))return false;
+    } else if(f.pat==='tr'){
+      if(!['SCR','ST'].some(function(e){return differs(n,e);}))return false;
     } else if(f.pat==='trcrit'){
       var ok3=false;
       n[5].forEach(function(r){if(r[1]!=='txt'&&(r[0]&(BIT.SCR|BIT.ST))&&cs.some(function(e){return r[0]&BIT[e];}))ok3=true;});
