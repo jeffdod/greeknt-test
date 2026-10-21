@@ -517,6 +517,10 @@ function matches(n,i,f){
       if(!cs.concat(n[7]?['ECMs']:[]).some(function(e){return differs(n,e);}))return false;
     } else if(f.pat==='na'){
       if(!['NA27','NA28'].some(function(e){return differs(n,e);}))return false;
+    } else if(f.pat==='nadis'){
+      if(readOf(n,'NA27')===readOf(n,'NA28'))return false;
+    } else if(f.pat==='trdis'){
+      if(readOf(n,'SCR')===readOf(n,'ST'))return false;
     } else if(f.pat==='tr'){
       if(!['SCR','ST'].some(function(e){return differs(n,e);}))return false;
     } else if(f.pat==='trcrit'){
