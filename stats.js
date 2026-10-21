@@ -11,7 +11,7 @@ var FAMNAME={byz:'Byzantine editions',crit:'Critical editions',tr:'Textus Recept
 var FAMCOL={byz:'var(--r3)',crit:'var(--r1)',tr:'var(--r2)'};
 var EDNAME={HF:'Hodges-Farstad',PCK:'Pickering',PT:'Antoniades (Patriarchal Text)',ECM:'Editio Critica Maior',NA27:'Nestle-Aland 27',NA28:'Nestle-Aland 28',SBL:'SBL Greek New Testament',TH:'Tyndale House',WH:'Westcott-Hort',SCR:'Scrivener',ST:'Stephanus'};
 var OPTNAME={PCK:'Pickering',PT:'Antoniades Patriarchal Text',SBL:'SBL Greek NT'};
-var KINDS={same:'reads the same as the base text',spell:'different spelling',order:'different word order',omitall:'omits the base reading',omit:'omits words',add:'adds words',repl:'replaces the base text',elide:'elision',krasis:'crasis',br1:'single brackets around reading',br2:'double brackets around reading',br3:'chevrons around reading',other:'Other'};
+var KINDS={same:'reads the same as the base text',brw:'brackets around some words',spell:'different spelling',order:'different word order',omitall:'omits the base reading',omit:'omits words',add:'adds words',repl:'replaces the base text',elide:'elision',krasis:'crasis',br1:'single brackets around reading',br2:'double brackets around reading',br3:'chevrons around reading',other:'Other'};
 var $=function(id){return document.getElementById(id);};
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
 function fmt(n){return n.toLocaleString('en-US');}
@@ -941,7 +941,7 @@ function writeUrl(){
 function readUrl(qs){
   var p=new URLSearchParams(qs===undefined?location.search:qs),any=false;
   Object.keys(URLMAP).forEach(function(k){if(p.has(k)){$(URLMAP[k]).value=p.get(k);any=true;}});
-  if(p.has('cat')&&/^(same|spell|order|omitall|omit|add|repl|elide|krasis|br1|br2|br3|other|minor)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;if(CAT!=='minor')$('fKind').value=CAT;}
+  if(p.has('cat')&&/^(same|brw|spell|order|omitall|omit|add|repl|elide|krasis|br1|br2|br3|other|minor)$/.test(p.get('cat'))){CAT=p.get('cat');any=true;if(CAT!=='minor')$('fKind').value=CAT;}
   if(p.has('share')&&/^(byz|crit|tr|none|critonly|with:(HF|PCK|PT|ECM|NA27|NA28|SBL|TH|WH|SCR|ST))$/.test(p.get('share'))){SHARE=p.get('share');any=true;}
   if(p.has('alone')&&/^(MT|HF|PCK|PT|ECM|NA27|NA28|SBL|TH|WH|SCR|ST)(\.(agree|div))?$/.test(p.get('alone'))){ALONE=p.get('alone');any=true;if(ALONE.split('.')[0]!=='MT')$('fEd').value=ALONE.split('.')[0];}
   return any;
