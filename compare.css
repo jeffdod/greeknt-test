@@ -41,8 +41,9 @@
 .cmp-who,.cmp-same,.cmp-n{font-style:italic}
 .cmp-diff{background:#f3e0a8;color:var(--ink)}
 .cmp-none{font-style:italic;color:var(--ink-soft)}
-.cmp-uq{position:relative;margin-bottom:18px}
-.cmp-uq::after{content:"…";position:absolute;left:0;right:0;bottom:-20px;text-align:center;font-size:1.25rem;line-height:1;font-weight:700;color:var(--rubric);font-style:normal}
+.cmp-uq{position:relative}
+.cmp-grid:has(.cmp-uq),.cmp-chips:has(.cmp-uq){row-gap:12px;padding-bottom:12px}
+.cmp-uq::after{content:"…";position:absolute;left:0;right:0;bottom:-10px;text-align:center;font-size:1.25rem;line-height:1;font-weight:700;color:var(--rubric);font-style:normal}
 .cmp-legend{margin:.6em 0 0;font-size:.88rem;color:var(--ink-soft)}
 @media (max-width:640px){
   .cmp-two{grid-template-columns:1fr}
