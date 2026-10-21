@@ -234,6 +234,7 @@
   }
 
   /* One word as a full cell (short readings): its spelling, dictionary form, gloss and parsing */
+  function uq(k) { return k.x ? ' cmp-uq' + (k.bs ? ' cmp-bs' : '') + (k.be ? ' cmp-be' : '') : ''; }
   function cell(k, num, tint, cls, note, label, part, other) {
     if (k.x) label += ', inside the ellipsis';
     var c = el('div', 'cmp-cell ' + tint + (cls ? ' ' + cls : ''));
@@ -295,6 +296,7 @@
     var inRead = {};
     pair.forEach(function (p) { if (p >= 0) inRead[p] = true; });
     function partner(i) { for (var j = 0; j < pair.length; j++) if (pair[j] === i) return V[j]; return null; }
+    [B, V].forEach(function (list) { list.forEach(function (k, i) { if (!k.x) return; k.bs = !(list[i - 1] && list[i - 1].x); k.be = !(list[i + 1] && list[i + 1].x); }); });
     var long = B.length > SHORT || V.length > SHORT, id = 'cmp' + (++uid);
     var info = el('div', 'cmp-info'); info.setAttribute('aria-live', 'polite');
     var holder = el('div', 'cmp-body');
@@ -315,14 +317,14 @@
       var r1 = el('div', 'cmp-rowlab', 'Main text'), g1 = el('div', 'cmp-grid'); g1.style.setProperty('--n', cols);
       withGaps(B, B.gaps, function (k, i) {
         var om = !inRead[i];
-        return cell(k, i + 1, T(i), (om ? 'cmp-om' : '') + (k.x ? ' cmp-uq' : ''), om ? 'not in this reading' : '', 'Main text word ' + (i + 1) + (om ? ', not in this reading' : ''), id + '-b' + i, partner(i));
+        return cell(k, i + 1, T(i), (om ? 'cmp-om' : '') + uq(k), om ? 'not in this reading' : '', 'Main text word ' + (i + 1) + (om ? ', not in this reading' : ''), id + '-b' + i, partner(i));
       }, 'cell', g1);
       var r2 = el('div', 'cmp-rowlab', 'Reading'), g2 = el('div', 'cmp-grid'); g2.style.setProperty('--n', cols);
       withGaps(V, V.gaps, function (k, j) {
         var p = pair[j];
         if (inGap[j]) return cell(k, '…', 'cmp-fillbg', 'cmp-fl', 'inside the ellipsis', 'Inside the ellipsis of the main text', id + '-v' + j);
         if (p < 0) return cell(k, '+', 'cmp-add', 'cmp-ad', 'added', 'Added word, not in the main text', id + '-v' + j);
-        return cell(k, p + 1, T(p), k.x ? 'cmp-uq' : '', '', 'Matches main text word ' + (p + 1), id + '-b' + p, B[p]);
+        return cell(k, p + 1, T(p), uq(k).trim(), '', 'Matches main text word ' + (p + 1), id + '-b' + p, B[p]);
       }, 'cell', g2);
       if (!V.length) g2.appendChild(el('div', 'cmp-empty', 'The reading has no words here.'));
       [r1, g1, r2, g2].forEach(function (e) { holder.appendChild(e); });
@@ -350,16 +352,16 @@
         if (!sameSpelling(B[p].w, V[j].w) || !sameAnalysis(B[p].a, V[j].a)) tint[p] = T(next++);
       });
       var l1 = el('div', 'cmp-rowlab', 'Main text'), c1 = el('div', 'cmp-chips');
-      withGaps(B, B.gaps, function (k, i) { return chip(k, i + 1, (inRead[i] ? (tint[i] || '') : 'cmp-om') + (k.x ? ' cmp-uq' : ''), id + '-b' + i, 'Main text word ' + (i + 1) + (inRead[i] ? '' : ', not in this reading'), partner(i)); }, 'chip', c1);
+      withGaps(B, B.gaps, function (k, i) { return chip(k, i + 1, (inRead[i] ? (tint[i] || '') : 'cmp-om') + uq(k), id + '-b' + i, 'Main text word ' + (i + 1) + (inRead[i] ? '' : ', not in this reading'), partner(i)); }, 'chip', c1);
       var l2 = el('div', 'cmp-rowlab', 'Reading'), c2 = el('div', 'cmp-chips');
       withGaps(V, V.gaps, function (k, j) {
         var p = pair[j];
         if (inGap[j]) return chip(k, '…', 'cmp-fillbg', id + '-v' + j, 'Inside the ellipsis of the main text');
-        return p < 0 ? chip(k, '+', 'cmp-add', id + '-v' + j, 'Added word, not in the main text') : chip(k, p + 1, (tint[p] || '') + (k.x ? ' cmp-uq' : ''), id + '-b' + p, 'Matches main text word ' + (p + 1), B[p]);
+        return p < 0 ? chip(k, '+', 'cmp-add', id + '-v' + j, 'Added word, not in the main text') : chip(k, p + 1, (tint[p] || '') + uq(k), id + '-b' + p, 'Matches main text word ' + (p + 1), B[p]);
       }, 'chip', c2);
       [l1, c1, l2, c2].forEach(function (e) { holder.appendChild(e); });
     }
-    if (ex) holder.appendChild(el('p', 'cmp-legend', 'The main text’s note quotes only the ends of this passage (“…”). The words with a small “…” beneath them are the ones in between, taken from the verse.'));
+    if (ex) holder.appendChild(el('p', 'cmp-legend', 'The main text’s note quotes only the ends of this passage (“…”). The words under a red line are the ones in between, taken from the verse.'));
     holder.appendChild(info);
 
     function words2(part) {
