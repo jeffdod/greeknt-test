@@ -62,23 +62,41 @@
     var strip = function (w) { return w.replace(/\([^)]*\)/g, '').normalize('NFC').toLowerCase(); };
     return acc(a) && acc(b) && strip(a) !== strip(b);
   }
-  /* The letters of a that differ from b: [start, end) after the letters the two share at the front and the back */
-  function diffSpan(a, b) {
-    var x = Array.from(a.normalize('NFC')), y = Array.from(b.normalize('NFC')), i = 0, j = 0;
-    while (i < x.length && i < y.length && x[i] === y[i]) i++;
-    while (j < x.length - i && j < y.length - i && x[x.length - 1 - j] === y[y.length - 1 - j]) j++;
-    var end = x.length - j;
-    if (end <= i) { if (i > 0) return [x, i - 1, i]; if (x.length) return [x, 0, 1]; return [x, 0, 0]; }
-    return [x, i, end];
+  /* Which letters of each word to mark: the fewest letters whose removal leaves the same letters in the same order in both words
+     (the longest common subsequence of letters is kept). Accents are compared only when both words show them; a parenthesis or an
+     apostrophe is never marked. Returns two lists of true/false, one for each word's letters. */
+  function diffMarks(a, b) {
+    var x = Array.from(a.normalize('NFC')), y = Array.from(b.normalize('NFC'));
+    var accA = /[\u0300-\u036f]/.test(a.normalize('NFD')), accB = /[\u0300-\u036f]/.test(b.normalize('NFD')), exact = accA && accB;
+    function base(c) { return c.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/ς/g, 'σ'); }
+    function neutral(c) { return /[()'’‘ʼ·,.;:\-]/.test(c); }
+    function same(p, q) { return exact ? p.toLowerCase() === q.toLowerCase() : base(p) === base(q); }
+    var ix = [], iy = [], i, j;
+    x.forEach(function (c, k) { if (!neutral(c)) ix.push(k); });
+    y.forEach(function (c, k) { if (!neutral(c)) iy.push(k); });
+    var n = ix.length, m = iy.length, L = [];
+    for (i = 0; i <= n; i++) { L.push([]); for (j = 0; j <= m; j++) L[i].push(0); }
+    for (i = n - 1; i >= 0; i--) for (j = m - 1; j >= 0; j--)
+      L[i][j] = same(x[ix[i]], y[iy[j]]) ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+    var fa = x.map(function () { return false; }), fb = y.map(function () { return false; });
+    i = 0; j = 0;
+    while (i < n && j < m) {
+      if (same(x[ix[i]], y[iy[j]])) { i++; j++; }
+      else if (L[i + 1][j] >= L[i][j + 1]) { fa[ix[i]] = true; i++; }
+      else { fb[iy[j]] = true; j++; }
+    }
+    while (i < n) { fa[ix[i++]] = true; }
+    while (j < m) { fb[iy[j++]] = true; }
+    return [x, fa, y, fb];
   }
   /* Fill element e with word k; when other (its partner) is spelled differently, the letters that differ are marked */
   function fillWord(e, k, other) {
     if (!other || !spelledDifferently(k.w, other.w)) { e.textContent = shown(k); return false; }
-    var d = diffSpan(k.w, other.w), x = d[0];
+    var d = diffMarks(k.w, other.w), x = d[0], f = d[1], run = '', on = false, any = false;
+    function flush() { if (!run) return; if (on) { e.appendChild(el('mark', 'cmp-sp', run)); any = true; } else e.appendChild(document.createTextNode(run)); run = ''; }
     if (k.o) e.appendChild(document.createTextNode('['));
-    e.appendChild(document.createTextNode(x.slice(0, d[1]).join('')));
-    var m = el('mark', 'cmp-sp', x.slice(d[1], d[2]).join('')); e.appendChild(m);
-    e.appendChild(document.createTextNode(x.slice(d[2]).join('')));
+    x.forEach(function (c, i) { if (!!f[i] !== on) { flush(); on = !!f[i]; } run += c; });
+    flush();
     if (k.c) e.appendChild(document.createTextNode(']'));
     return true;
   }
