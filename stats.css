@@ -175,6 +175,16 @@ a.rrow:hover,a.rrow:focus-visible{color:var(--ink)}
 mark.hit{background:rgba(138,42,30,.18);color:inherit;border-radius:2px;padding:0 1px}
 #restored{margin:0 0 12px}
 
+/* the long explanation at the foot of Explore variants: a short introduction and a closed section with the details */
+.howto{margin:12px 0 0;max-width:80ch}
+.howto summary{cursor:pointer;color:var(--rubric);font-size:1.02rem;display:inline-block;padding:4px 0}
+.howto summary:hover{text-decoration:underline}
+.howto summary::before{content:"\25B8\00a0"}
+.howto[open] summary::before{content:"\25BE\00a0"}
+.howto[open] summary{margin-bottom:4px}
+.howto h3{font-size:1.05rem;font-weight:600;color:var(--ink);margin:16px 0 4px}
+.howto p{margin:0 0 8px}
+
 /* the search controls: three columns, four on wide screens, one on phones; the buttons use the same columns */
 .filters{grid-template-columns:repeat(3,minmax(0,1fr))}
 .filters .wide{grid-column:1/-1}
