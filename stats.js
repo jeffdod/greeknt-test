@@ -729,7 +729,6 @@ function hintBlock(n,idx){
       panel.textContent='';
       if(fail||!HINTS[idx]){panel.appendChild(el('p','hnote','The translation hints could not be loaded. Check your connection and try again.'));return;}
       built=true;
-      panel.appendChild(el('p','hnote','Approximate English for the changed words, in the style of the Boyd ASVBT. This is not part of the ASVBT.'));
       var ul=el('ul','hl');
       HINTS[idx].forEach(function(h){
         var li=el('li'),m=0;h[0].forEach(function(r){m|=r<0?n[6][-r-1][1]:n[5][r][0];});
