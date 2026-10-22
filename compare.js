@@ -341,45 +341,45 @@
     }
     var T = function (q) { return 'cmp-t' + (q % TINTS + 1); };
 
+    /* a shade marks a difference. A word is in place when it belongs to the longest run of paired words that keep their order; the rest moved, and
+       moved words that sit side by side in both texts share a shade */
+    var js = [], len = [], prv = [], bestEnd = -1, x, y;
+    pair.forEach(function (p, j) { if (p >= 0) js.push(j); });
+    js.forEach(function (j, x2) {
+      len[x2] = 1; prv[x2] = -1;
+      for (y = 0; y < x2; y++) if (pair[js[y]] < pair[j] && len[y] + 1 > len[x2]) { len[x2] = len[y] + 1; prv[x2] = y; }
+      if (bestEnd < 0 || len[x2] > len[bestEnd]) bestEnd = x2;
+    });
+    var inPlace = {};
+    for (x = bestEnd; x >= 0; x = prv[x]) inPlace[js[x]] = true;
+    var tint = {}, next = 0, lastJ = -2, lastP = -2, cur = '';
+    js.forEach(function (j) {
+      var p = pair[j];
+      if (inPlace[j]) { lastJ = -2; return; }
+      if (!(lastJ === j - 1 && lastP === p - 1)) cur = T(next++);
+      tint[p] = cur; lastJ = j; lastP = p;
+    });
+    pair.forEach(function (p, j) {
+      if (p < 0 || !inPlace[j]) return;
+      if (!sameSpelling(B[p].w, V[j].w) || !sameAnalysis(B[p].a, V[j].a)) tint[p] = T(next++);
+    });
     if (!long) {
       var cols = Math.max(B.length + B.gaps.length, V.length + V.gaps.length, 1);
       var r1 = el('div', 'cmp-rowlab', 'Main text'), g1 = el('div', 'cmp-grid'); g1.style.setProperty('--n', cols);
       withGaps(B, B.gaps, function (k, i) {
         var om = !inRead[i];
-        return cell(k, i + 1, T(i), (om ? 'cmp-om' : '') + uq(k), om ? 'not in this reading' : '', 'Main text word ' + (i + 1) + (om ? ', not in this reading' : ''), id + '-b' + i, partner(i));
+        return cell(k, i + 1, om ? '' : (tint[i] || ''), (om ? 'cmp-om' : '') + uq(k), om ? 'not in this reading' : '', 'Main text word ' + (i + 1) + (om ? ', not in this reading' : ''), id + '-b' + i, partner(i));
       }, 'cell', g1);
       var r2 = el('div', 'cmp-rowlab', 'Reading'), g2 = el('div', 'cmp-grid'); g2.style.setProperty('--n', cols);
       withGaps(V, V.gaps, function (k, j) {
         var p = pair[j];
         if (inGap[j]) return cell(k, '…', 'cmp-fillbg', 'cmp-fl', 'inside the ellipsis', 'Inside the ellipsis of the main text', id + '-v' + j);
         if (p < 0) return cell(k, '+', 'cmp-add', 'cmp-ad', 'added', 'Added word, not in the main text', id + '-v' + j);
-        return cell(k, p + 1, T(p), uq(k).trim(), '', 'Matches main text word ' + (p + 1), id + '-b' + p, B[p]);
+        return cell(k, p + 1, tint[p] || '', uq(k).trim(), '', 'Matches main text word ' + (p + 1), id + '-b' + p, B[p]);
       }, 'cell', g2);
       if (!V.length) g2.appendChild(el('div', 'cmp-empty', 'This reading has no words here: it omits the main text.'));
       [r1, g1, r2, g2].forEach(function (e) { holder.appendChild(e); });
     } else {
-      /* a word is in place when it belongs to the longest run of paired words that keep their order; the rest moved, and
-         moved words that sit side by side in both texts share a shade */
-      var js = [], len = [], prv = [], bestEnd = -1, x, y;
-      pair.forEach(function (p, j) { if (p >= 0) js.push(j); });
-      js.forEach(function (j, x2) {
-        len[x2] = 1; prv[x2] = -1;
-        for (y = 0; y < x2; y++) if (pair[js[y]] < pair[j] && len[y] + 1 > len[x2]) { len[x2] = len[y] + 1; prv[x2] = y; }
-        if (bestEnd < 0 || len[x2] > len[bestEnd]) bestEnd = x2;
-      });
-      var inPlace = {};
-      for (x = bestEnd; x >= 0; x = prv[x]) inPlace[js[x]] = true;
-      var tint = {}, next = 0, lastJ = -2, lastP = -2, cur = '';
-      js.forEach(function (j) {
-        var p = pair[j];
-        if (inPlace[j]) { lastJ = -2; return; }
-        if (!(lastJ === j - 1 && lastP === p - 1)) cur = T(next++);
-        tint[p] = cur; lastJ = j; lastP = p;
-      });
-      pair.forEach(function (p, j) {
-        if (p < 0 || !inPlace[j]) return;
-        if (!sameSpelling(B[p].w, V[j].w) || !sameAnalysis(B[p].a, V[j].a)) tint[p] = T(next++);
-      });
       var l1 = el('div', 'cmp-rowlab', 'Main text'), c1 = el('div', 'cmp-chips');
       withGaps(B, B.gaps, function (k, i) { return chip(k, i + 1, (inRead[i] ? (tint[i] || '') : 'cmp-om') + uq(k), id + '-b' + i, 'Main text word ' + (i + 1) + (inRead[i] ? '' : ', not in this reading'), partner(i)); }, 'chip', c1);
       var l2 = el('div', 'cmp-rowlab', 'Reading'), c2 = el('div', 'cmp-chips');
