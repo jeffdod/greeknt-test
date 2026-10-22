@@ -355,7 +355,7 @@
         if (p < 0) return cell(k, '+', 'cmp-add', 'cmp-ad', 'added', 'Added word, not in the main text', id + '-v' + j);
         return cell(k, p + 1, T(p), uq(k).trim(), '', 'Matches main text word ' + (p + 1), id + '-b' + p, B[p]);
       }, 'cell', g2);
-      if (!V.length) g2.appendChild(el('div', 'cmp-empty', 'The reading has no words here.'));
+      if (!V.length) g2.appendChild(el('div', 'cmp-empty', 'This reading has no words here: it omits the main text.'));
       [r1, g1, r2, g2].forEach(function (e) { holder.appendChild(e); });
     } else {
       /* a word is in place when it belongs to the longest run of paired words that keep their order; the rest moved, and
@@ -388,6 +388,7 @@
         if (inGap[j]) return chip(k, '…', 'cmp-fillbg', id + '-v' + j, 'Inside the ellipsis of the main text');
         return p < 0 ? chip(k, '+', 'cmp-add', id + '-v' + j, 'Added word, not in the main text') : chip(k, p + 1, (tint[p] || '') + uq(k), id + '-b' + p, 'Matches main text word ' + (p + 1), B[p]);
       }, 'chip', c2);
+      if (!V.length) c2.appendChild(el('div', 'cmp-empty', 'This reading has no words here: it omits the main text.'));
       [l1, c1, l2, c2].forEach(function (e) { holder.appendChild(e); });
     }
     if (ex) holder.appendChild(el('p', 'cmp-legend', 'The main text’s note quotes only some of the words in this passage and uses “…” for the rest. The words under a red line are the ones the note leaves out, taken from the verse.'));
