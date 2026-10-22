@@ -148,12 +148,12 @@
     var en = useEn ? EN.verses(bi, ref) : [], gr = (useGr && window.GNT_GR) ? GNT_GR.verses(bi, ref) : [];
     if (!en.length && !gr.length) return '';
     if (!gr.length) {
-      var head = name + ' ' + ref + ' (ASV)';
+      var head = name + ' ' + ref + ' (ASVBT)';
       return en.length === 1 ? head + '\n' + en[0].text : head + '\n' + lines(en);
     }
     function block(label, vs) { return vs.length === 1 ? label + ': ' + vs[0].text : label + ':\n' + lines(vs); }
     var parts = [name + ' ' + ref, block('Greek', gr)];
-    if (en.length) parts.push(block('English (ASV)', en));
+    if (en.length) parts.push(block('English (ASVBT)', en));
     return parts.join('\n');
   };
   EN.copyButton = function (bi, ref) {
