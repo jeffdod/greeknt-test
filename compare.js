@@ -294,13 +294,15 @@
     c.dataset.p = part; c.setAttribute('role', 'group'); c.setAttribute('aria-label', label); c.tabIndex = 0;
     c.appendChild(el('span', 'cmp-pos', String(num)));
     var g = el('div', 'cmp-gk'); g.lang = 'grc'; var rel = fillWord(g, k, other); c.appendChild(g);
+    if (rel === 'word' || rel === 'form') g.classList.add('cmp-diff');
     if (rel) { note = (note ? note + '; ' : '') + RELNOTE[rel]; label += ', ' + RELNOTE[rel]; c.setAttribute('aria-label', label); }
     var a = k.a;
     if (a) {
       var l = el('div', 'cmp-lm'); l.appendChild(el('b', null, a.lem)); l.appendChild(document.createTextNode(' · G' + a.s));
+      if (rel === 'word' && other.a && other.a.s !== a.s) l.classList.add('cmp-diff');
       c.appendChild(l);
       if (a.g) c.appendChild(el('div', 'cmp-gl', a.g));
-      if (a.p) c.appendChild(el('div', 'cmp-pc' + (rel === 'form' || rel === 'parse' ? ' cmp-diff' : ''), a.p));
+      if (a.p) c.appendChild(el('div', 'cmp-pc' + (other && other.a && other.a.p !== a.p && rel ? ' cmp-diff' : ''), a.p));
     } else c.appendChild(el('div', 'cmp-pc', 'No analysis available'));
     if (note) c.appendChild(el('div', 'cmp-nt', note));
     return c;
