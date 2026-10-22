@@ -701,6 +701,45 @@ function appendixLinks(root){
     }
   });
 }
+/* ----- translation hints: approximate English for what a reading changes, kept in hints-data.js and loaded the first time a note's hints are opened ----- */
+var HINTSET=null;
+if(window.GNT_HINTIDS&&GNT_HINTIDS.n===N.length){HINTSET=new Uint8Array(N.length);GNT_HINTIDS.ids.forEach(function(i){HINTSET[i]=1;});}
+var HINTS=null,HINTWAIT=null;
+function loadHints(cb){
+  if(HINTS){cb(false);return;}
+  if(HINTWAIT){HINTWAIT.push(cb);return;}
+  HINTWAIT=[cb];
+  var s=document.createElement('script');s.src='hints-data.js';
+  function done(fail){var w=HINTWAIT;HINTWAIT=null;w.forEach(function(f){f(fail);});}
+  s.onload=function(){HINTS=(window.GNT_HINTS&&GNT_HINTS.n===N.length&&GNT_HINTS.h)||null;done(!HINTS);};
+  s.onerror=function(){done(true);};
+  document.head.appendChild(s);
+}
+function hintBlock(n,idx){
+  var box=el('div','hints'),btn=el('button','hbtn','Translation hints');
+  btn.type='button';btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-controls','hint'+idx);
+  var panel=el('div','hpanel');panel.id='hint'+idx;panel.hidden=true;
+  var built=false;
+  btn.addEventListener('click',function(){
+    if(btn.getAttribute('aria-expanded')==='true'){btn.setAttribute('aria-expanded','false');panel.hidden=true;return;}
+    btn.setAttribute('aria-expanded','true');panel.hidden=false;
+    if(built)return;
+    panel.textContent='';panel.appendChild(el('p','hnote','Loading the hints…'));
+    loadHints(function(fail){
+      panel.textContent='';
+      if(fail||!HINTS[idx]){panel.appendChild(el('p','hnote','The translation hints could not be loaded. Check your connection and try again.'));return;}
+      built=true;
+      panel.appendChild(el('p','hnote','Approximate English for the changed words, in the style of the Boyd ASVBT. This is not part of the ASVBT.'));
+      var ul=el('ul','hl');
+      HINTS[idx].forEach(function(h){
+        var li=el('li'),m=0;h[0].forEach(function(r){m|=n[5][r][0];});
+        li.appendChild(tagsFor(m,n[1]));li.appendChild(document.createTextNode(' '+h[1]));ul.appendChild(li);
+      });
+      panel.appendChild(ul);
+    });
+  });
+  box.appendChild(btn);box.appendChild(panel);return box;
+}
 function renderItem(n,idx){
   var li=el('li','res');
   var head=el('div','rhd');
@@ -759,6 +798,7 @@ function renderItem(n,idx){
     if(t)window.GNT_copy(t,cpb,'Copied');
   });
   cph.appendChild(cpb);vt.appendChild(cph);
+  if(HINTSET&&HINTSET[idx])li.appendChild(hintBlock(n,idx));
   appendixLinks(li);
   return li;
 }

@@ -1,0 +1,2 @@
+/* Which notes have translation hints (the hints themselves are in hints-data.js, loaded when a note's hints are opened). The numbers are positions in notes-data.js (counting from 0); n is how many notes that file holds. */
+window.GNT_HINTIDS={n:10178,ids:[4,6,10,26,31,34,45,47,50,56,61,67,91,94,96,98,101,112,113,115,116,117,120,122,123,127,129,132,133,134,138,139,146,150,151,153,159,162,163,167]};

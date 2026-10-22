@@ -163,6 +163,14 @@ mark.hit{background:rgba(138,42,30,.18);color:inherit;border-radius:2px;padding:
 .filters .wide{grid-column:1/-1}
 .fbtns{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 18px}
 
+.hints{margin:14px 0 0;padding-top:10px;border-top:1px solid var(--rule)}
+.hbtn{font:inherit;background:none;border:0;padding:0;color:var(--rubric);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.hbtn:hover{color:var(--rubric-dark)}
+.hbtn::before{content:"\25B8\00a0";display:inline-block;text-decoration:none}
+.hbtn[aria-expanded=true]::before{content:"\25BE\00a0"}
+.hnote{margin:10px 0 0;font-size:.9rem;color:var(--ink-soft)}
+.hl{margin:10px 0 0;padding:0;list-style:none}
+.hl li{margin:0 0 10px;padding:0 0 0 12px;border-left:3px solid var(--rule);line-height:1.5}
 @media (max-width:560px){.res{padding:10px 12px}}
 @media (min-width:641px){.dhint{display:none}}
 @media (max-width:640px){
