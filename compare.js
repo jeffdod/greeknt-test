@@ -231,6 +231,13 @@
   /* Between two pairs that are kept, words of the reading and of the main text that have no partner are a replacement when they are
      equally many: they pair one to one, in order. Where the reading has an ellipsis in that stretch, the reading's words before it pair
      with the first words of the main-text stretch and its words after it with the last ones. */
+  function similar(x, y) {
+    x = plain(x); y = plain(y);
+    var m = [], i, j;
+    for (i = 0; i <= x.length; i++) { m[i] = []; for (j = 0; j <= y.length; j++) m[i][j] = 0; }
+    for (i = 1; i <= x.length; i++) for (j = 1; j <= y.length; j++) m[i][j] = x[i - 1] === y[j - 1] ? m[i - 1][j - 1] + 1 : Math.max(m[i - 1][j], m[i][j - 1]);
+    return m[x.length][y.length] / Math.max(x.length, y.length, 1);
+  }
   function pairLeftovers(B, V, pair, gaps) {
     gaps = gaps || [];
     var anchors = [], k, s, i, j;
@@ -243,7 +250,26 @@
       for (i = bs; i <= be; i++) bw.push(i);
       if (!vw.length || !bw.length) continue;
       var gs = gaps.filter(function (g) { return g >= vs && g <= ve + 1; });
-      if (!gs.length) { if (vw.length === bw.length) vw.forEach(function (jj, x) { pair[jj] = bw[x]; }); continue; }
+      if (!gs.length) {
+        if (vw.length === bw.length) { vw.forEach(function (jj, x) { pair[jj] = bw[x]; }); continue; }
+        /* a different number of words replaces the stretch: words of the shorter side are paired, in order, with the words of the longer side
+           they most resemble, but only when the two share at least 35% of their letters; every other word stays added or omitted */
+        var sh = vw.length < bw.length ? vw : bw, lg = vw.length < bw.length ? bw : vw, SW = sh === vw ? V : B, LW = sh === vw ? B : V;
+        var LIKE = 0.35, best = [], a2, b2;
+        for (a2 = 0; a2 <= sh.length; a2++) { best[a2] = []; for (b2 = 0; b2 <= lg.length; b2++) best[a2][b2] = 0; }
+        for (a2 = 1; a2 <= sh.length; a2++) for (b2 = 1; b2 <= lg.length; b2++) {
+          var sm = similar(SW[sh[a2 - 1]].w, LW[lg[b2 - 1]].w);
+          best[a2][b2] = Math.max(best[a2 - 1][b2], best[a2][b2 - 1], sm >= LIKE ? best[a2 - 1][b2 - 1] + sm : 0);
+        }
+        /* walk back from the end; on a tie the pairing that sits further left is kept */
+        var ai = sh.length, bi = lg.length;
+        while (ai > 0 && bi > 0) {
+          if (best[ai][bi] === best[ai][bi - 1]) bi--;
+          else if (best[ai][bi] === best[ai - 1][bi]) ai--;
+          else { if (sh === vw) pair[sh[ai - 1]] = lg[bi - 1]; else pair[lg[bi - 1]] = sh[ai - 1]; ai--; bi--; }
+        }
+        continue;
+      }
       var head = vw.filter(function (jj) { return jj < gs[0]; }), tail = vw.filter(function (jj) { return jj >= gs[gs.length - 1]; });
       if (head.length + tail.length > bw.length) continue;
       head.forEach(function (jj, x) { pair[jj] = bw[x]; });
