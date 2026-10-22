@@ -170,7 +170,9 @@ mark.hit{background:rgba(138,42,30,.18);color:inherit;border-radius:2px;padding:
 .hbtn[aria-expanded=true]::before{content:"\25BE\00a0"}
 .hnote{margin:10px 0 0;font-size:.9rem;color:var(--ink-soft)}
 .hl{margin:10px 0 0;padding:0;list-style:none}
-.hl li{margin:0 0 10px;padding:0 0 0 12px;border-left:3px solid var(--rule);line-height:1.5}
+.hl li{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;margin:0 0 10px;padding:0 0 0 12px;border-left:3px solid var(--rule);line-height:1.5}
+.hl .tags{display:inline-flex;flex-wrap:wrap;gap:3px}
+.hl .ht{flex:1 1 12em;min-width:0}
 @media (max-width:560px){.res{padding:10px 12px}}
 @media (min-width:641px){.dhint{display:none}}
 @media (max-width:640px){

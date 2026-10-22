@@ -732,8 +732,8 @@ function hintBlock(n,idx){
       panel.appendChild(el('p','hnote','Approximate English for the changed words, in the style of the Boyd ASVBT. This is not part of the ASVBT.'));
       var ul=el('ul','hl');
       HINTS[idx].forEach(function(h){
-        var li=el('li'),m=0;h[0].forEach(function(r){m|=n[5][r][0];});
-        li.appendChild(tagsFor(m,n[1]));li.appendChild(document.createTextNode(' '+h[1]));ul.appendChild(li);
+        var li=el('li'),m=0;h[0].forEach(function(r){m|=r<0?n[6][-r-1][1]:n[5][r][0];});
+        li.appendChild(tagsFor(m,n[1]));li.appendChild(el('span','ht',h[1]));ul.appendChild(li);
       });
       panel.appendChild(ul);
     });
