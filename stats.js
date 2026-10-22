@@ -545,6 +545,36 @@ function tag(e){
   if(e==='RPmg'){var t=el('span','etag f-byz','RP');t.appendChild(el('sup',null,'mg'));t.title='Robinson-Pierpont, alternate Byzantine reading';return t;}
   return el('span','etag f-'+(FAM[e]||'crit'),e==='ECMs'?'ECM†':e);
 }
+
+/* Tags as the printed edition shows them: CT (all critical editions), CT† (ECM† with them), NA (NA27 and NA28), TR (SCR and ST).
+   The data keeps each edition separate; only the tags drawn here are grouped. */
+var CT5=['NA27','NA28','SBL','TH','WH'];
+function groupTags(mask,bi){
+  var eds=edsOf(mask),has={};eds.forEach(function(e){has[e]=true;});
+  var gone={},label={},ecmBook=!!ECMGROUPS[D.groups[bi]]||!!ECMGROUPS[BOOKS[bi]];
+  var five=CT5.every(function(e){return has[e];});
+  function take(list,name,first){list.forEach(function(e){gone[e]=true;});label[first]=name;}
+  if(five&&has.ECMs){take(CT5.concat(['ECMs']),'CT†','ECMs');label.__at='ECMs';}
+  else if(five&&(!ecmBook||has.ECM)){take(CT5.concat(has.ECM?['ECM']:[]),'CT',has.ECM?'ECM':'NA27');}
+  else if(has.NA27&&has.NA28){take(['NA27','NA28'],'NA','NA27');}
+  if(has.SCR&&has.ST){take(['SCR','ST'],'TR','SCR');}
+  var out=[];
+  eds.forEach(function(e){
+    if(label[e])out.push({e:e,t:label[e]});
+    else if(!gone[e])out.push({e:e,t:null});
+  });
+  return out;
+}
+function tagsFor(mask,bi){
+  var box=el('span','tags');
+  groupTags(mask,bi).forEach(function(g){
+    if(!g.t){box.appendChild(tag(g.e));return;}
+    var t=el('span','etag f-'+(g.t==='TR'?'tr':'crit'),g.t);
+    t.title=g.t==='TR'?'Textus Receptus editions: SCR and ST':g.t==='NA'?'NA27 and NA28':g.t==='CT†'?'ECM† and the critical editions NA27, NA28, SBL, TH and WH':'All the critical editions';
+    box.appendChild(t);
+  });
+  return box;
+}
 /* A note that is also one of the fifty variants (data.js) gets a pointer to it. Notes match by book, printed page and note letter. */
 var SPEC={};
 if(window.GNT_DATA&&window.GNT_DATA.variants){window.GNT_DATA.variants.forEach(function(v){
@@ -678,8 +708,7 @@ function renderItem(n,idx){
   var lem=el('div','lem');lem.appendChild(el('span','lab','Main text: '));var gr=el('span','gk');gr.lang='grc';WK=[idx,0];lemmaInto(gr,n[4]);WK=null;lem.appendChild(gr);li.appendChild(lem);
   n[5].forEach(function(r,ri){
     var d=el('div','rd');
-    var tags=el('span','tags');
-    edsOf(r[0]).forEach(function(e){tags.appendChild(tag(e));});
+    var tags=tagsFor(r[0],n[1]);
     if(r[0]&BIT.RPmg){}
     d.appendChild(tags);
     var t=el('span','gk');t.lang='grc';if(r[1]==='txt')t.textContent='reads the main text';else{WK=[idx,ri+1];markedText(t,r[1]);WK=null;}d.appendChild(t);
@@ -689,7 +718,7 @@ function renderItem(n,idx){
   });
   n[6].forEach(function(b){
     var d=el('div','rd br');
-    var tags=el('span','tags');edsOf(b[1]).forEach(function(e){tags.appendChild(tag(e));});
+    var tags=tagsFor(b[1],n[1]);
     d.appendChild(tags);
     d.appendChild(el('span','kd','print the main-text reading in '+(b[0]===2?'double brackets':b[0]===3?'chevrons (« »)':'brackets')));
     li.appendChild(d);
