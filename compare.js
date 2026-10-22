@@ -228,6 +228,30 @@
     return pair;
   }
 
+  /* Between two pairs that are kept, words of the reading and of the main text that have no partner are a replacement when they are
+     equally many: they pair one to one, in order. Where the reading has an ellipsis in that stretch, the reading's words before it pair
+     with the first words of the main-text stretch and its words after it with the last ones. */
+  function pairLeftovers(B, V, pair, gaps) {
+    gaps = gaps || [];
+    var anchors = [], k, s, i, j;
+    pair.forEach(function (p, jj) { if (p >= 0) anchors.push([jj, p]); });
+    for (k = 1; k < anchors.length; k++) if (anchors[k][1] < anchors[k - 1][1]) return pair;
+    var bounds = [[-1, -1]].concat(anchors, [[V.length, B.length]]);
+    for (s = 0; s < bounds.length - 1; s++) {
+      var vs = bounds[s][0] + 1, ve = bounds[s + 1][0] - 1, bs = bounds[s][1] + 1, be = bounds[s + 1][1] - 1, vw = [], bw = [];
+      for (j = vs; j <= ve; j++) vw.push(j);
+      for (i = bs; i <= be; i++) bw.push(i);
+      if (!vw.length || !bw.length) continue;
+      var gs = gaps.filter(function (g) { return g >= vs && g <= ve + 1; });
+      if (!gs.length) { if (vw.length === bw.length) vw.forEach(function (jj, x) { pair[jj] = bw[x]; }); continue; }
+      var head = vw.filter(function (jj) { return jj < gs[0]; }), tail = vw.filter(function (jj) { return jj >= gs[gs.length - 1]; });
+      if (head.length + tail.length > bw.length) continue;
+      head.forEach(function (jj, x) { pair[jj] = bw[x]; });
+      tail.forEach(function (jj, x) { pair[jj] = bw[bw.length - tail.length + x]; });
+    }
+    return pair;
+  }
+
   function detail(a, spelling) {
     var d = el('div', 'cmp-d');
     var g = el('div', 'cmp-g', spelling); g.lang = 'grc'; d.appendChild(g);
@@ -276,7 +300,7 @@
     if (B.gaps.length) ex = expandBase(n, idx, B);
     if (ex) {
       B = ex; B.gaps = [];
-      pair = preferSameBrackets(B, V, alignOrdered(B, V));
+      pair = pairLeftovers(B, V, preferSameBrackets(B, V, alignOrdered(B, V)), V.gaps);
       if (V.gaps.length) {              /* an ellipsis in the reading covers the same words of the main text that lie between its neighbors */
         var V2 = [], p2 = [], j2, g2;
         V2.gaps = [];
@@ -297,7 +321,7 @@
       }
     }
     else if (B.gaps.length && !V.gaps.length && V.length) { var ae = alignEll(B, V); pair = ae.pair; inGap = ae.fill; }
-    else pair = preferSameBrackets(B, V, align(B, V));
+    else pair = pairLeftovers(B, V, preferSameBrackets(B, V, align(B, V)));
     var inRead = {};
     pair.forEach(function (p) { if (p >= 0) inRead[p] = true; });
     function partner(i) { for (var j = 0; j < pair.length; j++) if (pair[j] === i) return V[j]; return null; }
