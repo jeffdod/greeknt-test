@@ -252,6 +252,30 @@
     return pair;
   }
 
+  /* A reading with ellipses against a main text whose ellipses have been filled in, when both have the same number of them: the
+     stretches between the ellipses correspond one to one, so each stretch of the reading is paired only with the same stretch of the
+     main text, and each reading ellipsis stands for the words of the main text that the corresponding ellipsis covers. */
+  function alignSegments(B, V) {
+    var qs = [], runs = [], i, k;
+    for (i = 0; i < B.length; i++) {
+      var isx = !!B[i].x, last = (isx ? runs : qs);
+      if (i > 0 && !!B[i - 1].x === isx) last[last.length - 1].push(i); else last.push([i]);
+    }
+    if (B.length === 0 || B[0].x || B[B.length - 1].x || runs.length !== V.gaps.length || qs.length !== runs.length + 1) return null;
+    var cuts = [0].concat(V.gaps, [V.length]), V2 = [], p2 = [];
+    V2.gaps = [];
+    for (k = 0; k < qs.length; k++) {
+      var vs = V.slice(cuts[k], cuts[k + 1]), bs = qs[k].map(function (ix) { return B[ix]; });
+      var sp = pairLeftovers(bs, vs, preferSameBrackets(bs, vs, alignOrdered(bs, vs)));
+      vs.forEach(function (v, q) { V2.push(v); p2.push(sp[q] >= 0 ? qs[k][sp[q]] : -1); });
+      if (k < runs.length) runs[k].forEach(function (ix) {
+        var cp = {}; for (var key in B[ix]) cp[key] = B[ix][key]; cp.x = true; cp.o = false; cp.c = false; cp.m = false;
+        V2.push(cp); p2.push(ix);
+      });
+    }
+    return { V: V2, pair: p2 };
+  }
+
   function detail(a, spelling) {
     var d = el('div', 'cmp-d');
     var g = el('div', 'cmp-g', spelling); g.lang = 'grc'; d.appendChild(g);
@@ -301,7 +325,9 @@
     if (ex) {
       B = ex; B.gaps = [];
       pair = pairLeftovers(B, V, preferSameBrackets(B, V, alignOrdered(B, V)), V.gaps);
-      if (V.gaps.length) {              /* an ellipsis in the reading covers the same words of the main text that lie between its neighbors */
+      var seg = V.gaps.length ? alignSegments(B, V) : null;
+      if (seg) { V = seg.V; pair = seg.pair; }
+      else if (V.gaps.length) {              /* an ellipsis in the reading covers the same words of the main text that lie between its neighbors */
         var V2 = [], p2 = [], j2, g2;
         V2.gaps = [];
         for (j2 = 0; j2 <= V.length; j2++) {
