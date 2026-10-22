@@ -31,8 +31,6 @@
 .msfilters .f label{display:block;font-weight:600;font-size:.92rem;margin-bottom:4px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
 .msfilters input,.msfilters select{display:block;width:100%;font:inherit;font-size:1.02rem;color:inherit;background:#f9f7f1;border:1px solid var(--rule);border-radius:3px;padding:.4em .6em}
 .msfilters input:focus,.msfilters select:focus{outline:2px solid var(--rubric);outline-offset:1px}
-@media (max-width:980px){.msfilters{grid-template-columns:1fr 1fr}.msfilters .f-search{grid-column:1/-1}}
-@media (max-width:520px){.msfilters{grid-template-columns:1fr}}
 .count{margin:12px 0 18px;color:var(--ink-soft)}
 
 /* Cards */
@@ -139,3 +137,6 @@
 .blist-wrap.can-down .bmore{display:block}
 .bmore:hover{filter:brightness(1.15)}
 @media (prefers-reduced-motion:reduce){.blist-wrap::before,.blist-wrap::after{transition:none}}
+
+@media (max-width:980px){.msfilters{grid-template-columns:1fr 1fr}.msfilters .f-search{grid-column:1/-1}}
+@media (max-width:520px){.msfilters{grid-template-columns:1fr}}

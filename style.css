@@ -42,10 +42,6 @@ p{margin:0 0 1em}
 .nav a{color:var(--ink-soft);text-decoration:none;font-size:.97rem;white-space:nowrap}
 .nav a:hover{color:var(--rubric)}
 .nav a[href="#public-domain"],.nav a[href="#appendices"]{display:none}
-@media (max-width:1250px){.nav a[href="#samples"]{display:none}}
-@media (max-width:1130px){.nav a[href="#explore"]{display:none}}
-@media (max-width:1060px){.nav a[href="#grid"]{display:none}}
-@media (max-width:1060px){.nav a[href="#timeline"]{display:none}}
 .navmenu{display:none;margin-left:auto;position:relative}
 .navmenu summary{list-style:none;cursor:pointer;font-size:1rem;display:flex;align-items:center;gap:.6em;color:var(--ink);border:1px solid var(--ink);border-radius:3px;padding:.35em .85em .35em .75em;user-select:none}
 .navmenu summary::before{content:"";width:16px;height:2px;background:currentColor;box-shadow:0 -5px 0 currentColor,0 5px 0 currentColor;flex:none}
@@ -54,7 +50,6 @@ p{margin:0 0 1em}
 .navmenu-list{position:absolute;right:0;top:calc(100% + 12px);min-width:220px;background:#f4f1ea;border:1px solid var(--rule);box-shadow:0 8px 24px rgba(30,40,55,.18);padding:6px 0;display:flex;flex-direction:column}
 .navmenu-list a{padding:.65em 1.2em;color:var(--ink);text-decoration:none;font-size:1.05rem}
 .navmenu-list a:hover{background:rgba(138,42,30,.07);color:var(--rubric)}
-@media (max-width:860px){.nav{display:none}.navmenu{display:block}}
 
 /* ---------- Buttons ---------- */
 .btn{display:inline-block;font:inherit;font-size:1.08rem;padding:.6em 1.3em;border-radius:3px;text-decoration:none;cursor:pointer;border:1px solid var(--rubric);transition:background .15s,color .15s}
@@ -75,14 +70,12 @@ p{margin:0 0 1em}
 .seal::before{content:"";position:absolute;inset:10px;border:1px solid rgba(140,115,67,.45);pointer-events:none}
 .seal img{display:block;width:100%;max-width:340px;height:auto;margin:0 auto}
 .seal figcaption{margin-top:18px;font-size:1rem;color:var(--ink-soft);font-style:italic}
-@media (max-width:860px){.seal{padding:28px 24px 22px}.seal img{max-width:260px}}
 .incipit{background:var(--vellum);border:1px solid var(--rule);padding:44px 44px 36px;position:relative;box-shadow:0 1px 0 #fff inset,0 18px 40px -28px rgba(31,42,54,.45)}
 .incipit .book{font-family:"GFS Didot",serif;color:var(--rubric);letter-spacing:.18em;text-align:center;font-size:1.05rem;margin-bottom:22px}
 .incipit p{font-family:"GFS Didot",serif;font-size:clamp(1.35rem,2.3vw,1.7rem);line-height:1.75;margin:0;text-align:justify;hyphens:none}
 .incipit .first{color:var(--rubric)}
 .incipit sup{color:var(--rubric);font-size:.5em;font-family:"EB Garamond",serif;margin-right:.15em}
 .incipit .ref{font-size:.95rem;color:var(--ink-soft);text-align:right;margin-top:16px;font-style:italic}
-@media (max-width:860px){.opening .wrap{grid-template-columns:1fr;gap:40px}.incipit{padding:30px 24px}}
 
 /* ---------- Sections ---------- */
 section{padding:84px 0;border-bottom:1px solid var(--rule)}
@@ -95,11 +88,9 @@ section:last-of-type{border-bottom:0}
 .entry{padding:28px 0;border-bottom:1px solid var(--rule)}
 .entry h3{color:var(--rubric);margin-bottom:8px}
 .entry p{margin:0;color:var(--ink)}
-@media (max-width:760px){.contents{grid-template-columns:1fr}}
 
 /* ---------- Explore a page ---------- */
 .explore{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:start}
-@media (max-width:860px){.explore{grid-template-columns:1fr}}
 .pagewrap{position:relative;border:1px solid var(--rule);box-shadow:0 22px 44px -30px rgba(31,42,54,.55);background:#fff;line-height:0}
 .pagewrap img{width:100%;height:auto;display:block}
 .hot{position:absolute;border:1.5px solid rgba(138,42,30,.85);box-shadow:0 0 0 1px rgba(255,255,255,.75);border-radius:3px;background:transparent;padding:0;cursor:pointer;transition:background .15s,border-color .15s}
@@ -121,7 +112,6 @@ section:last-of-type{border-bottom:0}
 
 /* ---------- Sample pages carousel ---------- */
 .samples{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:56px;align-items:center}
-@media (max-width:860px){.samples{grid-template-columns:minmax(0,1fr)}}
 .carousel{position:relative;max-width:460px;margin:0 auto;width:100%}
 .viewport{overflow:hidden}
 .track{display:flex;transition:transform .45s cubic-bezier(.3,.7,.2,1)}
@@ -136,7 +126,6 @@ section:last-of-type{border-bottom:0}
 .arrow{position:absolute;top:44%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:1px solid var(--rule);background:var(--vellum);color:var(--ink);font-size:1.5rem;line-height:1;cursor:pointer;display:grid;place-items:center}
 .arrow:hover{border-color:var(--rubric);color:var(--rubric)}
 .arrow.prev{left:-18px}.arrow.next{right:-18px}
-@media (max-width:560px){.arrow.prev{left:-4px}.arrow.next{right:-4px}}
 .counter{text-align:center;color:var(--ink-soft);font-size:1rem}
 .counter b{color:var(--ink);font-weight:500}
 .dots{display:flex;justify-content:center;gap:0;margin-top:6px}
@@ -150,7 +139,6 @@ section:last-of-type{border-bottom:0}
 .appx .num{font-family:"GFS Didot",serif;color:var(--rubric);font-size:1.25rem}
 .appx h3{margin-bottom:4px}
 .appx p{margin:0;color:var(--ink-soft)}
-@media (max-width:560px){.appx li{grid-template-columns:1fr;gap:4px}}
 
 /* ---------- Public domain ---------- */
 .pd{background:var(--ink);color:#e9e5dc;border-bottom:0}
@@ -160,7 +148,6 @@ section:last-of-type{border-bottom:0}
 .pd ul{margin:0;padding:0;list-style:none}
 .pd li{padding:12px 0;border-bottom:1px solid rgba(233,229,220,.18)}
 .pd li:last-child{border-bottom:0}
-@media (max-width:760px){.pd .wrap{grid-template-columns:1fr;gap:28px}}
 
 /* ---------- Get the edition ---------- */
 .ways{border-top:1px solid var(--rule)}
@@ -168,7 +155,6 @@ section:last-of-type{border-bottom:0}
 .way h3{margin-bottom:6px}
 .way p{margin:0;color:var(--ink-soft);max-width:var(--measure)}
 .way .fine{font-size:1rem;margin-top:10px;font-style:italic}
-@media (max-width:700px){.way{grid-template-columns:1fr;gap:16px}}
 
 footer{padding:44px 0 56px;color:var(--ink-soft);font-size:1rem}
 footer .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-between}
@@ -186,7 +172,6 @@ dialog#lightbox{border:0;padding:0;background:#fff;max-width:96vw;max-height:94v
 dialog#lightbox::backdrop{background:rgba(31,42,54,.72)}
 dialog#lightbox img{display:block;width:min(1200px,94vw);max-width:none;height:auto}
 .lbclose{position:sticky;top:10px;float:right;margin:10px 10px 0 0;z-index:2;font:inherit;font-size:1rem;background:var(--ink);color:var(--vellum);border:0;border-radius:3px;padding:.4em 1em;cursor:pointer}
-@media (max-width:860px){dialog#lightbox img{width:1000px}}
 
 /* Byline */
 .byline{font-size:1rem;color:var(--ink-soft);margin:-14px 0 28px;font-variant:small-caps;letter-spacing:.04em}
@@ -200,7 +185,6 @@ dialog#lightbox img{display:block;width:min(1200px,94vw);max-width:none;height:a
 .editions .intro{grid-column:1/-1;margin:0;max-width:var(--measure)}
 .editions .also{grid-column:1/-1}
 .editions dt sup{font-variant:normal;letter-spacing:0}
-@media (max-width:860px){.editions{grid-template-columns:1fr}}
 
 /* Fifty variants */
 details.fifty{margin-top:44px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
@@ -245,12 +229,32 @@ details.fifty[open] summary::before{content:"−"}
 .histbtn:focus-visible{outline:3px solid var(--gilt,#cdb072);outline-offset:2px}
 .histbtn:disabled{opacity:.3;cursor:default}
 .histbtn svg{display:block}
-@media (max-width:420px){.topbar .wrap{gap:12px}.histbtn{width:38px;height:38px}}
 @media print{.histnav{display:none!important}}
-@media (max-width:360px){.is-app .topbar .wrap{gap:8px}.is-app .brand{font-size:1rem;letter-spacing:.03em}.is-app .histbtn{width:34px;height:34px}.is-app .histnav{gap:2px;margin-right:-4px}}
 
 /* How to read a page: on phones the explanation is a sheet that slides up from the bottom (see script.js) */
 .sheetbar{display:none}
+
+/* The longer "Compare editions" link needs a little more room in the top bar */
+.nav{gap:11px}
+
+@media (max-width:1250px){.nav a[href="#samples"]{display:none}}
+@media (max-width:1130px){.nav a[href="#explore"]{display:none}}
+@media (max-width:1060px){.nav a[href="#grid"]{display:none}}
+@media (max-width:1060px){.nav a[href="#timeline"]{display:none}}
+@media (max-width:860px){.nav{display:none}.navmenu{display:block}}
+@media (max-width:860px){.seal{padding:28px 24px 22px}.seal img{max-width:260px}}
+@media (max-width:860px){.opening .wrap{grid-template-columns:1fr;gap:40px}.incipit{padding:30px 24px}}
+@media (max-width:760px){.contents{grid-template-columns:1fr}}
+@media (max-width:860px){.explore{grid-template-columns:1fr}}
+@media (max-width:860px){.samples{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:560px){.arrow.prev{left:-4px}.arrow.next{right:-4px}}
+@media (max-width:560px){.appx li{grid-template-columns:1fr;gap:4px}}
+@media (max-width:760px){.pd .wrap{grid-template-columns:1fr;gap:28px}}
+@media (max-width:700px){.way{grid-template-columns:1fr;gap:16px}}
+@media (max-width:860px){dialog#lightbox img{width:1000px}}
+@media (max-width:860px){.editions{grid-template-columns:1fr}}
+@media (max-width:420px){.topbar .wrap{gap:12px}.histbtn{width:38px;height:38px}}
+@media (max-width:360px){.is-app .topbar .wrap{gap:8px}.is-app .brand{font-size:1rem;letter-spacing:.03em}.is-app .histbtn{width:34px;height:34px}.is-app .histnav{gap:2px;margin-right:-4px}}
 @media (max-width:860px){
   .panel{position:fixed;top:auto;left:0;right:0;bottom:0;z-index:40;display:flex;flex-direction:column;max-height:46vh;max-height:46dvh;background:var(--vellum);border-top:3px solid var(--rubric);box-shadow:0 -10px 30px -12px rgba(20,28,38,.45);padding-bottom:env(safe-area-inset-bottom,0px);transform:translateY(105%);visibility:hidden;transition:transform .25s ease,visibility 0s linear .25s}
   .panel.open{transform:none;visibility:visible;transition:transform .25s ease}
@@ -264,8 +268,5 @@ details.fifty[open] summary::before{content:"−"}
   .panel .card{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border-left:0;padding:16px 20px 22px}
 }
 @media (max-width:860px) and (prefers-reduced-motion:reduce){.panel,.panel.open{transition:none}}
-
-/* The longer "Compare editions" link needs a little more room in the top bar */
-.nav{gap:11px}
 @media (max-width:940px){.nav{display:none}.navmenu{display:block}}
 @media (max-width:1130px){.nav{gap:10px}.nav a{font-size:.93rem}}
