@@ -706,6 +706,16 @@ function renderItem(n,idx){
   head.appendChild(el('span','caller',' note '+n[3]));
   li.appendChild(head);
   var lem=el('div','lem');lem.appendChild(el('span','lab','Main text: '));var gr=el('span','gk');gr.lang='grc';WK=[idx,0];lemmaInto(gr,n[4]);WK=null;lem.appendChild(gr);li.appendChild(lem);
+  /* the readings are listed in the order the printed edition gives them; a note's main text printed in brackets comes where the print puts it (b[2] counts the readings before it, and is left out when it follows them all) */
+  function bracketRow(b){
+    var d=el('div','rd br');
+    var tags=tagsFor(b[1],n[1]);
+    d.appendChild(tags);
+    d.appendChild(el('span','kd','print the main-text reading in '+(b[0]===2?'double brackets':b[0]===3?'chevrons (« »)':'brackets')));
+    li.appendChild(d);
+  }
+  function bracketsAt(p){n[6].forEach(function(b){if((b.length>2?b[2]:n[5].length)===p)bracketRow(b);});}
+  bracketsAt(0);
   n[5].forEach(function(r,ri){
     var d=el('div','rd');
     var tags=tagsFor(r[0],n[1]);
@@ -715,13 +725,7 @@ function renderItem(n,idx){
     var kk=r[3];if(kk.length&&r[1]!=='txt'){d.appendChild(el('span','kd',' ('+kk.map(function(k){return KINDS[k];}).join('; ')+')'));}
     li.appendChild(d);
     if(window.GNT_CMP&&window.GNT_TIP&&r[1]!=='txt'&&r[3][0]!=='other')GNT_CMP.attach(d,n,idx,ri);
-  });
-  n[6].forEach(function(b){
-    var d=el('div','rd br');
-    var tags=tagsFor(b[1],n[1]);
-    d.appendChild(tags);
-    d.appendChild(el('span','kd','print the main-text reading in '+(b[0]===2?'double brackets':b[0]===3?'chevrons (« »)':'brackets')));
-    li.appendChild(d);
+    bracketsAt(ri+1);
   });
   if(n[7])li.appendChild(el('div','rd br',null)).appendChild(el('span','kd','ECM prints a split guiding line here (ECM†).'));
   var sv=SPEC[n[1]+'/'+n[0]+'/'+n[3]];
@@ -948,12 +952,13 @@ function csvRows(idx){
     var n=N[i],base=[BOOKS[n[1]],BOOKS[n[1]]+' '+n[2],n[3],n[0],n[4]];
     var sv=SPEC[n[1]+'/'+n[0]+'/'+n[3]],ev=sv?evidenceCsv(sv):'';
     var ef=EFFSET?[EFFSET[i]===1?'Yes':'No']:[];
-    n[5].forEach(function(r){
+    function bracketCsv(b){rows.push(base.concat(['main text printed in '+(b[0]===2?'double brackets':b[0]===3?'chevrons':'brackets'),'',edsOf(b[1]).join('; '),'',ev].concat(ef)));}
+    function bracketsAtCsv(p){n[6].forEach(function(b){if((b.length>2?b[2]:n[5].length)===p)bracketCsv(b);});}
+    bracketsAtCsv(0);
+    n[5].forEach(function(r,ri){
       var kk=r[3].map(function(k){return KINDS[k];});
       rows.push(base.concat(['reading',r[1]==='txt'?'(reads the main text)':r[1],edsOf(r[0]).map(function(e){return e==='ECMs'?'ECM†':e;}).join('; '),r[1]==='txt'?'':kk.join('; '),ev].concat(ef)));
-    });
-    n[6].forEach(function(b){
-      rows.push(base.concat(['main text printed in '+(b[0]===2?'double brackets':b[0]===3?'chevrons':'brackets'),'',edsOf(b[1]).join('; '),'',ev].concat(ef)));
+      bracketsAtCsv(ri+1);
     });
     if(n[7])rows.push(base.concat(['ECM split guiding line','','ECM†','',ev].concat(ef)));
   });
