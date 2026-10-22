@@ -549,6 +549,8 @@ function tag(e){
 /* Tags as the printed edition shows them: CT (all critical editions), CT† (ECM† with them), NA (NA27 and NA28), TR (SCR and ST).
    The data keeps each edition separate; only the tags drawn here are grouped. */
 var CT5=['NA27','NA28','SBL','TH','WH'];
+/* the key a label sorts by: its letters, without the dagger, so CT† sorts as CT, ECM† as ECM and RPmg as RP */
+function labelKey(t){return t.replace('†','').replace(/^RPmg$/,'RP');}
 function groupTags(mask,bi){
   var eds=edsOf(mask),has={};eds.forEach(function(e){has[e]=true;});
   var gone={},label={},ecmBook=!!ECMGROUPS[D.groups[bi]]||!!ECMGROUPS[BOOKS[bi]];
@@ -563,6 +565,9 @@ function groupTags(mask,bi){
     if(label[e])out.push({e:e,t:label[e]});
     else if(!gone[e])out.push({e:e,t:null});
   });
+  /* the printed edition lists the labels of a reading alphabetically (CT, ECM, HF, NA, PCK, PT, RP, SBL, SCR, ST, TH, TR, WH) */
+  out.forEach(function(g,i){g.k=labelKey(g.t||g.e);g.i=i;});
+  out.sort(function(a,b){return a.k<b.k?-1:a.k>b.k?1:a.i-b.i;});
   return out;
 }
 function tagsFor(mask,bi){
@@ -952,12 +957,12 @@ function csvRows(idx){
     var n=N[i],base=[BOOKS[n[1]],BOOKS[n[1]]+' '+n[2],n[3],n[0],n[4]];
     var sv=SPEC[n[1]+'/'+n[0]+'/'+n[3]],ev=sv?evidenceCsv(sv):'';
     var ef=EFFSET?[EFFSET[i]===1?'Yes':'No']:[];
-    function bracketCsv(b){rows.push(base.concat(['main text printed in '+(b[0]===2?'double brackets':b[0]===3?'chevrons':'brackets'),'',edsOf(b[1]).join('; '),'',ev].concat(ef)));}
+    function bracketCsv(b){rows.push(base.concat(['main text printed in '+(b[0]===2?'double brackets':b[0]===3?'chevrons':'brackets'),'',edsOf(b[1]).map(function(e){return e==='ECMs'?'ECM†':e;}).sort(function(a,b){return labelKey(a)<labelKey(b)?-1:labelKey(a)>labelKey(b)?1:0;}).join('; '),'',ev].concat(ef)));}
     function bracketsAtCsv(p){n[6].forEach(function(b){if((b.length>2?b[2]:n[5].length)===p)bracketCsv(b);});}
     bracketsAtCsv(0);
     n[5].forEach(function(r,ri){
       var kk=r[3].map(function(k){return KINDS[k];});
-      rows.push(base.concat(['reading',r[1]==='txt'?'(reads the main text)':r[1],edsOf(r[0]).map(function(e){return e==='ECMs'?'ECM†':e;}).join('; '),r[1]==='txt'?'':kk.join('; '),ev].concat(ef)));
+      rows.push(base.concat(['reading',r[1]==='txt'?'(reads the main text)':r[1],edsOf(r[0]).map(function(e){return e==='ECMs'?'ECM†':e;}).sort(function(a,b){return labelKey(a)<labelKey(b)?-1:labelKey(a)>labelKey(b)?1:0;}).join('; '),r[1]==='txt'?'':kk.join('; '),ev].concat(ef)));
       bracketsAtCsv(ri+1);
     });
     if(n[7])rows.push(base.concat(['ECM split guiding line','','ECM†','',ev].concat(ef)));
