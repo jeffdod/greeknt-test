@@ -1,5 +1,5 @@
 /* Word-by-word comparison under a reading in Variant search (compare.js) */
-.cmp-btn{font:inherit;font-size:.9rem;color:var(--ink);background:transparent;border:1px solid var(--ink);border-radius:3px;padding:1px 10px;cursor:pointer}
+.cmp-btn{font:inherit;font-size:.9rem;color:var(--ink);background:transparent;border:1px solid var(--ink);border-radius:3px;padding:1px 10px;margin-left:8px;cursor:pointer}
 .cmp-btn:hover{background:rgba(31,42,54,.07)}
 .cmp-btn[aria-expanded="true"]{background:var(--rubric);border-color:var(--rubric);color:#f6efe6}
 .cmp-btn:disabled{opacity:.6;cursor:wait}
