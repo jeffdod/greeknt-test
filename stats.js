@@ -457,7 +457,7 @@ function readOf(n,ed){ // index of the reading containing ed, -1 = main text
 }
 /* Notes the English translation treats as significant (english-effect.js); null when that file is missing or does not fit these notes */
 var EFFSET=null;
-if(window.GNT_EFFECT&&GNT_EFFECT.n===N.length){EFFSET=new Uint8Array(N.length);GNT_EFFECT.ids.forEach(function(i){EFFSET[i]=1;});}
+if(window.GNT_EFFECT&&GNT_EFFECT.n===N.length){EFFSET=new Uint8Array(N.length);GNT_EFFECT.ids.forEach(function(i){EFFSET[i]=1;});(GNT_EFFECT.same||[]).forEach(function(i){EFFSET[i]=0;});}
 function matches(n,i,f){
   var g=groupOf(n);
   if(f.eff&&EFFSET&&(f.eff==='yes')!==(EFFSET[i]===1))return false;
