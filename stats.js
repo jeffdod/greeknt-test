@@ -397,7 +397,6 @@ function buildDensity(){
     });
     $('dnote').textContent='The busiest chapter is '+BOOKS[mxb]+' '+mxc+', with '+fmt(mx)+' '+(mx===1?one:many)+'. Chapters differ in length, so a longer chapter naturally has more notes. The shading runs from the lightest fifth of chapters to the darkest fifth.';
     if($('den'))$('den').hidden=mode!=='en';
-    $('dlede').textContent='Each square is one chapter, and each row is one book. A darker square means more '+many+' in that chapter. Select a square to list '+(mode==='en'?'them':'its notes')+'.';
     WH.forEach(function(k){btns[k].setAttribute('aria-pressed',k===mode?'true':'false');});
   }
   var WH=EFFSET?['all','en']:['all'];
