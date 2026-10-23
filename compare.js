@@ -381,6 +381,14 @@
     }
     else if (B.gaps.length && !V.gaps.length && V.length) { var ae = alignEll(B, V); pair = ae.pair; inGap = ae.fill; }
     else pair = pairLeftovers(B, V, preferSameBrackets(B, V, align(B, V)));
+    /* One word of the main text and one of the reading are left without partners: when they are the same kind of word (both verbs, both
+       conjunctions, and so on), they are a replacement, even where they stand in different places. */
+    if (!ex && !B.gaps.length && !V.gaps.length) {
+      var ub = [], uv = [], kindOf = function (k) { return k.a && k.a.p ? k.a.p.split(',')[0] : ''; };
+      B.forEach(function (k, i) { if (pair.indexOf(i) < 0) ub.push(i); });
+      pair.forEach(function (p, j) { if (p < 0) uv.push(j); });
+      if (ub.length === 1 && uv.length === 1 && kindOf(B[ub[0]]) && kindOf(B[ub[0]]) === kindOf(V[uv[0]])) pair[uv[0]] = ub[0];
+    }
     var inRead = {};
     pair.forEach(function (p) { if (p >= 0) inRead[p] = true; });
     function partner(i) { for (var j = 0; j < pair.length; j++) if (pair[j] === i) return V[j]; return null; }
