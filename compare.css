@@ -43,7 +43,9 @@
 .cmp-diff{background:#f3e0a8;color:var(--ink)}
 .cmp-none{font-style:italic;color:var(--ink-soft)}
 .cmp-uq{position:relative}
-.cmp-grid:has(.cmp-uq),.cmp-chips:has(.cmp-uq){row-gap:18px;padding-bottom:18px}
+.cmp-grid:has(.cmp-uq),.cmp-chips:has(.cmp-uq){row-gap:18px;padding-bottom:18px;position:relative}
+.cmp-ellmark{position:absolute;transform:translate(-50%,-50%);padding:0 3px;height:8px;display:flex;align-items:center;justify-content:center;background:var(--vellum);color:var(--rubric);font-size:1.05rem;line-height:.6;pointer-events:none}
+.cmp-ellmark span{position:relative;top:-4.5px}
 .cmp-uq::after{content:"";position:absolute;left:-3px;right:-3px;bottom:-10px;height:5px;border-bottom:1.5px solid var(--rubric)}
 .cmp-uq.cmp-bs::after{left:0;border-left:1.5px solid var(--rubric)}
 .cmp-uq.cmp-be::after{right:0;border-right:1.5px solid var(--rubric)}

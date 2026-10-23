@@ -526,6 +526,35 @@
     });
     document.addEventListener('click', function (e) { if (pinned && !holder.contains(e.target)) { pinned = ''; show(''); } });
     fill('');
+    /* Under the words an ellipsis stands for, each stretch of the red line (one per row of boxes) has a break at its center with an
+       ellipsis in it. The marks are placed once the boxes are on screen, and again whenever the layout changes. */
+    function marks() {
+      [].forEach.call(holder.querySelectorAll('.cmp-ellmark'), function (m) { m.parentNode.removeChild(m); });
+      if (!holder.offsetWidth) return;
+      [].forEach.call(holder.querySelectorAll('.cmp-grid,.cmp-chips'), function (box) {
+        var cells = box.querySelectorAll('.cmp-uq'), rows = {}, bx = box.getBoundingClientRect();
+        [].forEach.call(cells, function (c) {
+          var r = c.getBoundingClientRect(), key = Math.round(r.top);
+          var o = rows[key] = rows[key] || { l: 1e9, r: -1e9, b: -1e9 };
+          o.l = Math.min(o.l, r.left - (c.classList.contains('cmp-bs') ? 0 : 3));
+          o.r = Math.max(o.r, r.right + (c.classList.contains('cmp-be') ? 0 : 3));
+          o.b = Math.max(o.b, r.bottom);
+        });
+        Object.keys(rows).forEach(function (key) {
+          var o = rows[key];
+          if (o.r - o.l < 70) return;
+          var m = el('span', 'cmp-ellmark'), g = el('span', null, '\u2026');
+          m.setAttribute('aria-hidden', 'true'); m.appendChild(g);
+          m.style.left = ((o.l + o.r) / 2 - bx.left) + 'px';
+          m.style.top = (o.b - bx.top + 8.25) + 'px';
+          box.appendChild(m);
+        });
+      });
+    }
+    if (holder.querySelector('.cmp-uq')) {
+      if (window.ResizeObserver) new ResizeObserver(marks).observe(holder);
+      else window.addEventListener('resize', marks);
+    }
     wrap.appendChild(holder);
     return wrap;
   }
