@@ -166,7 +166,7 @@
   EN.line = function (bi, ref, pieces, force, nocopy) {
     if (!force && !EN.shown()) return null;
     var d = document.createElement('div'); d.className = 'enline';
-    var lab = document.createElement('span'); lab.className = 'enlab'; lab.textContent = 'ASVBT: '; d.appendChild(lab);
+    var lab = document.createElement('span'); lab.className = 'enlab'; var sc = document.createElement('span'); sc.className = 'ensc'; sc.textContent = 'ASVBT'; lab.appendChild(sc); lab.appendChild(document.createTextNode(': ')); d.appendChild(lab);
     var body = document.createElement('span'); body.className = 'entext'; d.appendChild(body);
     if (!EN.render(body, bi, ref, pieces)) return null;
     if (!nocopy) d.appendChild(EN.copyButton(bi, ref));

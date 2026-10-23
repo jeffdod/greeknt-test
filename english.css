@@ -2,6 +2,7 @@
 .enline,.grline{margin:8px 0 12px;font-size:1.02rem;line-height:1.55;color:var(--ink)}
 .grline{font-size:1.1rem;line-height:1.6}
 .enline .enlab,.grline .grlab{color:var(--ink-soft)}
+.enline .ensc{font-variant-caps:all-small-caps;letter-spacing:.04em}
 .enline .envn,.grline .envn{font-size:.72em;line-height:0;vertical-align:super;color:var(--ink-soft);margin:0 2px 0 4px}
 .enline .enmore,.enline .encopy,.grline .enmore{font:inherit;font-size:.88rem;line-height:1.2;color:var(--rubric);background:transparent;border:1px solid var(--rule);border-radius:3px;padding:.15em .6em;margin-left:8px;cursor:pointer;white-space:nowrap}
 .enline .enmore:hover,.enline .encopy:hover,.enline .enmore:focus-visible,.enline .encopy:focus-visible,.grline .enmore:hover,.grline .enmore:focus-visible{border-color:var(--rubric)}
