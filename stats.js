@@ -491,7 +491,9 @@ function matches(n,i,f){
   for(var gi=0;gi<f.greek.length;gi++)if(SEARCH[i].indexOf(f.greek[gi])<0)return false;
   if(f.eng.length&&GNT_EN.ready){
     var hay=ENHAY[i];if(hay===undefined)hay=ENHAY[i]=GNT_EN.haystack(n[1],n[2]);
-    if(!GNT_EN.matches(hay,f.eng))return false;
+    var ok=GNT_EN.matches(hay,f.eng);
+    if(!ok&&HINTS&&HINTS[i])ok=GNT_EN.matches(hintHay(i),f.eng);   /* the translation hints of the note count too */
+    if(!ok)return false;
   }
   if(f.rel==='split'){ if(!n[7])return false; }
   else if(f.rel==='bracket'){
@@ -721,6 +723,13 @@ function appendixLinks(root){
 var HINTSET=null;
 if(window.GNT_HINTIDS&&GNT_HINTIDS.n===N.length){HINTSET=new Uint8Array(N.length);GNT_HINTIDS.ids.forEach(function(i){HINTSET[i]=1;});}
 var HINTS=null,HINTWAIT=null;
+var HINTHAY={},HINTBAD=false;
+/* The words of a note's translation hints, ready for matching */
+function hintHay(i){
+  var h=HINTHAY[i];
+  if(h===undefined)h=HINTHAY[i]=' '+GNT_EN.norm(HINTS[i].map(function(x){return x[1];}).join(' | '))+' ';
+  return h;
+}
 function loadHints(cb){
   if(HINTS){cb(false);return;}
   if(HINTWAIT){HINTWAIT.push(cb);return;}
@@ -748,12 +757,28 @@ function hintBlock(n,idx){
       var ul=el('ul','hl');
       HINTS[idx].forEach(function(h){
         var li=el('li'),m=0;h[0].forEach(function(r){m|=r<0?n[6][-r-1][1]:n[5][r][0];});
-        li.appendChild(tagsFor(m,n[1]));li.appendChild(el('span','ht',h[1]));ul.appendChild(li);
+        li.appendChild(tagsFor(m,n[1]));
+        var ht=el('span','ht');
+        var rg=(ENPIECES.length&&window.GNT_EN&&GNT_EN.ready)?GNT_EN.ranges(h[1],ENPIECES):[],at=0;
+        rg.forEach(function(r){if(r[0]>at)ht.appendChild(document.createTextNode(h[1].slice(at,r[0])));var mk=el('mark','hit',h[1].slice(r[0],r[1]));ht.appendChild(mk);at=r[1];});
+        if(at<h[1].length)ht.appendChild(document.createTextNode(h[1].slice(at)));
+        li.appendChild(ht);ul.appendChild(li);
       });
       panel.appendChild(ul);
     });
   });
   box.appendChild(btn);box.appendChild(panel);return box;
+}
+/* A note as plain text, for pasting: the reference, the main text, then each reading with its edition labels (as the rows above it show them) */
+function noteText(n,li){
+  var out=[BOOKS[n[1]]+' '+n[2]+', page '+n[0]+', note '+n[3],'Main text: '+n[4]];
+  Array.prototype.forEach.call(li.querySelectorAll('.rd'),function(d){
+    var tg=d.querySelector('.tags'),gk=d.querySelector('.gk'),kd=d.querySelector('.kd');
+    var lab=tg?Array.prototype.map.call(tg.children,function(c){return c.textContent;}).join(', '):'';
+    var what=(gk?gk.textContent:'')+(kd?(gk?' ':'')+kd.textContent.trim():'');
+    out.push((lab?lab+': ':'')+what);
+  });
+  return out.join('\n');
 }
 function renderItem(n,idx){
   var li=el('li','res');
@@ -812,8 +837,14 @@ function renderItem(n,idx){
     var t=window.GNT_EN?GNT_EN.copyText(n[1],n[2],{english:GNT_EN.ready&&GNT_EN.shown(),greek:!!(window.GNT_GR&&GNT_GR.ready&&GNT_GR.shown())}):'';
     if(t)window.GNT_copy(t,cpb,'Copied');
   });
-  cph.appendChild(cpb);vt.appendChild(cph);
-  if(HINTSET&&HINTSET[idx])li.appendChild(hintBlock(n,idx));
+  var cnb=el('button','encopy','Copy this note');cnb.type='button';cnb.title='Copy the reference, the main text, and each reading with its editions, as plain text';
+  cnb.addEventListener('click',function(){window.GNT_copy(noteText(n,li),cnb,'Copied');});
+  cph.appendChild(cpb);cph.appendChild(cnb);vt.appendChild(cph);
+  if(HINTSET&&HINTSET[idx]){
+    var hb=hintBlock(n,idx);li.appendChild(hb);
+    /* a search that matched the hints opens them, with the words highlighted */
+    if(ENPIECES.length&&HINTS&&HINTS[idx]&&window.GNT_EN&&GNT_EN.ready&&GNT_EN.matches(hintHay(idx),ENPIECES))hb.querySelector('.hbtn').click();
+  }
   appendixLinks(li);
   return li;
 }
@@ -895,8 +926,10 @@ function update(){
   var f=getFilters();
   $('fEd').disabled=(f.rel==='split');
   var out=[];
-  var enWait=f.eng.length&&!GNT_EN.ready;
-  if(enWait)GNT_EN.load(update);
+  var hintWait=!!(f.eng.length&&HINTSET&&!HINTS&&!HINTBAD);
+  var enWait=f.eng.length&&(!GNT_EN.ready||hintWait);
+  if(f.eng.length&&!GNT_EN.ready)GNT_EN.load(update);
+  if(hintWait)loadHints(function(fail){if(fail)HINTBAD=true;update();});
   if(!f.refBad&&!enWait){for(var i=0;i<N.length;i++)if(matches(N[i],i,f))out.push(i);}
   ENPIECES=f.eng;
   if(f.sort==='most')out=sortByMost(out);
