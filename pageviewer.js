@@ -9,7 +9,7 @@
   var FOLDER = 'images/pdf-pages/';
   var LAST_PDF = 752;          /* the PDF has 752 pages */
   var MIN = 1 - OFFSET, MAX = LAST_PDF - OFFSET;
-  var dlg, img, cap, prev, next, backBtn, zoomBtn, openLink, closeBtn, first, last, cur, opener;
+  var dlg, img, cap, prev, next, backBtn, zoomBtn, openLink, closeBtn, first, last, cur, opener, wait;
   function pad(n) { n = String(n); while (n.length < 3) n = '0' + n; return n; }
   function src(p) { return FOLDER + 'p' + pad(p + OFFSET) + '.webp'; }
   function mk(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt) e.textContent = txt; return e; }
@@ -28,7 +28,8 @@
     bar.appendChild(prev); bar.appendChild(cap); bar.appendChild(next); bar.appendChild(backBtn); bar.appendChild(zoomBtn); bar.appendChild(openLink); bar.appendChild(closeBtn);
     var stage = mk('div', 'pv-stage');
     img = mk('img', 'pv-img'); img.width = 938; img.height = 1388;
-    stage.appendChild(img);
+    wait = mk('div', 'pv-wait', 'Loading the page…'); wait.setAttribute('role', 'status');
+    stage.appendChild(wait); stage.appendChild(img);
     dlg.appendChild(bar); dlg.appendChild(stage);
     document.body.appendChild(dlg);
     closeBtn.addEventListener('click', function () { dlg.close(); });
@@ -40,6 +41,8 @@
       zoomBtn.textContent = z ? 'Fit to window' : 'Enlarge';
     });
     img.addEventListener('click', function () { zoomBtn.click(); });
+    img.addEventListener('load', function () { dlg.classList.remove('pv-loading'); });
+    img.addEventListener('error', function () { wait.textContent = 'This page image could not be loaded.'; });
     dlg.addEventListener('click', function (e) { if (e.target === dlg || e.target === stage) dlg.close(); });
     dlg.addEventListener('keydown', function (e) {
       if (e.key === 'ArrowLeft') { go(-1); e.preventDefault(); }
@@ -57,7 +60,9 @@
     dlg.setAttribute('aria-label', label(cur) + ' of the edition');
     cap.textContent = label(cur) + (range && inRange ? ' (' + (cur - first + 1) + ' of ' + (last - first + 1) + ' in this reference)' : '');
     img.alt = 'Image of ' + label(cur).toLowerCase().replace(/^p/, 'p') + ' of the edition';
+    wait.textContent = 'Loading the page…'; dlg.classList.add('pv-loading');
     img.src = src(cur);
+    if (img.complete && img.naturalWidth) dlg.classList.remove('pv-loading');
     openLink.href = src(cur);
     prev.disabled = cur <= MIN; next.disabled = cur >= MAX;
     backBtn.hidden = cur === first;
