@@ -386,9 +386,13 @@
     function partner(i) { for (var j = 0; j < pair.length; j++) if (pair[j] === i) return V[j]; return null; }
     [B, V].forEach(function (list) { list.forEach(function (k, i) { if (!k.x) return; k.bs = !(list[i - 1] && list[i - 1].x); k.be = !(list[i + 1] && list[i + 1].x); }); });
     var long = B.length > SHORT || V.length > SHORT, id = 'cmp' + (++uid);
-    var info = el('div', 'cmp-info'); info.setAttribute('aria-live', 'polite');
+    /* Crasis: two words in one text, written as one word in the other. The three boxes are shown as one group. */
+    var kind = n[5][ri][3] && n[5][ri][3][0];
+    var kr = kind === 'krasis' && !B.gaps.length && !V.gaps.length && ((B.length === 2 && V.length === 1) || (B.length === 1 && V.length === 2)) ? id + '-k' : '';
+    var info = el('div', 'cmp-info' + (kr ? ' cmp-kr' : '')); info.setAttribute('aria-live', 'polite');
     var holder = el('div', 'cmp-body');
-    var DEFAULT = 'Point at a word, or select it, to see its dictionary form, Strong’s number, gloss and parsing here, with its partner’s details if they differ.';
+    var DEFAULT = kr ? 'Point at a word, or select it, to see how it relates to the others.'
+      : 'Point at a word, or select it, to see its dictionary form, Strong’s number, gloss and parsing here, with its partner’s details if they differ.';
     /* an ellipsis in the main text, or in the reading, is shown as a box of its own where it falls */
     function gapBox(kind) { var g = el('div', 'cmp-gapbox', kind === 'cell' ? '… words not quoted' : '…'); g.setAttribute('aria-label', 'An ellipsis: words that the note does not quote'); return g; }
     function withGaps(list, gaps, make, kind, host) {
@@ -422,7 +426,18 @@
       if (p < 0 || !inPlace[j]) return;
       if (!sameSpelling(B[p].w, V[j].w) || !sameAnalysis(B[p].a, V[j].a)) tint[p] = T(next++);
     });
-    if (!long) {
+    if (kr) {
+      var sp2 = B.length === 2 ? B : V;
+      var krcell = function (k, i, side, isSplit) {
+        var note = isSplit ? 'joined with “' + sp2[1 - i].w + '” (crasis)' : '“' + sp2[0].w + '” + “' + sp2[1].w + '” (crasis)';
+        return cell(k, i + 1, 'cmp-t1', '', note, side + ' word ' + (i + 1) + ', crasis', kr);
+      };
+      var kr1 = el('div', 'cmp-rowlab', 'Main text'), kg1 = el('div', 'cmp-grid'); kg1.style.setProperty('--n', 2);
+      B.forEach(function (k, i) { kg1.appendChild(krcell(k, i, 'Main text', B.length === 2)); });
+      var kr2 = el('div', 'cmp-rowlab', 'Reading'), kg2 = el('div', 'cmp-grid'); kg2.style.setProperty('--n', 2);
+      V.forEach(function (k, j) { kg2.appendChild(krcell(k, j, 'Reading', V.length === 2)); });
+      [kr1, kg1, kr2, kg2].forEach(function (e) { holder.appendChild(e); });
+    } else if (!long) {
       var cols = Math.max(B.length + B.gaps.length, V.length + V.gaps.length, 1);
       var r1 = el('div', 'cmp-rowlab', 'Main text'), g1 = el('div', 'cmp-grid'); g1.style.setProperty('--n', cols);
       withGaps(B, B.gaps, function (k, i) {
@@ -463,6 +478,15 @@
     }
     function fill(part) {
       info.textContent = '';
+      if (kr) {
+        if (part !== kr) { info.textContent = DEFAULT; return; }
+        var w2 = (B.length === 2 ? B : V), wo = (B.length === 2 ? V[0] : B[0]);
+        info.appendChild(document.createTextNode('Crasis is a spelling convention: '));
+        [w2[0].w, ' and ', w2[1].w, ' are the same two words, written together as ', wo.w, '.'].forEach(function (s, q) {
+          if (q % 2 === 0 && q < 5) { var g = el('span', null, s); g.lang = 'grc'; info.appendChild(g); } else info.appendChild(document.createTextNode(s));
+        });
+        return;
+      }
       if (!part) { if (long) info.textContent = DEFAULT; return; }
       if (!long) return;                       /* short readings show everything in their cells */
       var pr = words2(part)[0]; if (!pr) return;
