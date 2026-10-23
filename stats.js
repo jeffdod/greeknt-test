@@ -912,7 +912,7 @@ function update(){
   if(SHARE)cm.push(SHARE.indexOf('with:')===0?'notes where the alternate Byzantine reading is also the reading of '+SHARE.slice(5):'notes with an alternate Byzantine reading that is '+SHARENAME[SHARE]);
   if(ALONE){var ap=ALONE.split('.');cm.push((ap[0]==='MT'?'notes where the main text reads alone':'notes where '+ap[0]+' reads alone')+(ap[1]==='agree'?', and every other reading is the same':ap[1]==='div'?', and the others are divided':''));}
   if(CAT||SHARE||ALONE)$('catnote').textContent='Showing only '+cm.join(', and ')+', as counted on the Compare editions page. Change any other choice above to see them all.';
-  $('fCsv').disabled=!out.length;
+  $('fCsv').disabled=!out.length;$('fCsvWide').disabled=!out.length;
   showMore();drawStrip(out);writeUrl();
   buildChips(f);
   scheduleCounts();
@@ -1006,32 +1006,107 @@ function updateCounts(){
 /* ---------- CSV download ---------- */
 /* The Reference column includes the book name (Matthew 6:1) so that Excel keeps it as text; a bare 6:1 would be turned into a time of day. */
 function csvCell(v){return '"'+String(v).replace(/"/g,'""')+'"';}
-function csvRows(idx){
-  var rows=[['Book','Reference','Note','Printed page','Main text','Row type','Reading','Editions','Kind of difference','Manuscript evidence (fifty variants)'].concat(EFFSET?['Changes the English']:[])];
+/* What the optional columns hold: the verse in Greek and in the ASVBT, and the translation hint(s) of a note */
+function csvVerse(n,kind){
+  var vs=kind==='gr'?(window.GNT_GR?GNT_GR.verses(n[1],n[2]):[]):(window.GNT_EN?GNT_EN.verses(n[1],n[2]):[]);
+  if(!vs.length)return '';
+  return vs.length===1?vs[0].text:vs.map(function(v){return v.label+' '+v.text;}).join(' ');
+}
+function csvEdLabels(mask){return edsOf(mask).map(function(e){return e==='ECMs'?'ECM†':e;}).sort(function(a,b){return labelKey(a)<labelKey(b)?-1:labelKey(a)>labelKey(b)?1:0;});}
+/* the hint texts that describe reading k of note idx (a negative k is a bracketed main text) */
+function csvHintFor(idx,k){
+  if(!HINTS||!HINTS[idx])return '';
+  return HINTS[idx].filter(function(h){return h[0].indexOf(k)>=0;}).map(function(h){return h[1];}).join(' / ');
+}
+function csvHintAll(n,idx){
+  if(!HINTS||!HINTS[idx])return '';
+  return HINTS[idx].map(function(h){var m=0;h[0].forEach(function(r){m|=r<0?n[6][-r-1][1]:n[5][r][0];});return '['+csvEdLabels(m).join(' ')+'] '+h[1];}).join(' | ');
+}
+/* Book number, chapter and first verse as numbers, so that a spreadsheet can sort the notes in the order of the edition */
+function csvPos(n){var m=/^(\d+):(\d+)/.exec(n[2]);return [n[1]+1,m?+m[1]:'',m?+m[2]:''];}
+function csvRows(idx,opt){
+  opt=opt||{};
+  var rows=[['Book','Book number','Chapter','First verse','Reference','Note','Printed page','Main text','Row type','Reading','Editions','Kind of difference','Manuscript evidence (fifty variants)'].concat(EFFSET?['Changes the English']:[]).concat(opt.verse?['Greek verse','ASVBT English']:[]).concat(opt.hint?['Translation hint']:[])];
   idx.forEach(function(i){
-    var n=N[i],base=[BOOKS[n[1]],BOOKS[n[1]]+' '+n[2],n[3],n[0],n[4]];
+    var n=N[i],ps=csvPos(n),base=[BOOKS[n[1]],ps[0],ps[1],ps[2],BOOKS[n[1]]+' '+n[2],n[3],n[0],n[4]];
     var sv=SPEC[n[1]+'/'+n[0]+'/'+n[3]],ev=sv?evidenceCsv(sv):'';
     var ef=EFFSET?[EFFSET[i]===1?'Yes':'No']:[];
-    function bracketCsv(b){rows.push(base.concat(['main text printed in '+(b[0]===2?'double brackets':b[0]===3?'chevrons':'brackets'),'',edsOf(b[1]).map(function(e){return e==='ECMs'?'ECM†':e;}).sort(function(a,b){return labelKey(a)<labelKey(b)?-1:labelKey(a)>labelKey(b)?1:0;}).join('; '),'',ev].concat(ef)));}
-    function bracketsAtCsv(p){n[6].forEach(function(b){if((b.length>2?b[2]:n[5].length)===p)bracketCsv(b);});}
+    var vt=opt.verse?[csvVerse(n,'gr'),csvVerse(n,'en')]:[];
+    function put(tail,k){rows.push(base.concat(tail).concat(ef).concat(vt).concat(opt.hint?[k===null?'':csvHintFor(i,k)]:[]));}
+    function bracketCsv(b,bi){put(['main text printed in '+(b[0]===2?'double brackets':b[0]===3?'chevrons':'brackets'),'',csvEdLabels(b[1]).join('; '),'',ev],-bi-1);}
+    function bracketsAtCsv(p){n[6].forEach(function(b,bi){if((b.length>2?b[2]:n[5].length)===p)bracketCsv(b,bi);});}
     bracketsAtCsv(0);
     n[5].forEach(function(r,ri){
       var kk=r[3].map(function(k){return KINDS[k];});
-      rows.push(base.concat(['reading',r[1]==='txt'?'(reads the main text)':r[1],edsOf(r[0]).map(function(e){return e==='ECMs'?'ECM†':e;}).sort(function(a,b){return labelKey(a)<labelKey(b)?-1:labelKey(a)>labelKey(b)?1:0;}).join('; '),r[1]==='txt'?'':kk.join('; '),ev].concat(ef)));
+      put(['reading',r[1]==='txt'?'(reads the main text)':r[1],csvEdLabels(r[0]).join('; '),r[1]==='txt'?'':kk.join('; '),ev],ri);
       bracketsAtCsv(ri+1);
     });
-    if(n[7])rows.push(base.concat(['ECM split guiding line','','ECM†','',ev].concat(ef)));
+    if(n[7])put(['ECM split guiding line','','ECM†','',ev],null);
   });
   return rows;
 }
-function downloadCsv(){
+/* One row for each note, with a column for each edition that says what that edition reads there */
+var WIDEEDS=SHOWN.concat(['RPmg']);
+function csvWideRows(idx,opt){
+  opt=opt||{};
+  var rows=[['Book','Book number','Chapter','First verse','Reference','Note','Printed page','Main text'].concat(WIDEEDS.map(function(e){return e==='RPmg'?'RP mg (alternate Byzantine reading)':e;})).concat(['Editions that differ','Manuscript evidence (fifty variants)']).concat(EFFSET?['Changes the English']:[]).concat(opt.verse?['Greek verse','ASVBT English']:[]).concat(opt.hint?['Translation hints']:[])];
+  idx.forEach(function(i){
+    var n=N[i],ps=csvPos(n),g=groupOf(n);
+    var sv=SPEC[n[1]+'/'+n[0]+'/'+n[3]],ev=sv?evidenceCsv(sv):'';
+    var row=[BOOKS[n[1]],ps[0],ps[1],ps[2],BOOKS[n[1]]+' '+n[2],n[3],n[0],n[4]];
+    WIDEEDS.forEach(function(e){
+      var bit=BIT[e],cells=[];
+      n[5].forEach(function(r){
+        if(!(r[0]&bit)&&!(e==='ECM'&&(r[0]&BIT.ECMs)))return;
+        cells.push((r[1]==='txt'?'(main text)':r[1])+(e==='ECM'&&!(r[0]&bit)?' †':''));
+      });
+      var br=n[6].filter(function(b){return b[1]&bit;}).map(function(b){return b[0]===2?'double brackets':b[0]===3?'chevrons':'brackets';});
+      var t=cells.join(' / ');
+      if(!cells.length){
+        if(e==='RPmg')t='';
+        else if(e==='ECM'&&!edApplies('ECM',g))t='';
+        else t=br.length?'':'(main text)';
+      }
+      if(br.length)t+=(t?' ':'')+'[main text printed in '+br.join(' and ')+']';
+      row.push(t);
+    });
+    row.push(diffCount(i),ev);
+    if(EFFSET)row.push(EFFSET[i]===1?'Yes':'No');
+    if(opt.verse)row.push(csvVerse(n,'gr'),csvVerse(n,'en'));
+    if(opt.hint)row.push(csvHintAll(n,i));
+    rows.push(row);
+  });
+  return rows;
+}
+/* The optional columns need the verse texts and the hints; load what is wanted, then build the file */
+function csvGet(kind){
   if(!hits.length)return;
-  var text='\uFEFF'+csvRows(hits).map(function(r){return r.map(csvCell).join(',');}).join('\r\n')+'\r\n';
+  var opt={verse:!!($('fCsvVerse')&&$('fCsvVerse').checked),hint:!!($('fCsvHint')&&$('fCsvHint').checked)};
+  var btn=$(kind==='wide'?'fCsvWide':'fCsv'),was=btn.textContent;btn.disabled=true;btn.textContent='Preparing…';
+  var todo=(opt.verse?2:0)+(opt.hint?1:0),failed=false;
+  function done(){
+    if(--todo>0)return;
+    btn.disabled=false;btn.textContent=was;
+    if(failed){btn.title='A column could not be loaded; check your connection and try again.';return;}
+    var rows=kind==='wide'?csvWideRows(hits,opt):csvRows(hits,opt);
+    csvSave(rows,kind==='wide'?'greek-nt-notes-one-row-per-note.csv':'greek-nt-notes.csv');
+  }
+  todo++;                       /* released at the end of this function */
+  if(opt.verse){
+    if(window.GNT_GR&&!GNT_GR.ready)GNT_GR.load(function(){done();});else done();
+    if(window.GNT_EN&&!GNT_EN.ready)GNT_EN.load(function(){done();});else done();
+  }
+  if(opt.hint)loadHints(function(fail){if(fail)failed=true;done();});
+  done();
+}
+function csvSave(rows,name){
+  var text='﻿'+rows.map(function(r){return r.map(csvCell).join(',');}).join('\r\n')+'\r\n';
   var blob=new Blob([text],{type:'text/csv;charset=utf-8'});
   var url=URL.createObjectURL(blob),a=document.createElement('a');
-  a.href=url;a.download='greek-nt-notes.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);
   setTimeout(function(){URL.revokeObjectURL(url);},1000);
 }
+function downloadCsv(){csvGet('rows');}
 var ALONE='';   /* set only by a link from the Stats page: an edition (or the main text) reading alone */
 var SHARE='';   /* set only by a link from the Stats page: who else reads an alternate Byzantine reading */
 var CAT='';   /* set only by a link from the Stats page: a kind of difference chosen there */
@@ -1092,6 +1167,7 @@ function init(){
   $('more').addEventListener('click',showMore);
   var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){drawStrip(hits);},150);});
   $('fCsv').addEventListener('click',downloadCsv);
+  $('fCsvWide').addEventListener('click',function(){csvGet('wide');});
   var sh=$('fShare');
   if(sh)sh.addEventListener('click',function(){writeUrl();window.GNT_copy(location.href,sh,'Link copied');});
   var had=readUrl();
