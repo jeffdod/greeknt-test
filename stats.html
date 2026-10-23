@@ -65,7 +65,7 @@
   <div class="xhero">
     <div class="wrap">
       <h1>Compare editions</h1>
-      <p class="lede">Every note in the Edition Apparatus, counted. See where the notes fall, what kinds of difference they record, how each of the eleven editions compares with the main text, and where the Robinson-Pierpont edition offers an alternate Byzantine reading (RP<sup>mg</sup>). Every bar and square opens the matching notes in <a href="search.html">Explore variants</a>.</p>
+      <p class="lede">Every note in the Edition Apparatus, counted. See where the notes fall, including where they change the English, what kinds of difference they record, how each of the eleven editions compares with the main text, and where the Robinson-Pierpont edition offers an alternate Byzantine reading (RP<sup>mg</sup>). Every bar and square opens the matching notes in <a href="search.html">Explore variants</a>.</p>
     </div>
   </div>
 
@@ -73,8 +73,10 @@
     <div class="wrap">
       <div class="head">
         <h2>Where the notes fall</h2>
-        <p class="lede">Each square is one chapter, and each row is one book. A darker square means more notes in that chapter. Select a square to list its notes.</p>
+        <p class="lede" id="dlede">Each square is one chapter, and each row is one book. A darker square means more notes in that chapter. Select a square to list its notes.</p>
       </div>
+      <div class="kpick" id="dpick" role="group" aria-label="What to shade"></div>
+      <p class="caveat" id="den" hidden></p>
       <div class="dkey" id="dkey" aria-hidden="true"></div>
       <div class="dscroll"><div class="dmap" id="dmap"></div></div>
       <p class="caveat dhint">On a narrow screen, swipe the squares sideways to reach later chapters.</p>
@@ -160,6 +162,7 @@
 
 <script src="notes-data.js"></script>
 <script src="pageviewer.js"></script>
+<script src="english-effect.js"></script>
 <script src="stats.js"></script>
 <script src="menu.js"></script>
 <script src="backnav.js"></script>

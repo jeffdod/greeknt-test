@@ -197,7 +197,7 @@ function buildRP(){
   var hit=[];
   N.forEach(function(n,i){if(rpShared(n)>=0)hit.push(i);});
   var tot=hit.length;
-  $('rplede').innerHTML='In '+fmt(tot)+' of the '+fmt(N.length)+' notes ('+pct(tot/N.length)+'), the Robinson-Pierpont edition offers an alternate Byzantine reading, marked RP<sup>mg</sup>. These are the places where its editors judged that the Byzantine tradition is divided. Select any bar to list those notes.';
+  $('rplede').innerHTML='In '+fmt(tot)+' of the '+fmt(N.length)+' notes ('+pct(tot/N.length)+'), the Robinson-Pierpont edition offers an alternate Byzantine reading, marked RP<sup>mg</sup>. These are the places where its editors judged that the Byzantine tradition is divided.'+(EFFSET?' Of these, '+fmt(hit.filter(function(i){return EFFSET[i]===1;}).length)+' ('+pct(hit.filter(function(i){return EFFSET[i]===1;}).length/tot)+') change the English.':'')+' Select any bar to list those notes.';
   /* books, ranked by alternate readings per 100 verses, so that long books do not win just by being long */
   var VERSES=[1071,678,1150,879,1004,433,437,257,149,155,104,95,89,47,113,83,46,25,303,108,105,61,105,13,14,25,404];
   $('rpwho').innerHTML='The books are ranked by how many RP<sup>mg</sup> notes they have for every 100 verses, with the highest at the top. Using the number of verses as the measure of size puts long and short books on an equal footing: a book with 5 notes in 50 verses, for example, has 10 notes per 100 verses. The large figure beside each book is that number, the bar is drawn to match it, and the small text gives the notes and verses behind it. Select a bar to list those notes.';
@@ -360,35 +360,52 @@ function fitLabels(){
 /* ---------- where the notes fall ---------- */
 var CHAPS=[28,16,24,21,28,16,16,13,6,6,4,4,5,3,6,4,3,1,13,5,5,3,5,1,1,1,22];
 function buildDensity(){
-  var cnt=BOOKS.map(function(_,bi){return new Array(CHAPS[bi]+1).fill(0);});
-  N.forEach(function(n){var m=n[2].match(/^(\d+)/);if(m&&cnt[n[1]]&&cnt[n[1]][+m[1]]!==undefined)cnt[n[1]][+m[1]]++;});
-  var all=[];cnt.forEach(function(a){for(var i=1;i<a.length;i++)all.push(a[i]);});
-  var sorted=all.slice().sort(function(a,b){return a-b;});
-  var cuts=[1,2,3,4].map(function(q){return sorted[Math.floor(sorted.length*q/5)];});
-  function level(v){var l=0;for(var i=0;i<cuts.length;i++)if(v>cuts[i])l=i+1;return l;}
-  var lo=[0].concat(cuts.map(function(c){return c+1;}));
-  var key=$('dkey');
-  key.appendChild(document.createTextNode('Fewer notes '));
-  for(var l=0;l<5;l++){var s=el('i','dsw d'+l);s.title=(l===4?lo[l]+' or more':lo[l]+' to '+cuts[l])+' notes';key.appendChild(s);}
-  key.appendChild(document.createTextNode(' More notes'));
-  var map=$('dmap'),mx=0,mxb=0,mxc=0;
-  BOOKS.forEach(function(b,bi){
-    var row=el('div','drow');
-    row.appendChild(el('span','dname',b));
-    var cells=el('span','dcells');
-    for(var c=1;c<=CHAPS[bi];c++){
-      var v=cnt[bi][c];
-      var a=el('a','dc d'+level(v));
-      a.href=searchUrl({ref:b+' '+c});
-      a.title=b+' '+c+': '+fmt(v)+' note'+(v===1?'':'s');
-      a.setAttribute('aria-label',b+' '+c+', '+fmt(v)+' note'+(v===1?'':'s')+'. List them.');
-      a.appendChild(el('span',null,String(c)));
-      cells.appendChild(a);
-      if(v>mx){mx=v;mxb=bi;mxc=c;}
-    }
-    row.appendChild(cells);map.appendChild(row);
-  });
-  $('dnote').textContent='The busiest chapter is '+BOOKS[mxb]+' '+mxc+', with '+fmt(mx)+' notes. Chapters differ in length, so a longer chapter naturally has more notes. The shading runs from the lightest fifth of chapters to the darkest fifth.';
+  var mode='all',bar=$('dpick'),btns={};
+  var cntAll=BOOKS.map(function(_,bi){return new Array(CHAPS[bi]+1).fill(0);}),cntEn=BOOKS.map(function(_,bi){return new Array(CHAPS[bi]+1).fill(0);});
+  N.forEach(function(n,i){var m=n[2].match(/^(\d+)/);if(m&&cntAll[n[1]]&&cntAll[n[1]][+m[1]]!==undefined){cntAll[n[1]][+m[1]]++;if(EFFSET&&EFFSET[i]===1)cntEn[n[1]][+m[1]]++;}});
+  /* the range, across the editions, of the share of an edition's differences that change the English */
+  var lo2=1,hi2=0;
+  if(EFFSET)SHOWN.forEach(function(e){var t=0,c=0;N.forEach(function(n,i){if(!edApplies(e,groupOf(n))||!differs(n,e))return;t++;if(EFFSET[i]===1)c++;});if(t){var q=c/t;if(q<lo2)lo2=q;if(q>hi2)hi2=q;}});
+  var LABEL={all:'All notes',en:'Notes that change the English'};
+  function draw(){
+    var cnt=mode==='en'?cntEn:cntAll,one=mode==='en'?'note that changes the English':'note',many=mode==='en'?'notes that change the English':'notes';
+    var all=[];cnt.forEach(function(a){for(var i=1;i<a.length;i++)all.push(a[i]);});
+    var sorted=all.slice().sort(function(a,b){return a-b;});
+    var cuts=[1,2,3,4].map(function(q){return sorted[Math.floor(sorted.length*q/5)];});
+    function level(v){var l=0;for(var i=0;i<cuts.length;i++)if(v>cuts[i])l=i+1;return l;}
+    var lo=[0].concat(cuts.map(function(c){return c+1;}));
+    var key=$('dkey');key.textContent='';
+    key.appendChild(document.createTextNode('Fewer notes '));
+    for(var l=0;l<5;l++){var s=el('i','dsw d'+l);s.title=(l===4?lo[l]+' or more':lo[l]+' to '+cuts[l])+' '+many;key.appendChild(s);}
+    key.appendChild(document.createTextNode(' More notes'));
+    var map=$('dmap'),mx=0,mxb=0,mxc=0;map.textContent='';
+    BOOKS.forEach(function(b,bi){
+      var row=el('div','drow');
+      row.appendChild(el('span','dname',b));
+      var cells=el('span','dcells');
+      for(var c=1;c<=CHAPS[bi];c++){
+        var v=cnt[bi][c];
+        var a=el('a','dc d'+level(v));
+        a.href=searchUrl(mode==='en'?{ref:b+' '+c,eff:'yes'}:{ref:b+' '+c});
+        a.title=b+' '+c+': '+fmt(v)+' '+(v===1?one:many);
+        a.setAttribute('aria-label',b+' '+c+', '+fmt(v)+' '+(v===1?one:many)+'. List them.');
+        a.appendChild(el('span',null,String(c)));
+        cells.appendChild(a);
+        if(v>mx){mx=v;mxb=bi;mxc=c;}
+      }
+      row.appendChild(cells);map.appendChild(row);
+    });
+    $('dnote').textContent='The busiest chapter is '+BOOKS[mxb]+' '+mxc+', with '+fmt(mx)+' '+(mx===1?one:many)+'. Chapters differ in length, so a longer chapter naturally has more notes. The shading runs from the lightest fifth of chapters to the darkest fifth.';
+    if($('den'))$('den').hidden=mode!=='en';
+    $('dlede').textContent='Each square is one chapter, and each row is one book. A darker square means more '+many+' in that chapter. Select a square to list '+(mode==='en'?'them':'its notes')+'.';
+    WH.forEach(function(k){btns[k].setAttribute('aria-pressed',k===mode?'true':'false');});
+  }
+  var WH=EFFSET?['all','en']:['all'];
+  if(EFFSET){
+    WH.forEach(function(k){var b=el('button','kbtn',LABEL[k]);b.type='button';b.addEventListener('click',function(){mode=k;draw();});bar.appendChild(b);btns[k]=b;});
+    $('den').textContent='Across the eleven editions, between '+Math.round(lo2*100)+' and '+Math.round(hi2*100)+' percent of each edition’s differences from the main text change the English. Across all '+fmt(N.length)+' notes, '+Math.round(EFFSET.reduce(function(a,v){return a+v;},0)/N.length*100)+' percent do. Whether a note changes the English is a judgment, not a measurement; see Explore variants for how the marks were made.';
+  }else{bar.hidden=true;}
+  draw();
 }
 
 /* ---------- filters ---------- */
