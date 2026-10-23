@@ -33,9 +33,27 @@
   }
   function queue() { if (!queued) { queued = true; window.requestAnimationFrame(update); } }
 
+  /* On Explore variants the first stop is the edge of the results list: its first note going up, its last note (with the Show more
+     button) going down. Pressed again, or when already there, the button goes to the very top or bottom of the page. */
+  function resultsStop(m) {
+    var list = document.getElementById('results');
+    if (!list || !list.children.length) return null;
+    var y = window.pageYOffset || document.documentElement.scrollTop || 0, vh = window.innerHeight, GAP = 12;
+    var bar = document.querySelector('.topbar'), head = bar ? bar.getBoundingClientRect().height : 0;
+    if (m === 'top') {
+      var top = list.getBoundingClientRect().top + y - head - GAP;
+      return y > top + 40 ? Math.max(0, top) : null;
+    }
+    var more = document.getElementById('more'), endEl = more && !more.hidden ? more : list;
+    var end = endEl.getBoundingClientRect().bottom + y + GAP - vh;
+    return y + 40 < end ? end : null;
+  }
+
   btn.addEventListener('click', function () {
     var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var to = mode === 'top' ? 0 : document.documentElement.scrollHeight;
+    var stop = resultsStop(mode);
+    if (stop !== null) to = stop;
     window.scrollTo({ top: to, behavior: calm ? 'auto' : 'smooth' });
   });
   window.addEventListener('scroll', queue, { passive: true });
