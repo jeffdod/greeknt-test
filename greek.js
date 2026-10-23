@@ -113,7 +113,7 @@
     var vs = GR.verses(b, ref);
     if (!vs.length) return null;
     var d = document.createElement('div'); d.className = 'grline';
-    var lab = document.createElement('span'); lab.className = 'grlab'; lab.textContent = 'Greek: '; d.appendChild(lab);
+    var lab = document.createElement('span'); lab.className = 'grlab'; lab.textContent = 'Main text: '; d.appendChild(lab);
     var body = document.createElement('span'); body.className = 'grtext'; body.lang = 'grc'; d.appendChild(body);
     var mk = withGaps(i, vs, marksOf(i)), rest = null, LIM = 3;
     vs.forEach(function (v, n) {
