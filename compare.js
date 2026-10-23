@@ -388,6 +388,12 @@
       B.forEach(function (k, i) { if (pair.indexOf(i) < 0) ub.push(i); });
       pair.forEach(function (p, j) { if (p < 0) uv.push(j); });
       if (ub.length === 1 && uv.length === 1 && kindOf(B[ub[0]]) && kindOf(B[ub[0]]) === kindOf(V[uv[0]])) pair[uv[0]] = ub[0];
+      /* Otherwise, a negative word left over on each side (ουδε and ουδενι, say) is a replacement even when one is a conjunction and the other an adjective */
+      else {
+        var neg = function (k) { return k.a && k.a.p && /negative/i.test(k.a.p); };
+        var nb = ub.filter(function (i) { return neg(B[i]); }), nv = uv.filter(function (j) { return neg(V[j]); });
+        if (nb.length === 1 && nv.length === 1) pair[nv[0]] = nb[0];
+      }
     }
     var inRead = {};
     pair.forEach(function (p) { if (p >= 0) inRead[p] = true; });
