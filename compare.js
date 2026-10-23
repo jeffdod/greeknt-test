@@ -92,8 +92,8 @@
     }
     while (i < n) { fa[ix[i]] = true; gy[j < m ? iy[j] : y.length] = true; i++; }
     while (j < m) { fb[iy[j]] = true; gx[i < n ? ix[i] : x.length] = true; j++; }
-    /* a gap is where one word has letters the other lacks and has no marked letter of its own beside it */
-    function keep(g, f) { var o = {}; Object.keys(g).forEach(function (k) { k = +k; if (!f[k] && !f[k - 1]) o[k] = true; }); return o; }
+    /* a gap line is drawn only in a word with no marked letter at all: it has letters the other word lacks, and nothing else to show */
+    function keep(g, f) { var o = {}; if (f.some(Boolean)) return o; Object.keys(g).forEach(function (k) { o[+k] = true; }); return o; }
     return [x, fa, y, fb, keep(gx, fa), keep(gy, fb)];
   }
   /* How a word differs from its partner: '' (not at all), 'spell' (the same word, spelled differently), 'form' (the same dictionary
