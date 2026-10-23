@@ -26,6 +26,7 @@
 .cmp-chip.cmp-om,.cmp-chip.cmp-add{border-style:dashed;background-color:transparent}
 .cmp-chip.cmp-add{background:repeating-linear-gradient(135deg,#fff,#fff 5px,#f1ece0 5px,#f1ece0 10px)}
 .cmp-chip.cmp-t1{background:#e4ecf5}.cmp-chip.cmp-t2{background:#f3e6d2}.cmp-chip.cmp-t3{background:#e3efdf}.cmp-chip.cmp-t4{background:#efe0ea}.cmp-chip.cmp-t5{background:#e9e6c9}.cmp-chip.cmp-t6{background:#dcebea}
+.cmp-gap{display:inline-block;width:1px;height:1.05em;margin:0 -.5px;background:#e3b923;vertical-align:-.18em}
 .cmp-sp{background:#f3e0a8;color:inherit;padding:0 1px;border-radius:2px;text-decoration:underline wavy var(--rubric) 1px;text-underline-offset:3px}
 .cmp-gapbox{display:flex;align-items:center;justify-content:center;min-width:34px;padding:2px 8px;border:1px dashed var(--ink-soft);border-radius:3px;color:var(--ink-soft);font-style:italic;font-size:.9rem;text-align:center}
 .cmp-grid .cmp-gapbox{min-height:112px}

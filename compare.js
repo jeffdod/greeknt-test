@@ -84,14 +84,17 @@
       L[i][j] = same(x[ix[i]], y[iy[j]]) ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
     var fa = x.map(function () { return false; }), fb = y.map(function () { return false; });
     i = 0; j = 0;
+    var gx = {}, gy = {};
     while (i < n && j < m) {
       if (same(x[ix[i]], y[iy[j]])) { i++; j++; }
-      else if (L[i + 1][j] >= L[i][j + 1]) { fa[ix[i]] = true; i++; }
-      else { fb[iy[j]] = true; j++; }
+      else if (L[i + 1][j] >= L[i][j + 1]) { fa[ix[i]] = true; gy[iy[j]] = true; i++; }
+      else { fb[iy[j]] = true; gx[ix[i]] = true; j++; }
     }
-    while (i < n) { fa[ix[i++]] = true; }
-    while (j < m) { fb[iy[j++]] = true; }
-    return [x, fa, y, fb];
+    while (i < n) { fa[ix[i]] = true; gy[j < m ? iy[j] : y.length] = true; i++; }
+    while (j < m) { fb[iy[j]] = true; gx[i < n ? ix[i] : x.length] = true; j++; }
+    /* a gap is where one word has letters the other lacks and has no marked letter of its own beside it */
+    function keep(g, f) { var o = {}; Object.keys(g).forEach(function (k) { k = +k; if (!f[k] && !f[k - 1]) o[k] = true; }); return o; }
+    return [x, fa, y, fb, keep(gx, fa), keep(gy, fb)];
   }
   /* How a word differs from its partner: '' (not at all), 'spell' (the same word, spelled differently), 'form' (the same dictionary
      word in a different form), 'parse' (the same spelling, parsed differently) or 'word' (a different dictionary word).
@@ -114,8 +117,10 @@
     var d = diffMarks(k.w, other.w), x = d[0], f = d[1], run = '', on = false, any = false;
     function flush() { if (!run) return; if (on) { e.appendChild(el('mark', 'cmp-sp', run)); any = true; } else e.appendChild(document.createTextNode(run)); run = ''; }
     if (k.o) e.appendChild(document.createTextNode('['));
-    x.forEach(function (c, i) { if (!!f[i] !== on) { flush(); on = !!f[i]; } run += c; });
+    var gp = d[4];
+    x.forEach(function (c, i) { if (gp[i]) { flush(); var gs = el('span', 'cmp-gap'); gs.setAttribute('aria-hidden', 'true'); e.appendChild(gs); } if (!!f[i] !== on) { flush(); on = !!f[i]; } run += c; });
     flush();
+    if (gp[x.length]) { var ge = el('span', 'cmp-gap'); ge.setAttribute('aria-hidden', 'true'); e.appendChild(ge); }
     if (k.c) e.appendChild(document.createTextNode(']'));
     return rel;
   }
