@@ -619,15 +619,36 @@
             lab.appendChild(tg.cloneNode(true));
           });
           d.parentNode.insertBefore(panel, d.nextSibling);
-          /* a column is 120px at least; when a Greek word is wider than that, the columns are made as wide as the word needs */
-          var need = 120;
-          [].forEach.call(panel.querySelectorAll('.cmp-grid .cmp-cell .cmp-gk'), function (g) {
-            var c = g.closest('.cmp-cell'), cs = getComputedStyle(c);
-            var rg = document.createRange(); rg.selectNodeContents(g);
-            var w = rg.getBoundingClientRect().width + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + 2;
-            if (w > need) need = Math.ceil(w);
-          });
-          if (need > 120) [].forEach.call(panel.querySelectorAll('.cmp-grid'), function (g) { g.style.setProperty('--cw', need + 'px'); });
+          /* A long Greek word first gets a slightly wider column (at most WIDEN px more than the standard 120px);
+             if it still does not fit beside the cell number, its type is scaled down just enough. */
+          var WIDEN = 12, STD = 120;
+          var fitAll = function () {
+            var grids = [].slice.call(panel.querySelectorAll('.cmp-grid')), gks = [].slice.call(panel.querySelectorAll('.cmp-cell .cmp-gk'));
+            if (!gks.length || !gks[0].closest('.cmp-cell').clientWidth) return;
+            grids.forEach(function (g) { g.style.removeProperty('--cw'); });
+            gks.forEach(function (g) { g.style.fontSize = ''; g.style.whiteSpace = 'nowrap'; });
+            var need = STD;
+            gks.forEach(function (g) {
+              var c = g.closest('.cmp-cell'), cs = getComputedStyle(c), gs = getComputedStyle(g), pos = c.querySelector('.cmp-pos');
+              var rg = document.createRange(); rg.selectNodeContents(g);
+              var w = rg.getBoundingClientRect().width + parseFloat(gs.paddingLeft) + parseFloat(gs.paddingRight)
+                + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + 2 + (pos ? pos.offsetWidth + 6 : 0);
+              if (w > need) need = Math.ceil(w);
+            });
+            var cw = Math.min(need, STD + WIDEN);
+            if (cw > STD) grids.forEach(function (g) { g.style.setProperty('--cw', cw + 'px'); });
+            gks.forEach(function (g) {
+              var c = g.closest('.cmp-cell'), cs = getComputedStyle(c), gs = getComputedStyle(g), pos = c.querySelector('.cmp-pos');
+              var avail = c.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - (pos ? pos.offsetWidth + 6 : 0)
+                - parseFloat(gs.paddingLeft) - parseFloat(gs.paddingRight);
+              var rg = document.createRange(); rg.selectNodeContents(g);
+              var w = rg.getBoundingClientRect().width;
+              if (w > avail) g.style.fontSize = (parseFloat(gs.fontSize) * avail / w - .25).toFixed(2) + 'px';
+            });
+          };
+          fitAll();
+          var lastW = panel.clientWidth;
+          if (window.ResizeObserver) new ResizeObserver(function () { if (panel.clientWidth !== lastW) { lastW = panel.clientWidth; fitAll(); } }).observe(panel);
           btn.setAttribute('aria-expanded', 'true'); btn.textContent = 'Hide comparison';
         }); };
         if (window.GNT_GR && n[4].indexOf('…') >= 0) window.GNT_GR.load(go); else go();
