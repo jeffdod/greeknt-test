@@ -56,13 +56,11 @@
     if (s) s.split(';').forEach(function (t) { var p = t.split(','); (out[p[0]] = out[p[0]] || []).push([+p[1], +p[2]]); });
     return (MARKS[i] = out);
   }
-  /* A note whose main text has an ellipsis, and whose readings do not all have one (or has no reading but "reads the main text"):
-     its words are shaded from the first word to the last, with a lighter shade on the words in the gaps. */
+  /* A note whose main text has an ellipsis: its words are shaded from the first word to the last,
+     with a lighter shade on the words the ellipsis stands for. */
   function spans(i) {
     var n = GNT_NOTES.notes[i];
-    if (!n || n[4].indexOf('\u2026') < 0) return false;
-    var rs = n[5].filter(function (r) { return r[1] !== 'txt'; });
-    return !(rs.length && rs.every(function (r) { return r[1].indexOf('\u2026') >= 0; }));
+    return !!n && n[4].indexOf('\u2026') >= 0;
   }
   /* The stretches to shade in each verse: the note's own, plus (for a spanning note) the gaps between them */
   function withGaps(i, vs, mk) {
@@ -127,7 +125,8 @@
       host.appendChild(document.createTextNode(' '));
     });
     var any = vs.some(function (v) { return (mk[v.key] || []).some(function (r) { return !r[2]; }); });
-    if (any) { var cap = document.createElement('div'); cap.className = 'grnote'; cap.textContent = 'Shaded words are the ones the note covers.'; d.appendChild(cap); }
+    var gaps = vs.some(function (v) { return (mk[v.key] || []).some(function (r) { return r[2]; }); });
+    if (any) { var cap = document.createElement('div'); cap.className = 'grnote'; cap.textContent = 'Shaded words are the ones the note covers' + (gaps ? '; the lighter shade marks the words an ellipsis stands for.' : '.'); d.appendChild(cap); }
     if (rest) {
       var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'enmore';
       var more = 'Show all ' + vs.length + ' verses', less = 'Show fewer';
