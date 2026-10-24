@@ -81,22 +81,19 @@
       if (v >= 1 && h.length) moveTo(Math.min(v, h.length) - 1);
       ui.form.hidden = true;
     });
+    /* A tap or click is an ordinary click, which works the same on every device. Holding the button down (a press that lasts
+       past DELAY) starts the repeating, speeding-up move instead; letting go then ends it and the click that follows is ignored. */
     [[ui.prev, -1], [ui.next, 1]].forEach(function (p) {
       var btn = p[0], dir = p[1];
-      btn.addEventListener('pointerdown', function (e) {
-        if (e.button > 0) return;
-        try { btn.setPointerCapture(e.pointerId); } catch (x) {}
-        startHold(dir, btn); e.preventDefault();
+      btn.addEventListener('pointerdown', function (e) { if (e.button > 0) return; startHold(dir, btn); });
+      btn.addEventListener('click', function () {
+        if (swallow) { swallow = false; return; }
+        var q = posOf(pin); if (q >= 0) moveTo(q + dir);
       });
-      btn.addEventListener('pointerup', function () { stopHold(true); });
-      btn.addEventListener('pointercancel', function () { stopHold(true); });
       btn.addEventListener('contextmenu', function (e) { e.preventDefault(); });
-      btn.addEventListener('keydown', function (e) {
-        if (e.key !== 'Enter' && e.key !== ' ') return;
-        e.preventDefault();
-        if (!e.repeat) { var q = posOf(pin); if (q >= 0) moveTo(q + dir); }
-      });
     });
+    ['pointerup', 'pointercancel'].forEach(function (t) { document.addEventListener(t, function () { stopHold(true); }, true); });
+    window.addEventListener('blur', function () { stopHold(false); });
   }
 
   function paint(shownPos) {
@@ -137,13 +134,15 @@
     if (p >= 0) moveTo(p);
   }
 
+  var swallow = false;
   function startHold(dir, btn) {
     stopHold(false);
     var p0 = posOf(pin), h = res().hits(); if (p0 < 0) return;
     var t0 = Date.now(), last = h.length - 1;
-    hold = { btn: btn, pos: Math.max(0, Math.min(last, p0 + dir)), wait: null, timer: null };
-    btn.classList.add('pinheld'); paint(hold.pos);
+    hold = { btn: btn, pos: p0, active: false, wait: null, timer: null, key: false };
     hold.wait = setTimeout(function () {
+      if (!hold) return;
+      hold.active = true; btn.classList.add('pinheld');
       hold.timer = setInterval(function () {
         var st = Math.min(SPEEDS.length - 1, Math.max(0, Math.floor((Date.now() - t0 - DELAY) / STAGE)));
         hold.pos = Math.max(0, Math.min(last, hold.pos + dir * SPEEDS[st]));
@@ -157,7 +156,11 @@
     clearTimeout(hold.wait); clearInterval(hold.timer);
     hold.btn.classList.remove('pinheld');
     var h = hold; hold = null;
-    if (commit) moveTo(h.pos); else paint();
+    if (h.active) {
+      swallow = !h.key;                 /* the click that ends a long press must not move the pin a second time */
+      if (swallow) setTimeout(function () { swallow = false; }, 400);
+      if (commit) moveTo(h.pos); else paint();
+    }
   }
 
   document.addEventListener('keydown', function (e) {
@@ -167,9 +170,11 @@
     if (document.querySelector('dialog[open]') || posOf(pin) < 0) return;
     e.preventDefault();
     if (e.repeat) return;
-    startHold(e.key === 'ArrowLeft' ? -1 : 1, e.key === 'ArrowLeft' ? ui.prev : ui.next);
+    var dirK = e.key === 'ArrowLeft' ? -1 : 1, q = posOf(pin);
+    if (q >= 0) moveTo(q + dirK);
+    startHold(dirK, dirK < 0 ? ui.prev : ui.next); hold.key = true;
   });
-  document.addEventListener('keyup', function (e) { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') stopHold(true); });
+  document.addEventListener('keyup', function (e) { if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && hold && hold.key) stopHold(true); });
 
   window.GNT_PIN = {
     decorate: decorate,
