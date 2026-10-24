@@ -480,7 +480,7 @@
       if (!V.length) c2.appendChild(el('div', 'cmp-empty', 'This reading has no words here: it omits the main text.'));
       [l1, c1, l2, c2].forEach(function (e) { holder.appendChild(e); });
     }
-    if (ex) holder.appendChild(el('p', 'cmp-legend', vEll ? 'Both notes, the main text’s and the reading’s, quote only some of the words in this passage and use “…” for the rest. The words in a red bracketed span are the ones the notes leave out, taken from the verse.' : 'The main text’s note quotes only some of the words in this passage and uses “…” for the rest. The words in a red bracketed span are the ones the note leaves out, taken from the verse.'));
+    if (ex) holder.appendChild(el('p', 'cmp-legend', vEll ? 'Both notes use “…” for words they leave out. The red bracketed span marks those words, taken from the verse.' : 'The main text’s note uses “…” for words it leaves out. The red bracketed span marks those words, taken from the verse.'));
     holder.appendChild(info);
 
     function words2(part) {
