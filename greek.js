@@ -126,8 +126,8 @@
     });
     var any = vs.some(function (v) { return (mk[v.key] || []).some(function (r) { return !r[2]; }); });
     var gaps = vs.some(function (v) { return (mk[v.key] || []).some(function (r) { return r[2]; }); });
-    var cap = document.createElement('div'); cap.className = 'grnote';
-    cap.textContent = (any ? 'Shaded words are the ones the note covers' + (gaps ? '; the lighter shade marks the words an ellipsis stands for. ' : '. ') : '') + 'Point at or tap any word for its meaning and parsing.'; d.appendChild(cap);
+    if (any) { var cap = document.createElement('div'); cap.className = 'grnote';
+    cap.textContent = (any ? 'Shaded words are the ones the note covers' + (gaps ? '; the lighter shade marks the words an ellipsis stands for.' : '.') : ''); d.appendChild(cap); }
     if (rest) {
       var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'enmore';
       var more = 'Show all ' + vs.length + ' verses', less = 'Show fewer';

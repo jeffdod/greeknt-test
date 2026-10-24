@@ -22,6 +22,7 @@
 .copyhold .encopy{font:inherit;font-size:.88rem;line-height:1.2;color:var(--rubric);background:transparent;border:1px solid var(--rule);border-radius:3px;padding:.15em .6em;cursor:pointer;white-space:nowrap}
 .copyhold .encopy:hover,.copyhold .encopy:focus-visible{border-color:var(--rubric)}
 .copyhold .encopy+.encopy{margin-left:8px}
+.tiphint{font-size:.86rem;font-style:italic;line-height:1.4;color:var(--ink-soft);margin:-4px 0 12px}
 .sortrow .showen,.sortrow .showgr{display:inline-flex;align-items:center;gap:8px;margin-left:12px;cursor:pointer;color:var(--ink)}
 .sortrow .showen input,.sortrow .showgr input{width:20px;height:20px;margin:0;accent-color:var(--rubric)}
 

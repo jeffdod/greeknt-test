@@ -839,7 +839,7 @@ function renderItem(n,idx){
   });
   var cnb=el('button','encopy','Copy this note');cnb.type='button';cnb.title='Copy the reference, the main text, and each reading with its editions, as plain text';
   cnb.addEventListener('click',function(){window.GNT_copy(noteText(n,li),cnb,'Copied');});
-  cph.appendChild(cpb);cph.appendChild(cnb);vt.appendChild(cph);
+  cph.appendChild(cpb);cph.appendChild(cnb);vt.appendChild(cph);vt.appendChild(el('p','tiphint','Point at or tap any Greek word in this note for its meaning and parsing.'));
   if(HINTSET&&HINTSET[idx]){
     var hb=hintBlock(n,idx);li.appendChild(hb);
     /* a search that matched the hints opens them, with the words highlighted */
