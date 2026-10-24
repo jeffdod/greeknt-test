@@ -619,6 +619,15 @@
             lab.appendChild(tg.cloneNode(true));
           });
           d.parentNode.insertBefore(panel, d.nextSibling);
+          /* a column is 120px at least; when a Greek word is wider than that, the columns are made as wide as the word needs */
+          var need = 120;
+          [].forEach.call(panel.querySelectorAll('.cmp-grid .cmp-cell .cmp-gk'), function (g) {
+            var c = g.closest('.cmp-cell'), cs = getComputedStyle(c);
+            var rg = document.createRange(); rg.selectNodeContents(g);
+            var w = rg.getBoundingClientRect().width + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + 2;
+            if (w > need) need = Math.ceil(w);
+          });
+          if (need > 120) [].forEach.call(panel.querySelectorAll('.cmp-grid'), function (g) { g.style.setProperty('--cw', need + 'px'); });
           btn.setAttribute('aria-expanded', 'true'); btn.textContent = 'Hide comparison';
         }); };
         if (window.GNT_GR && n[4].indexOf('…') >= 0) window.GNT_GR.load(go); else go();
