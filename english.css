@@ -53,7 +53,6 @@
 .gwtip .gt-var .vk{font-size:.88rem;font-style:italic;color:var(--ink-soft)}
 .gwtip .gt-var .vm{font-size:.9rem;margin-top:6px;color:var(--ink-soft)}
 .gwtip .gt-var .vc{color:var(--ink)}
-.gwtip .gt-var .linkbtn{font:inherit;background:none;border:0;padding:0;cursor:pointer;color:var(--rubric);text-decoration:underline;text-underline-offset:2px}
 .gwtip .gt-count,.gwtip .gt-many,.gwtip .gt-none,.gwtip .gt-load{color:var(--ink-soft);font-size:.9rem;margin-top:4px}
 
 @media (max-width:640px){.sortrow .showen,.sortrow .showgr{margin-left:0;flex:1 1 100%}}

@@ -915,7 +915,7 @@ function fillGreek(){
   }
 }
 /* The "Other readings of this word" part of the word popup (see greek-tip.js): the readings of the note whose shaded words were pointed at */
-window.GNT_VARIANTS=function(idx,w){
+window.GNT_VARIANTS=function(idx){
   var n=N[idx];if(!n)return null;
   var rs=[];n[5].forEach(function(r){if(r[1]!=='txt')rs.push(r);});
   if(!rs.length)return null;
@@ -929,10 +929,6 @@ window.GNT_VARIANTS=function(idx,w){
   });
   if(rs.length>4)box.appendChild(el('div','vm','and '+(rs.length-4)+' more in the note'));
   if(EFFSET&&EFFSET[idx])box.appendChild(el('div','vm vc','This note changes the English.'));
-  var li=w.closest&&w.closest('li.res');
-  if(li){var m=el('div','vm'),a=el('button','linkbtn','See this note');a.type='button';
-    a.addEventListener('click',function(){var f=li.querySelector('.lem')||li;f.scrollIntoView({behavior:'smooth',block:'start'});li.classList.add('flash');setTimeout(function(){li.classList.remove('flash');},1600);});
-    m.appendChild(a);box.appendChild(m);}
   return box;
 };
 var ENPIECES=[];
