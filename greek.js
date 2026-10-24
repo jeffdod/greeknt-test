@@ -113,7 +113,7 @@
     var vs = GR.verses(b, ref);
     if (!vs.length) return null;
     var d = document.createElement('div'); d.className = 'grline';
-    var lab = document.createElement('span'); lab.className = 'grlab'; lab.textContent = 'Main text (shaded: the words this note covers): '; d.appendChild(lab);
+    var lab = document.createElement('span'); lab.className = 'grlab'; lab.textContent = 'Main text: '; d.appendChild(lab);
     var body = document.createElement('span'); body.className = 'grtext'; body.lang = 'grc'; d.appendChild(body);
     var mk = withGaps(i, vs, marksOf(i)), rest = null, LIM = 3;
     CURN = i;
@@ -128,6 +128,8 @@
       host.appendChild(document.createTextNode(' '));
     });
     CURN = -1;
+    var any = vs.some(function (v) { return (mk[v.key] || []).some(function (r) { return !r[2]; }); });
+    if (any) { var cap = document.createElement('div'); cap.className = 'grnote'; cap.textContent = 'Shaded words are the ones the note covers.'; d.appendChild(cap); }
     if (rest) {
       var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'enmore';
       var more = 'Show all ' + vs.length + ' verses', less = 'Show fewer';

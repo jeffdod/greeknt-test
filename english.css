@@ -1,6 +1,7 @@
 /* The English text under a note or a variant (see english.js), and the Greek text under a note (see greek.js) */
 .enline,.grline{margin:8px 0 12px;font-size:1.02rem;line-height:1.55;color:var(--ink)}
 .grline{font-size:1.1rem;line-height:1.6}
+.grline .grnote{font-size:.86rem;font-style:italic;line-height:1.4;color:var(--ink-soft);margin:1px 0 0}
 .enline .enlab,.grline .grlab{color:var(--ink-soft)}
 .enline .ensc{font-variant-caps:all-small-caps;letter-spacing:.04em}
 .enline .envn,.grline .envn{font-size:.72em;line-height:0;vertical-align:super;color:var(--ink-soft);margin:0 2px 0 4px}

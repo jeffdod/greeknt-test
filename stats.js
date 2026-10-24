@@ -914,12 +914,12 @@ function fillGreek(){
     h.removeAttribute('data-i');h.textContent='';if(ln)h.appendChild(ln);
   }
 }
-/* The "Other readings of this word" part of the word popup (see greek-tip.js): the readings of the note whose shaded words were pointed at */
+/* The "Readings in this note" part of the word popup (see greek-tip.js): the readings of the note whose shaded words were pointed at */
 window.GNT_VARIANTS=function(idx){
   var n=N[idx];if(!n)return null;
   var rs=[];n[5].forEach(function(r){if(r[1]!=='txt')rs.push(r);});
   if(!rs.length)return null;
-  var box=el('div','gt-var');box.appendChild(el('div','vh','Other readings of this word'));
+  var box=el('div','gt-var');box.appendChild(el('div','vh','Readings in this note'));
   rs.slice(0,4).forEach(function(r){
     var row=el('div','vr');row.appendChild(tagsFor(r[0],n[1]));
     var k=r[3]&&r[3][0];
