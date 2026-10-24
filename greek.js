@@ -125,15 +125,39 @@
       host.appendChild(document.createTextNode(' '));
     });
     var any = vs.some(function (v) { return (mk[v.key] || []).some(function (r) { return !r[2]; }); });
-    /* round the two outer ends of each unbroken shaded stretch */
+    /* One unbroken shaded stretch: a verse number (and the space before it) between two shaded words is shaded too, so the
+       stretch is not cut at the verse division, and only the two outer ends of the whole stretch are rounded. */
     (function () {
-      var run = [];
+      var toks = body.querySelectorAll('.gw, sup.envn'), run = [];
       function end() { if (run.length) { run[0].classList.add('vl'); run[run.length - 1].classList.add('vr'); } run = []; }
-      body.querySelectorAll('.gw').forEach(function (w) {
+      function bridge(sup, p, q) {
+        var u = document.createElement('u'), par = sup.parentNode, sp = sup.previousSibling;
+        u.className = 'vw' + (p.classList.contains('vg') || q.classList.contains('vg') ? ' vg' : '');
+        par.insertBefore(u, sp && sp.nodeType === 3 && !sp.nodeValue.trim() ? sp : sup);
+        if (sp && sp.nodeType === 3 && !sp.nodeValue.trim()) u.appendChild(sp);
+        u.appendChild(sup);
+        /* the punctuation that ends the first word's verse (or opens the next) is shaded as well */
+        var after = pu_last(p), before = nu_first(q);
+        if (after) { var ua = document.createElement('u'); ua.className = u.className; after.parentNode.insertBefore(ua, after); ua.appendChild(after); }
+        if (before) { var ub = document.createElement('u'); ub.className = u.className; before.parentNode.insertBefore(ub, before); ub.appendChild(before); }
+      }
+      /* text right after the last shaded piece of a word, and right before the first, when it is not shaded */
+      function pu_last(u) { var n = u.nextSibling; return n && n.nodeType === 3 && n.nodeValue.trim() ? n : null; }
+      function nu_first(u) { var n = u.previousSibling; return n && n.nodeType === 3 && n.nodeValue.trim() ? n : null; }
+      for (var t = 0; t < toks.length; t++) {
+        var w = toks[t];
+        if (w.tagName === 'SUP') {
+          var pw = toks[t - 1], nw = toks[t + 1];
+          if (pw && nw && pw.classList.contains('gw') && nw.classList.contains('gw')) {
+            var pu = pw.querySelectorAll('u.vw'), nu = nw.querySelectorAll('u.vw');
+            if (pu.length && nu.length) bridge(w, pu[pu.length - 1], nu[0]);
+          }
+          continue;
+        }
         var us = w.querySelectorAll('u.vw');
-        if (!us.length) { end(); return; }
+        if (!us.length) { end(); continue; }
         for (var k = 0; k < us.length; k++) run.push(us[k]);
-      });
+      }
       end();
     })();
     var gaps = vs.some(function (v) { return (mk[v.key] || []).some(function (r) { return r[2]; }); });
