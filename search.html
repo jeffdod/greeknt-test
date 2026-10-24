@@ -177,6 +177,34 @@
         <label class="showgr"><input type="checkbox" id="fShowGr" checked> Show the Greek under each note</label>
         <label class="showen"><input type="checkbox" id="fShowEn" checked> Show the English under each note</label>
       </div>
+      <details class="readnote" id="readnote">
+        <summary>How to read a note</summary>
+        <div class="hw-body">
+          <p class="hw-intro">Each note in the results looks like the one below, shown here with its comparison and translation hints opened. Tap a number in the note to read about that part, or a line in the list below it to see which part it describes.</p>
+          <ol class="results hw-note" id="hwA" data-note="333"></ol>
+          <ol class="hw-keys" data-for="hwA">
+            <li data-part="head">Where the note is: the verse, the page of the printed edition (the number opens that page), and the note’s letter on the page.</li>
+            <li data-part="main">The main text: the words of this edition that the note is about. Readings are given without accents, as the apparatus prints them.</li>
+            <li data-part="reading">A reading. The tags name the editions that print it; point at a group tag such as CT to see which editions it stands for. RP<sup>mg</sup> is the alternate Byzantine reading in the Robinson-Pierpont edition. The words in italics say what kind of difference it is.</li>
+            <li data-part="cmpbtn">“Show comparison” opens a word-by-word comparison of the reading with the main text, as it is open here. The button then reads “Hide comparison.”</li>
+            <li data-part="cmp">The comparison: the main text on the top row and the reading below it, one card for each Greek word, numbered in order. Point at a word, or select it, to see which word it matches in the other row.</li>
+            <li data-part="card">Each card gives the word’s dictionary form and Strong’s number, a short meaning, and how the word is parsed. A note in red at the foot of a card, such as “different form,” says how the word differs from its partner, and the part that differs is highlighted.</li>
+            <li data-part="greek">The verse in the Greek of this edition. The shaded words are the ones the note covers.</li>
+            <li data-part="english">The verse in English (ASVBT). Neither this line nor the Greek above it is a variant reading.</li>
+            <li data-part="copy">Copy the verse, or the whole note, as plain text. Point at or tap any Greek word in the note for its meaning and parsing.</li>
+            <li data-part="hints">“Translation hints,” opened here, gives one line for each reading, under the same edition tags, saying how that reading would change the English, or that it would not.</li>
+          </ol>
+          <p class="hw-key">An edition that a note does not name reads the same as the main text.</p>
+          <h3 class="hw-h">Notes with an ellipsis (…)</h3>
+          <ol class="results hw-note" id="hwB" data-note="752"></ol>
+          <ol class="hw-keys" data-for="hwB">
+            <li data-part="main">In the main text, “…” stands for words left out to save space: the words between the first and the last. The Greek verse shows them with a lighter shade.</li>
+            <li data-part="reading">In a reading, “…” means the words in between are the same as in the main text. Only the words at the ends differ: here “and” in place of “or.”</li>
+            <li data-part="reading2">A reading without “…”, such as “om.”, covers the whole stretch, the words in between included. Here the whole clause is missing.</li>
+            <li data-part="cmp">In the comparison of a reading with “…”, the words the ellipsis stands for are shown as well, marked as not quoted, so that the whole stretch can be compared.</li>
+          </ol>
+        </div>
+      </details>
       <ol class="results" id="results"></ol>
       <p class="more"><button type="button" class="btn btn-quiet" id="more" hidden>Show more</button></p>
       <div class="caveat">
@@ -231,6 +259,7 @@
 <script src="greek-tip.js"></script>
 <script src="compare.js"></script>
 <script src="stats.js"></script>
+<script src="readnote.js"></script>
 <script src="explorer.js"></script>
 <script src="menu.js"></script>
 <script src="backnav.js"></script>

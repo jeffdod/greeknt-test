@@ -636,7 +636,7 @@ var HLP=[];
 function foldChar(c){return c.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\u03c2/g,'\u03c3');}
 /* Character ranges of text that match any search piece, using the same folding as the search itself */
 function hlRanges(text){
-  if(!HLP.length)return [];
+  if(!HLP.length||QUIET)return [];
   var ns='',map=[],sp=true;
   for(var i=0;i<text.length;i++){
     var ch=text.charAt(i);
@@ -740,10 +740,10 @@ function loadHints(cb){
   s.onerror=function(){done(true);};
   document.head.appendChild(s);
 }
-function hintBlock(n,idx){
-  var box=el('div','hints'),btn=el('button','hbtn','Translation hints');
-  btn.type='button';btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-controls','hint'+idx);
-  var panel=el('div','hpanel');panel.id='hint'+idx;panel.hidden=true;
+function hintBlock(n,idx,pfx){
+  var box=el('div','hints'),btn=el('button','hbtn','Translation hints'),q=QUIET;
+  btn.type='button';btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-controls',(pfx||'')+'hint'+idx);
+  var panel=el('div','hpanel');panel.id=(pfx||'')+'hint'+idx;panel.hidden=true;
   var built=false;
   btn.addEventListener('click',function(){
     if(btn.getAttribute('aria-expanded')==='true'){btn.setAttribute('aria-expanded','false');panel.hidden=true;return;}
@@ -759,7 +759,7 @@ function hintBlock(n,idx){
         var li=el('li'),m=0;h[0].forEach(function(r){m|=r<0?n[6][-r-1][1]:n[5][r][0];});
         li.appendChild(tagsFor(m,n[1]));
         var ht=el('span','ht');
-        var rg=(ENPIECES.length&&window.GNT_EN&&GNT_EN.ready)?GNT_EN.ranges(h[1],ENPIECES):[],at=0;
+        var rg=(!q&&ENPIECES.length&&window.GNT_EN&&GNT_EN.ready)?GNT_EN.ranges(h[1],ENPIECES):[],at=0;
         rg.forEach(function(r){if(r[0]>at)ht.appendChild(document.createTextNode(h[1].slice(at,r[0])));var mk=el('mark','hit',h[1].slice(r[0],r[1]));ht.appendChild(mk);at=r[1];});
         if(at<h[1].length)ht.appendChild(document.createTextNode(h[1].slice(at)));
         li.appendChild(ht);ul.appendChild(li);
@@ -780,7 +780,8 @@ function noteText(n,li){
   });
   return out.join('\n');
 }
-function renderItem(n,idx){
+/* pfx keeps the ids of a second copy of a note (the example in “How to read a note”) apart from those in the results */
+function renderItem(n,idx,pfx){
   var li=el('li','res');
   var head=el('div','rhd');
   var ref=el('b',null,BOOKS[n[1]]+' '+n[2]);
@@ -841,9 +842,9 @@ function renderItem(n,idx){
   cnb.addEventListener('click',function(){window.GNT_copy(noteText(n,li),cnb,'Copied');});
   cph.appendChild(cpb);cph.appendChild(cnb);vt.appendChild(cph);vt.appendChild(el('p','tiphint','Point at or tap any Greek word in this note for its meaning and parsing.'));
   if(HINTSET&&HINTSET[idx]){
-    var hb=hintBlock(n,idx);li.appendChild(hb);
+    var hb=hintBlock(n,idx,pfx);li.appendChild(hb);
     /* a search that matched the hints opens them, with the words highlighted */
-    if(ENPIECES.length&&HINTS&&HINTS[idx]&&window.GNT_EN&&GNT_EN.ready&&GNT_EN.matches(hintHay(idx),ENPIECES))hb.querySelector('.hbtn').click();
+    if(!QUIET&&ENPIECES.length&&HINTS&&HINTS[idx]&&window.GNT_EN&&GNT_EN.ready&&GNT_EN.matches(hintHay(idx),ENPIECES))hb.querySelector('.hbtn').click();
   }
   appendixLinks(li);
   return li;
@@ -897,24 +898,30 @@ function stripHover(){
   });
 }
 /* Put the English under each result once the English text is here */
-function fillEnglish(){
+function fillEnglish(root,quiet){
   if(!window.GNT_EN||!GNT_EN.ready)return;
-  var hs=$('results').querySelectorAll('.enhold[data-b]');
+  var hs=(root||$('results')).querySelectorAll('.enhold[data-b]');
   for(var i=0;i<hs.length;i++){
-    var h=hs[i],ln=GNT_EN.line(+h.dataset.b,h.dataset.r,ENPIECES,true,true);
+    var h=hs[i],ln=GNT_EN.line(+h.dataset.b,h.dataset.r,quiet?[]:ENPIECES,true,true);
     h.removeAttribute('data-b');h.textContent='';if(ln)h.appendChild(ln);
   }
 }
 /* Put the Greek of each result's verse, with the note's words shaded, once the Greek text is here */
-function fillGreek(){
+function fillGreek(root){
   if(!window.GNT_GR||!GNT_GR.ready)return;
-  var hs=$('results').querySelectorAll('.grhold[data-i]');
+  var hs=(root||$('results')).querySelectorAll('.grhold[data-i]');
   for(var i=0;i<hs.length;i++){
     var h=hs[i],ln=GNT_GR.line(+h.dataset.i,+h.dataset.b,h.dataset.r,true);
     h.removeAttribute('data-i');h.textContent='';if(ln)h.appendChild(ln);
   }
 }
 var ENPIECES=[];
+/* QUIET is set while the example notes of “How to read a note” are drawn, so that a search does not mark them */
+var QUIET=false;
+window.GNT_STATS={
+  render:function(i,pfx){QUIET=true;try{return renderItem(N[i],i,pfx);}finally{QUIET=false;}},
+  fill:function(root){fillEnglish(root,true);fillGreek(root);}
+};
 function showMore(){
   var ul=$('results'),end=Math.min(hits.length,shown+PER);
   for(;shown<end;shown++)ul.appendChild(renderItem(N[hits[shown]],hits[shown]));
