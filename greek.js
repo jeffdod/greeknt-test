@@ -1,8 +1,8 @@
-/* The Greek text under a note (the edition's own text, verse by verse), with the words the note is about underlined.
+/* The Greek text under a note (the edition's own text, verse by verse), with the words the note is about shaded.
    The text is in greek-data.js, which is loaded the first time it is needed. */
 (function () {
   'use strict';
-  var state = 0, waiting = [], KEYS = [], MARKS = {};
+  var state = 0, waiting = [], KEYS = [], MARKS = {}, CURN = -1;
   var GR = window.GNT_GR = { ready: false };
 
   GR.load = function (cb) {
@@ -49,7 +49,7 @@
     });
     return out;
   };
-  /* The underlined stretches of one note, as {verseKey: [[start, end], ...]} */
+  /* The shaded stretches of one note, as {verseKey: [[start, end], ...]} */
   function marksOf(i) {
     if (MARKS[i]) return MARKS[i];
     var out = {}, s = GNT_GRK.m[i];
@@ -57,14 +57,14 @@
     return (MARKS[i] = out);
   }
   /* A note whose main text has an ellipsis, and whose readings do not all have one (or has no reading but "reads the main text"):
-     its words are underlined from the first word to the last, with a lighter line under the words in the gaps. */
+     its words are shaded from the first word to the last, with a lighter shade on the words in the gaps. */
   function spans(i) {
     var n = GNT_NOTES.notes[i];
     if (!n || n[4].indexOf('\u2026') < 0) return false;
     var rs = n[5].filter(function (r) { return r[1] !== 'txt'; });
     return !(rs.length && rs.every(function (r) { return r[1].indexOf('\u2026') >= 0; }));
   }
-  /* The stretches to underline in each verse: the note's own, plus (for a spanning note) the gaps between them */
+  /* The stretches to shade in each verse: the note's own, plus (for a spanning note) the gaps between them */
   function withGaps(i, vs, mk) {
     var out = {};
     vs.forEach(function (v) { out[v.key] = (mk[v.key] || []).map(function (r) { return [r[0], r[1], 0]; }); });
@@ -82,14 +82,14 @@
     return out;
   }
   /* Put text into parent with every word in its own span (so a word can be tapped for its dictionary entry), and the
-     stretches in rg underlined. b is the book and key the verse, so the word can be found in the word data. */
+     stretches in rg shaded. b is the book and key the verse, so the word can be found in the word data. */
   function plain(host, text, a, z, rg) {
     var at = a;
     rg.forEach(function (r) {
       var s = Math.max(r[0], a), e = Math.min(r[1], z);
       if (s >= e) return;
       if (s > at) host.appendChild(document.createTextNode(text.slice(at, s)));
-      var u = document.createElement('u'); u.className = r[2] ? 'vw vg' : 'vw'; u.textContent = text.slice(s, e); host.appendChild(u);
+      var u = document.createElement('u'); u.className = r[2] ? 'vw vg' : 'vw'; if (!r[2] && CURN >= 0) u.dataset.i = CURN; u.textContent = text.slice(s, e); host.appendChild(u);
       at = e;
     });
     if (at < z) host.appendChild(document.createTextNode(text.slice(at, z)));
@@ -106,16 +106,17 @@
     }
     if (at < text.length) plain(parent, text, at, text.length, rg);
   }
-  /* The Greek line for note number i (a position in notes-data.js): a label and the verses with the note's words underlined.
+  /* The Greek line for note number i (a position in notes-data.js): a label and the verses with the note's words shaded.
      Long passages show the first two verses, with a button for the rest. Returns null when there is no Greek. */
   GR.line = function (i, b, ref, force) {
     if (!force && !GR.shown()) return null;
     var vs = GR.verses(b, ref);
     if (!vs.length) return null;
     var d = document.createElement('div'); d.className = 'grline';
-    var lab = document.createElement('span'); lab.className = 'grlab'; lab.textContent = 'Main text: '; d.appendChild(lab);
+    var lab = document.createElement('span'); lab.className = 'grlab'; lab.textContent = 'Main text (shaded: the words this note covers): '; d.appendChild(lab);
     var body = document.createElement('span'); body.className = 'grtext'; body.lang = 'grc'; d.appendChild(body);
     var mk = withGaps(i, vs, marksOf(i)), rest = null, LIM = 3;
+    CURN = i;
     vs.forEach(function (v, n) {
       var host = body;
       if (vs.length > LIM && n >= 2) {
@@ -126,6 +127,7 @@
       put(host, v.text, mk[v.key] || [], b, v.key);
       host.appendChild(document.createTextNode(' '));
     });
+    CURN = -1;
     if (rest) {
       var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'enmore';
       var more = 'Show all ' + vs.length + ' verses', less = 'Show fewer';

@@ -832,7 +832,7 @@ function renderItem(n,idx){
   var vt=el('div','vtext');li.appendChild(vt);
   var grh=el('div','grhold');grh.dataset.i=idx;grh.dataset.b=n[1];grh.dataset.r=n[2];grh.appendChild(el('span','ldwait','Loading the Greek…'));vt.appendChild(grh);
   var enh=el('div','enhold');enh.dataset.b=n[1];enh.dataset.r=n[2];enh.appendChild(el('span','ldwait','Loading the English…'));vt.appendChild(enh);
-  var cph=el('div','copyhold'),cpb=el('button','encopy','Copy verse');cpb.type='button';cpb.title='Copy the reference and the Greek and English that are showing, without the underlining';
+  var cph=el('div','copyhold'),cpb=el('button','encopy','Copy verse');cpb.type='button';cpb.title='Copy the reference and the Greek and English that are showing, without the shading';
   cpb.addEventListener('click',function(){
     var t=window.GNT_EN?GNT_EN.copyText(n[1],n[2],{english:GNT_EN.ready&&GNT_EN.shown(),greek:!!(window.GNT_GR&&GNT_GR.ready&&GNT_GR.shown())}):'';
     if(t)window.GNT_copy(t,cpb,'Copied');
@@ -905,7 +905,7 @@ function fillEnglish(){
     h.removeAttribute('data-b');h.textContent='';if(ln)h.appendChild(ln);
   }
 }
-/* Put the Greek of each result's verse, with the note's words underlined, once the Greek text is here */
+/* Put the Greek of each result's verse, with the note's words shaded, once the Greek text is here */
 function fillGreek(){
   if(!window.GNT_GR||!GNT_GR.ready)return;
   var hs=$('results').querySelectorAll('.grhold[data-i]');
@@ -914,6 +914,27 @@ function fillGreek(){
     h.removeAttribute('data-i');h.textContent='';if(ln)h.appendChild(ln);
   }
 }
+/* The "Other readings of this word" part of the word popup (see greek-tip.js): the readings of the note whose shaded words were pointed at */
+window.GNT_VARIANTS=function(idx,w){
+  var n=N[idx];if(!n)return null;
+  var rs=[];n[5].forEach(function(r){if(r[1]!=='txt')rs.push(r);});
+  if(!rs.length)return null;
+  var box=el('div','gt-var');box.appendChild(el('div','vh','Other readings of this word'));
+  rs.slice(0,4).forEach(function(r){
+    var row=el('div','vr');row.appendChild(tagsFor(r[0],n[1]));
+    var k=r[3]&&r[3][0];
+    if(k==='omitall'||r[1]==='om.')row.appendChild(el('span','vk','left out'));
+    else{var t=el('span','vt',r[1]);t.lang='grc';row.appendChild(t);if(k&&KINDS[k]&&k!=='omit'&&k!=='add'&&k!=='repl'&&k!=='other')row.appendChild(el('span','vk',KINDS[k]));}
+    box.appendChild(row);
+  });
+  if(rs.length>4)box.appendChild(el('div','vm','and '+(rs.length-4)+' more in the note'));
+  if(EFFSET&&EFFSET[idx])box.appendChild(el('div','vm vc','This note changes the English.'));
+  var li=w.closest&&w.closest('li.res');
+  if(li){var m=el('div','vm'),a=el('button','linkbtn','See this note');a.type='button';
+    a.addEventListener('click',function(){var f=li.querySelector('.lem')||li;f.scrollIntoView({behavior:'smooth',block:'start'});li.classList.add('flash');setTimeout(function(){li.classList.remove('flash');},1600);});
+    m.appendChild(a);box.appendChild(m);}
+  return box;
+};
 var ENPIECES=[];
 function showMore(){
   var ul=$('results'),end=Math.min(hits.length,shown+PER);
