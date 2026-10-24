@@ -10,9 +10,9 @@
 .vd-body .enline{max-width:var(--measure);margin:0 0 22px;font-size:1.1rem}
 
 /* the words a note is about, shaded in the Greek verse */
-.grline u.vw{text-decoration:none;background:rgba(138,42,30,.17);border-bottom:1px solid var(--rubric);-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.grline u.vw{text-decoration:none;background:rgba(138,42,30,.2);-webkit-box-decoration-break:clone;box-decoration-break:clone;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 /* the words in the gaps of a note that spans an ellipsis */
-.grline u.vw.vg{background:rgba(138,42,30,.07);border-bottom:1px dotted var(--rubric)}
+.grline u.vw.vg{background:rgba(138,42,30,.09)}
 
 /* the switches that hide the English and the Greek under the notes */
 .no-en .enhold,.no-gr .grhold{display:none}
@@ -46,14 +46,6 @@
 .gwtip .gt-gloss{margin:2px 0 4px}
 .gwtip .gt-code{font-weight:600;color:var(--rubric)}
 .gwtip .gt-soft{color:var(--ink-soft);font-size:.9rem}
-.gwtip .gt-var{margin-top:10px;padding-top:8px;border-top:1px solid var(--rule)}
-.gwtip .gt-var .vh{color:var(--ink-soft);font-size:.9rem;margin-bottom:4px}
-.gwtip .gt-var .vr{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px;margin:3px 0}
-.gwtip .gt-var .tags{display:inline-flex;flex-wrap:wrap;gap:4px}
-.gwtip .gt-var .vt{font-size:1.05rem}
-.gwtip .gt-var .vk{font-size:.88rem;font-style:italic;color:var(--ink-soft)}
-.gwtip .gt-var .vm{font-size:.9rem;margin-top:6px;color:var(--ink-soft)}
-.gwtip .gt-var .vc{color:var(--ink)}
 .gwtip .gt-count,.gwtip .gt-many,.gwtip .gt-none,.gwtip .gt-load{color:var(--ink-soft);font-size:.9rem;margin-top:4px}
 
 @media (max-width:640px){.sortrow .showen,.sortrow .showgr{margin-left:0;flex:1 1 100%}}

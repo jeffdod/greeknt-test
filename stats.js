@@ -914,23 +914,6 @@ function fillGreek(){
     h.removeAttribute('data-i');h.textContent='';if(ln)h.appendChild(ln);
   }
 }
-/* The "Readings in this note" part of the word popup (see greek-tip.js): the readings of the note whose shaded words were pointed at */
-window.GNT_VARIANTS=function(idx){
-  var n=N[idx];if(!n)return null;
-  var rs=[];n[5].forEach(function(r){if(r[1]!=='txt')rs.push(r);});
-  if(!rs.length)return null;
-  var box=el('div','gt-var');box.appendChild(el('div','vh','Readings in this note'));
-  rs.slice(0,4).forEach(function(r){
-    var row=el('div','vr');row.appendChild(tagsFor(r[0],n[1]));
-    var k=r[3]&&r[3][0];
-    if(k==='omitall'||r[1]==='om.')row.appendChild(el('span','vk','omits'));
-    else{var t=el('span','vt',r[1]);t.lang='grc';row.appendChild(t);if(k&&KINDS[k]&&k!=='omit'&&k!=='add'&&k!=='repl'&&k!=='other')row.appendChild(el('span','vk',KINDS[k]));}
-    box.appendChild(row);
-  });
-  if(rs.length>4)box.appendChild(el('div','vm','and '+(rs.length-4)+' more in the note'));
-  if(EFFSET&&EFFSET[idx])box.appendChild(el('div','vm vc','This note changes the English.'));
-  return box;
-};
 var ENPIECES=[];
 function showMore(){
   var ul=$('results'),end=Math.min(hits.length,shown+PER);

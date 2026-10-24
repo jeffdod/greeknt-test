@@ -2,7 +2,7 @@
    The text is in greek-data.js, which is loaded the first time it is needed. */
 (function () {
   'use strict';
-  var state = 0, waiting = [], KEYS = [], MARKS = {}, CURN = -1;
+  var state = 0, waiting = [], KEYS = [], MARKS = {};
   var GR = window.GNT_GR = { ready: false };
 
   GR.load = function (cb) {
@@ -89,7 +89,7 @@
       var s = Math.max(r[0], a), e = Math.min(r[1], z);
       if (s >= e) return;
       if (s > at) host.appendChild(document.createTextNode(text.slice(at, s)));
-      var u = document.createElement('u'); u.className = r[2] ? 'vw vg' : 'vw'; if (!r[2] && CURN >= 0) u.dataset.i = CURN; u.textContent = text.slice(s, e); host.appendChild(u);
+      var u = document.createElement('u'); u.className = r[2] ? 'vw vg' : 'vw'; u.textContent = text.slice(s, e); host.appendChild(u);
       at = e;
     });
     if (at < z) host.appendChild(document.createTextNode(text.slice(at, z)));
@@ -116,7 +116,6 @@
     var lab = document.createElement('span'); lab.className = 'grlab'; lab.textContent = 'Main text: '; d.appendChild(lab);
     var body = document.createElement('span'); body.className = 'grtext'; body.lang = 'grc'; d.appendChild(body);
     var mk = withGaps(i, vs, marksOf(i)), rest = null, LIM = 3;
-    CURN = i;
     vs.forEach(function (v, n) {
       var host = body;
       if (vs.length > LIM && n >= 2) {
@@ -127,7 +126,6 @@
       put(host, v.text, mk[v.key] || [], b, v.key);
       host.appendChild(document.createTextNode(' '));
     });
-    CURN = -1;
     var any = vs.some(function (v) { return (mk[v.key] || []).some(function (r) { return !r[2]; }); });
     if (any) { var cap = document.createElement('div'); cap.className = 'grnote'; cap.textContent = 'Shaded words are the ones the note covers.'; d.appendChild(cap); }
     if (rest) {

@@ -96,8 +96,6 @@
       else if (groups[0][1].length > 1) box.appendChild(el('div', 'gt-many', 'This form can be parsed more than one way:'));
       groups.slice(0, 4).forEach(function (g2) { box.appendChild(entry(g2[0], g2[1])); });
     }
-    var mk = w.querySelector('u.vw[data-i]');
-    if (mk && window.GNT_VARIANTS) { var vx = window.GNT_VARIANTS(+mk.dataset.i); if (vx) box.appendChild(vx); }
     return box;
   }
 
