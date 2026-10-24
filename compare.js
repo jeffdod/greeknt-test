@@ -479,7 +479,7 @@
       if (!V.length) c2.appendChild(el('div', 'cmp-empty', 'This reading has no words here: it omits the main text.'));
       [l1, c1, l2, c2].forEach(function (e) { holder.appendChild(e); });
     }
-    if (ex) holder.appendChild(el('p', 'cmp-legend', 'The main text’s note quotes only some of the words in this passage and uses “…” for the rest. The words under a red line are the ones the note leaves out, taken from the verse.'));
+    if (ex) holder.appendChild(el('p', 'cmp-legend', V.gaps.length ? 'Both notes, the main text’s and the reading’s, quote only some of the words in this passage and use “…” for the rest. The words in a red bracketed span are the ones the notes leave out, taken from the verse.' : 'The main text’s note quotes only some of the words in this passage and uses “…” for the rest. The words in a red bracketed span are the ones the note leaves out, taken from the verse.'));
     holder.appendChild(info);
 
     function words2(part) {
@@ -564,7 +564,7 @@
     });
     document.addEventListener('click', function (e) { if (pinned && !holder.contains(e.target)) { pinned = ''; show(''); } });
     fill('');
-    /* Under the words an ellipsis stands for, each stretch of the red line (one per row of boxes) has a break at its center with an
+    /* Under the words an ellipsis stands for, each stretch of the bracketed span (one per row of boxes) has a break at its center with an
        ellipsis in it. The marks are placed once the boxes are on screen, and again whenever the layout changes. */
     function marks() {
       [].forEach.call(holder.querySelectorAll('.cmp-ellmark'), function (m) { m.parentNode.removeChild(m); });
