@@ -40,12 +40,15 @@
     if (!list || !list.children.length) return null;
     var y = window.pageYOffset || document.documentElement.scrollTop || 0, vh = window.innerHeight, GAP = 12;
     var bar = document.querySelector('.topbar'), head = bar ? bar.getBoundingClientRect().height : 0;
+    /* the pin bar (pin.js) covers part of the screen while a note is pinned: at the top of the page it sticks under the top bar, on a phone it sits along the bottom */
+    var pb = document.querySelector('.pinbar'), pbh = 0, pbPos = '';
+    if (pb && !pb.hidden) { pbh = pb.getBoundingClientRect().height; pbPos = window.getComputedStyle(pb).position; }
     if (m === 'top') {
-      var top = list.getBoundingClientRect().top + y - head - GAP;
+      var top = list.getBoundingClientRect().top + y - head - GAP - (pbPos === 'sticky' ? pbh + 10 : 0);
       return y > top + 40 ? Math.max(0, top) : null;
     }
     var more = document.getElementById('more'), endEl = more && !more.hidden ? more : list;
-    var end = endEl.getBoundingClientRect().bottom + y + GAP - vh;
+    var end = endEl.getBoundingClientRect().bottom + y + GAP - vh + (pbPos === 'fixed' ? pbh : 0);
     return y + 40 < end ? end : null;
   }
 
