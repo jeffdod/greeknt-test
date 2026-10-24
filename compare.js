@@ -355,6 +355,7 @@
     var B = words(n[4], rows[0]), V = words(n[5][ri][1], rows[ri + 1]);
     var inGap = {}, pair, ex = null;
     if (B.gaps.length) ex = expandBase(n, idx, B);
+    var vEll = V.gaps.length > 0;            /* the reading's own note has an ellipsis (V is rebuilt below without it) */
     if (ex) {
       B = ex; B.gaps = [];
       pair = pairLeftovers(B, V, preferSameBrackets(B, V, alignOrdered(B, V)), V.gaps);
@@ -479,7 +480,7 @@
       if (!V.length) c2.appendChild(el('div', 'cmp-empty', 'This reading has no words here: it omits the main text.'));
       [l1, c1, l2, c2].forEach(function (e) { holder.appendChild(e); });
     }
-    if (ex) holder.appendChild(el('p', 'cmp-legend', V.gaps.length ? 'Both notes, the main text’s and the reading’s, quote only some of the words in this passage and use “…” for the rest. The words in a red bracketed span are the ones the notes leave out, taken from the verse.' : 'The main text’s note quotes only some of the words in this passage and uses “…” for the rest. The words in a red bracketed span are the ones the note leaves out, taken from the verse.'));
+    if (ex) holder.appendChild(el('p', 'cmp-legend', vEll ? 'Both notes, the main text’s and the reading’s, quote only some of the words in this passage and use “…” for the rest. The words in a red bracketed span are the ones the notes leave out, taken from the verse.' : 'The main text’s note quotes only some of the words in this passage and uses “…” for the rest. The words in a red bracketed span are the ones the note leaves out, taken from the verse.'));
     holder.appendChild(info);
 
     function words2(part) {
