@@ -125,6 +125,17 @@
       host.appendChild(document.createTextNode(' '));
     });
     var any = vs.some(function (v) { return (mk[v.key] || []).some(function (r) { return !r[2]; }); });
+    /* round the two outer ends of each unbroken shaded stretch */
+    (function () {
+      var run = [];
+      function end() { if (run.length) { run[0].classList.add('vl'); run[run.length - 1].classList.add('vr'); } run = []; }
+      body.querySelectorAll('.gw').forEach(function (w) {
+        var us = w.querySelectorAll('u.vw');
+        if (!us.length) { end(); return; }
+        for (var k = 0; k < us.length; k++) run.push(us[k]);
+      });
+      end();
+    })();
     var gaps = vs.some(function (v) { return (mk[v.key] || []).some(function (r) { return r[2]; }); });
     if (any) { var cap = document.createElement('div'); cap.className = 'grnote';
     cap.textContent = (any ? 'Shaded words are the ones the note covers' + (gaps ? '; the lighter shade marks the words an ellipsis stands for.' : '.') : ''); d.appendChild(cap); }
