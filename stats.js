@@ -923,7 +923,7 @@ window.GNT_VARIANTS=function(idx){
   rs.slice(0,4).forEach(function(r){
     var row=el('div','vr');row.appendChild(tagsFor(r[0],n[1]));
     var k=r[3]&&r[3][0];
-    if(k==='omitall'||r[1]==='om.')row.appendChild(el('span','vk','left out'));
+    if(k==='omitall'||r[1]==='om.')row.appendChild(el('span','vk','omits'));
     else{var t=el('span','vt',r[1]);t.lang='grc';row.appendChild(t);if(k&&KINDS[k]&&k!=='omit'&&k!=='add'&&k!=='repl'&&k!=='other')row.appendChild(el('span','vk',KINDS[k]));}
     box.appendChild(row);
   });
