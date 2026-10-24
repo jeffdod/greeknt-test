@@ -52,6 +52,7 @@
 .cmp-uq.cmp-be::after{right:0;border-right:1.5px solid var(--rubric)}
 .cmp-legend{margin:.6em 0 0;font-size:.88rem;color:var(--ink-soft)}
 .cmp-gk.cmp-diff{display:inline-block;padding:0 4px;border-radius:2px}
+.cmp-rowlab .tags{display:inline-flex;flex-wrap:wrap;gap:3px;vertical-align:middle}
 @media (max-width:640px){
   .cmp-two{grid-template-columns:1fr}
   .cmp-info{min-height:345px}

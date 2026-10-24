@@ -611,6 +611,13 @@
           clearTimeout(giveUp); btn.disabled = false;
           if (!window.GNT_WORDS) { btn.textContent = 'Show comparison'; return; }
           panel = build(n, idx, ri);
+          /* the row of the reading says which editions read it: “Reading in” and the same badges as the reading line */
+          var tg = d.querySelector('.tags');
+          if (tg) [].forEach.call(panel.querySelectorAll('.cmp-rowlab'), function (lab) {
+            if (lab.textContent !== 'Reading') return;
+            lab.textContent = 'Reading in ';
+            lab.appendChild(tg.cloneNode(true));
+          });
           d.parentNode.insertBefore(panel, d.nextSibling);
           btn.setAttribute('aria-expanded', 'true'); btn.textContent = 'Hide comparison';
         }); };
