@@ -588,13 +588,32 @@ function groupTags(mask,bi){
   out.sort(function(a,b){return a.k<b.k?-1:a.k>b.k?1:a.i-b.i;});
   return out;
 }
+function tagEl(g){
+  if(!g.t)return tag(g.e);
+  var t=el('span','etag f-'+(g.t==='TR'?'tr':'crit'),g.t);
+  t.title=g.t==='TR'?'Textus Receptus editions: SCR and ST':g.t==='NA'?'NA27 and NA28':g.t==='CT†'?'ECM† and the critical editions NA27, NA28, SBL, TH and WH':'All the critical editions';
+  return t;
+}
 function tagsFor(mask,bi){
   var box=el('span','tags');
-  groupTags(mask,bi).forEach(function(g){
-    if(!g.t){box.appendChild(tag(g.e));return;}
-    var t=el('span','etag f-'+(g.t==='TR'?'tr':'crit'),g.t);
-    t.title=g.t==='TR'?'Textus Receptus editions: SCR and ST':g.t==='NA'?'NA27 and NA28':g.t==='CT†'?'ECM† and the critical editions NA27, NA28, SBL, TH and WH':'All the critical editions';
-    box.appendChild(t);
+  groupTags(mask,bi).forEach(function(g){box.appendChild(tagEl(g));});
+  return box;
+}
+/* The labels of reading r: editions that print the reading in brackets (r[2]; double brackets for those also in r[5])
+   show their label in brackets, as the printed edition does, e.g. [NA] TH TR WH or [[ECM]] [PT] TR */
+function tagsForReading(r,bi){
+  if(!r[2])return tagsFor(r[0],bi);
+  var all=groupTags(r[0]&~r[2],bi).concat(groupTags(r[2],bi).map(function(g){g.br=true;return g;}));
+  all.forEach(function(g,i){g.i=i;});
+  all.sort(function(a,b){return a.k<b.k?-1:a.k>b.k?1:a.i-b.i;});
+  var box=el('span','tags'),dbl=r[5]||0;
+  all.forEach(function(g){
+    var t=tagEl(g);
+    if(!g.br){box.appendChild(t);return;}
+    var two=(BIT[g.e]&dbl)!==0,w=el('span','tagbr');
+    w.title=(two?'Printed in double brackets in ':'Printed in brackets in ')+'this edition';
+    w.appendChild(document.createTextNode(two?'[[':'['));w.appendChild(t);w.appendChild(document.createTextNode(two?']]':']'));
+    box.appendChild(w);
   });
   return box;
 }
@@ -803,8 +822,7 @@ function renderItem(n,idx,pfx){
   bracketsAt(0);
   n[5].forEach(function(r,ri){
     var d=el('div','rd');
-    var tags=tagsFor(r[0],n[1]);
-    if(r[0]&BIT.RPmg){}
+    var tags=tagsForReading(r,n[1]);
     d.appendChild(tags);
     var t=el('span','gk');t.lang='grc';if(r[1]==='txt')t.textContent='reads the main text';else{WK=[idx,ri+1];markedText(t,r[1]);WK=null;}d.appendChild(t);
     var kk=r[3];if(kk.length&&r[1]!=='txt'){d.appendChild(el('span','kd',' ('+kk.map(function(k){return KINDS[k];}).join('; ')+')'));}

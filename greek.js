@@ -93,7 +93,7 @@
     if (at < z) host.appendChild(document.createTextNode(text.slice(at, z)));
   }
   function put(parent, text, rg, b, key) {
-    var re = /\S+/g, m, at = 0, n = 0;
+    var re = /[^\s\u2014]+/g, m, at = 0, n = 0;   /* a dash joins two words with no space (ἁμαρτίας—τότε) but is not part of either */
     while ((m = re.exec(text))) {
       if (m.index > at) plain(parent, text, at, m.index, rg);
       var w = document.createElement('span'); w.className = 'gw';

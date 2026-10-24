@@ -177,7 +177,7 @@
     vs.forEach(function (v) {
       if (v.key === first.k) on = true;
       if (!on) return;
-      var tags = (W.v[n[1]] && W.v[n[1]][v.key] || '').split(' '), re = /\S+/g, m, wi = 0;
+      var tags = (W.v[n[1]] && W.v[n[1]][v.key] || '').split(' '), re = /[^\s\u2014]+/g, m, wi = 0;
       while ((m = re.exec(v.text))) {
         if (!fold(m[0])) continue;
         var s = m.index, e = s + m[0].length, tag = tags[wi++];

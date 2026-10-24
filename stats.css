@@ -38,7 +38,8 @@
 .lem b.en{font-family:'EB Garamond',serif;font-weight:700}
 .gk{font-family:'GFS Didot','EB Garamond',serif}
 .rd{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;padding:3px 0;border-top:1px dotted var(--rule)}
-.rd .tags{display:inline-flex;flex-wrap:wrap;gap:3px}
+.rd .tags{display:inline-flex;flex-wrap:wrap;align-items:center;gap:3px}
+.tagbr{display:inline-flex;align-items:center;gap:1px;font-weight:600;color:var(--ink)}
 .etag{font-size:.8rem;font-weight:600;padding:0 .4em;border-radius:2px;color:#fff;line-height:1.5}
 .etag.f-byz{background:var(--r3)}.etag.f-crit{background:var(--r1)}.etag.f-tr{background:var(--r2)}
 .rd .kd{font-size:.9rem;color:var(--ink-soft);font-style:italic}
