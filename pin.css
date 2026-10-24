@@ -10,7 +10,7 @@
 .pinrow{display:flex;align-items:center;gap:8px}
 .pinrow2{margin-top:6px;flex-wrap:wrap}
 .pinhint{font-size:.84rem;color:var(--ink-soft);font-style:italic}
-.pinnav{flex:0 0 auto;font:inherit;font-size:1rem;color:#f6efe6;background:var(--rubric);border:1px solid var(--rubric);border-radius:3px;padding:8px 16px;min-width:110px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.pinnav{flex:0 0 auto;font:inherit;font-size:1rem;color:#f6efe6;background:var(--rubric);border:1px solid var(--rubric);border-radius:3px;padding:8px 16px;min-width:110px;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .pinnav:hover{background:var(--rubric-dark)}
 .pinnav:disabled{opacity:.4;cursor:default}
 .pinnav.pinheld{background:var(--rubric-dark);box-shadow:inset 0 0 0 2px #f6efe6}
