@@ -13,9 +13,9 @@
 .grline u.vw{--c:rgba(138,42,30,.2);text-decoration:none;position:relative;isolation:isolate;background:none}
 .grline u.vw::before{content:"";position:absolute;left:0;right:0;top:50%;height:1.2em;margin-top:-.52em;background:var(--c);z-index:-1;pointer-events:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .grline u.vw.vg{--c:rgba(138,42,30,.09)}
-.grline u.vw.vl::before{border-radius:.35em 0 0 .35em}
-.grline u.vw.vr::before{border-radius:0 .35em .35em 0}
-.grline u.vw.vl.vr::before{border-radius:.35em}
+.grline u.vw.vl::before{border-radius:.2em 0 0 .2em}
+.grline u.vw.vr::before{border-radius:0 .2em .2em 0}
+.grline u.vw.vl.vr::before{border-radius:.2em}
 
 /* the switches that hide the English and the Greek under the notes */
 .no-en .enhold,.no-gr .grhold{display:none}
