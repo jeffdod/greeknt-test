@@ -809,6 +809,7 @@ function renderItem(n,idx,pfx){
   var pgs=el('span','pg');pgs.appendChild(document.createTextNode('page '));pgs.appendChild(window.GNTPages.link(String(n[0]),n[0]));head.appendChild(pgs);
   head.appendChild(el('span','caller',' note '+n[3]));
   li.appendChild(head);
+  if(!QUIET&&window.GNT_PIN)GNT_PIN.decorate(li,head,idx);
   var lem=el('div','lem');lem.appendChild(el('span','lab','Main text: '));var gr=el('span','gk');gr.lang='grc';WK=[idx,0];lemmaInto(gr,n[4]);WK=null;lem.appendChild(gr);li.appendChild(lem);
   /* the readings are listed in the order the printed edition gives them; a note's main text printed in brackets comes where the print puts it (b[2] counts the readings before it, and is left out when it follows them all) */
   function bracketRow(b){
@@ -940,13 +941,23 @@ window.GNT_STATS={
   render:function(i,pfx){QUIET=true;try{return renderItem(N[i],i,pfx);}finally{QUIET=false;}},
   fill:function(root){fillEnglish(root,true);fillGreek(root);}
 };
-function showMore(){
-  var ul=$('results'),end=Math.min(hits.length,shown+PER);
+function showMore(upto){
+  var ul=$('results'),end=Math.min(hits.length,Math.max(shown+PER,typeof upto==='number'?upto+1:0));
   for(;shown<end;shown++)ul.appendChild(renderItem(N[hits[shown]],hits[shown]));
   fillEnglish();fillGreek();
   $('more').hidden=shown>=hits.length;
   if(!$('more').hidden)$('more').textContent='Show more ('+fmt(hits.length-shown)+' left)';
 }
+/* what the pin (pin.js) needs from the results: the notes now listed, a stable key for a note, and a way to list down to a given one */
+window.GNT_RES={
+  hits:function(){return hits;},
+  size:function(){return N.length;},
+  key:function(i){var n=N[i];return n?n[1]+'/'+n[0]+'/'+n[3]+'/'+n[2]:'';},
+  find:function(k){for(var i=0;i<N.length;i++)if(N[i][1]+'/'+N[i][0]+'/'+N[i][3]+'/'+N[i][2]===k)return i;return -1;},
+  label:function(i){return BOOKS[N[i][1]]+' '+N[i][2]+' '+N[i][3];},
+  ensure:function(pos){if(shown<=pos)showMore(pos);},
+  reset:function(){var r=$('fReset');if(r)r.click();}
+};
 function update(){
   var f=getFilters();
   $('fEd').disabled=(f.rel==='split');
@@ -974,6 +985,7 @@ function update(){
   showMore();drawStrip(out);writeUrl();
   buildChips(f);
   scheduleCounts();
+  if(window.GNT_PIN)GNT_PIN.refresh();
   var rn=$('restored');if(rn){rn.hidden=RESTORED!==1;RESTORED=RESTORED===1?2:0;}
 }
 
@@ -1232,6 +1244,7 @@ function init(){
   if(!had){try{var sv=localStorage.getItem(LASTKEY);if(sv&&readUrl(sv))RESTORED=1;}catch(e){}}
   update();
   if(had){var fd=$('find');if(fd)fd.scrollIntoView();}
+  if(window.GNT_PIN)GNT_PIN.start();
 }
 /* Old shared links pointed at stats.html?...#find; send them to the search page. */
 if(!$('filters')&&(/[?&](ed|rel|where|kind|pat|ref|greek)=/.test(location.search)||location.hash==='#find')){location.replace('search.html'+location.search+(location.hash==='#find'?'#find':''));}else init();

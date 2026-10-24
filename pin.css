@@ -1,0 +1,34 @@
+/* Pin one note in Explore Variants (pin.js) */
+.pinbtn{float:right;margin:-2px 0 4px 10px;font:inherit;font-size:.85rem;color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:3px;padding:1px 10px;cursor:pointer}
+.pinbtn:hover{border-color:var(--ink)}
+.res.pinned{border-left:6px solid var(--rubric);padding-left:11px;background:#f1e9d9}
+.res.pinned .pinbtn{background:var(--rubric);border-color:var(--rubric);color:#f6efe6}
+.res.pinned{scroll-margin-top:200px}
+
+.pinbar{position:sticky;top:60px;z-index:15;background:var(--vellum);border:1px solid var(--rule);border-top:3px solid var(--rubric);border-radius:3px;padding:8px 10px;margin:0 0 10px;box-shadow:0 2px 6px rgba(31,42,54,.12)}
+.pinbar[hidden]{display:none}
+.pinrow{display:flex;align-items:center;gap:8px}
+.pinrow2{margin-top:6px;flex-wrap:wrap}
+.pinhint{font-size:.84rem;color:var(--ink-soft);font-style:italic}
+.pinnav{flex:0 0 auto;font:inherit;font-size:1rem;color:#f6efe6;background:var(--rubric);border:1px solid var(--rubric);border-radius:3px;padding:8px 16px;min-width:110px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.pinnav:hover{background:var(--rubric-dark)}
+.pinnav:disabled{opacity:.4;cursor:default}
+.pinnav.pinheld{background:var(--rubric-dark);box-shadow:inset 0 0 0 2px #f6efe6}
+.pincount{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;gap:1px;font:inherit;color:var(--ink);background:#fff;border:1px solid var(--rule);border-radius:3px;padding:5px 6px;cursor:pointer;min-width:0}
+.pinpos{font-size:1.05rem;font-variant-numeric:tabular-nums}
+.pinref{font-size:.82rem;color:var(--ink-soft)}
+.pincount.pinout .pinpos{color:var(--rubric);font-style:italic;font-size:.95rem}
+.pinlite{font:inherit;font-size:.92rem;color:var(--ink);background:transparent;border:1px solid var(--ink);border-radius:3px;padding:3px 12px;cursor:pointer}
+.pinlite:hover{background:rgba(31,42,54,.07)}
+.pinjump{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;padding-top:8px;border-top:1px dotted var(--rule)}
+.pinjump[hidden]{display:none}
+.pinjump input{font:inherit;width:6em;padding:3px 6px;border:1px solid var(--rule);border-radius:3px}
+.pinnav:focus-visible,.pincount:focus-visible,.pinlite:focus-visible,.pinbtn:focus-visible{outline:2px solid var(--rubric);outline-offset:2px}
+@media (max-width:640px){
+  .pinbar{position:fixed;top:auto;bottom:0;left:0;right:0;margin:0;border-radius:0;border-left:0;border-right:0;z-index:35;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+  .pinnav{min-width:0;padding:12px 10px;flex:1 1 0}
+  .pincount{flex:1.3 1 0;padding:8px 4px}
+  .res.pinned{padding-left:7px;scroll-margin-top:12px;scroll-margin-bottom:170px}
+  body.pin-on{padding-bottom:150px}
+  body.pin-on .jump{bottom:calc(160px + env(safe-area-inset-bottom,0px))}
+}
