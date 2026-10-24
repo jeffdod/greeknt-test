@@ -7,7 +7,7 @@
 .cmp-panel[hidden]{display:none}
 .cmp-body{overflow-x:auto;padding:2px}
 .cmp-rowlab{font-size:.85rem;color:var(--ink-soft);margin:8px 0 3px}
-.cmp-grid{display:grid;grid-template-columns:repeat(var(--n),minmax(120px,1fr));gap:4px;min-width:calc(var(--n) * 124px);max-width:calc(var(--n) * 300px)}
+.cmp-grid{display:grid;grid-template-columns:repeat(var(--n),minmax(max(120px,min-content),1fr));gap:4px;min-width:calc(var(--n) * 124px);max-width:calc(var(--n) * 300px)}
 .cmp-cell{border:1px solid var(--rule);border-radius:3px;padding:6px 8px;background:#fff;min-height:112px}
 .cmp-cell .cmp-gk{font-family:"GFS Didot","EB Garamond",serif;font-size:1.35rem;line-height:1.25}
 .cmp-cell .cmp-lm{font-size:.84rem;color:var(--ink-soft);margin-top:3px;line-height:1.3}
