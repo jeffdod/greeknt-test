@@ -37,6 +37,7 @@
 .cmp-cell:focus-visible,.cmp-chip:focus-visible{outline:2px solid var(--rubric);outline-offset:-2px}
 .cmp-info{margin-top:10px;border-top:1px solid var(--rule);padding-top:8px;font-size:.95rem;color:var(--ink-soft);min-height:150px}
 .cmp-info:empty{display:none}
+.cmp-info .cmp-nt{font-size:.9rem;font-style:italic;color:var(--rubric);margin-top:8px}
 .cmp-info.cmp-kr{min-height:2.9em}
 .cmp-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .cmp-g{font-family:"GFS Didot","EB Garamond",serif;font-size:1.2rem;font-weight:600;color:var(--ink)}

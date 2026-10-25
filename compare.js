@@ -523,6 +523,8 @@
             two.appendChild(d);
           });
           info.appendChild(two);
+          var how = relation(b, v);              /* the same tag the full cells of a short reading carry */
+          if (how) info.appendChild(el('div', 'cmp-nt', RELNOTE[how].charAt(0).toUpperCase() + RELNOTE[how].slice(1) + '.'));
         }
       } else {
         var lone = detail((b || v).a, (b || v).w);
