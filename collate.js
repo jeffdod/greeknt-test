@@ -124,10 +124,48 @@
   }
 
   /* ---------- one verse ---------- */
+  /* Aligning two lists of words. A word of the main text is matched with the word of an edition that is the same word (a movable
+     nu or the like does not matter) or spelled much like it; words left over are omitted by the edition or added by it. */
+  function core(w) { return canon(w).replace(/[\[\]«»]/g, ''); }
+  function lcsLen(a, b) {
+    var p = [], q, i, j;
+    for (j = 0; j <= b.length; j++) p[j] = 0;
+    for (i = 1; i <= a.length; i++) {
+      q = [0];
+      for (j = 1; j <= b.length; j++) q[j] = a.charAt(i - 1) === b.charAt(j - 1) ? p[j - 1] + 1 : Math.max(p[j], q[j - 1]);
+      p = q;
+    }
+    return p[b.length];
+  }
+  var GAP = -1, MISS = -1.5;
+  function align(Bw, Lw) {
+    var n = Bw.length, m = Lw.length, bc = Bw.map(function (o) { return core(o.w); }), lc = Lw.map(function (o) { return core(o.w); });
+    var W = m + 1, S = new Float64Array((n + 1) * W), i, j;
+    function sc(x, y) {
+      if (bc[x] === lc[y]) return 3;
+      var r = 2 * lcsLen(bc[x], lc[y]) / (bc[x].length + lc[y].length);
+      return r >= 0.5 ? 1 + r : MISS;
+    }
+    for (i = 1; i <= n; i++) S[i * W] = i * GAP;
+    for (j = 1; j <= m; j++) S[j] = j * GAP;
+    for (i = 1; i <= n; i++) for (j = 1; j <= m; j++) {
+      S[i * W + j] = Math.max(S[(i - 1) * W + j - 1] + sc(i - 1, j - 1), S[(i - 1) * W + j] + GAP, S[i * W + j - 1] + GAP);
+    }
+    var match = [], ins = [];
+    for (i = 0; i <= n; i++) { ins.push([]); if (i < n) match.push(-1); }
+    i = n; j = m;
+    while (i > 0 || j > 0) {
+      if (i > 0 && j > 0 && Math.abs(S[i * W + j] - (S[(i - 1) * W + j - 1] + sc(i - 1, j - 1))) < 1e-9) { match[i - 1] = j - 1; i--; j--; }
+      else if (i > 0 && Math.abs(S[i * W + j] - (S[(i - 1) * W + j] + GAP)) < 1e-9) i--;
+      else { ins[i].unshift(j - 1); j--; }
+    }
+    return { match: match, ins: ins };
+  }
+
   function collateVerse(b, key, text, rows) {
     var base = function (k) { return k === key ? text : (GNT_GRK.v[b][k] || ''); }, toks = baseTokens(text);
     var ix = index(), ids = (ix.m[b + '|' + key] || []).slice().sort(function (x, y) { return x - y; });
-    var flags = [], ops = rows.map(function () { return []; }), ins = rows.map(function () { return []; });
+    var flags = [], ops = rows.map(function () { return []; }), tail = rows.map(function () { return []; });
     ids.forEach(function (i) {
       rows.forEach(function (row, ri) {
         var res = applyNote(i, row.ed, row.rk, base);
@@ -135,61 +173,59 @@
         (res.ops || []).forEach(function (o) { if (o.k === key) ops[ri].push(o); });
       });
     });
-    var insNotes = (ix.ins[b + '|' + key] || []).slice().sort(function (x, y) { return x - y; });
-    insNotes.forEach(function (i) {
-      var any = false, cells = rows.map(function (row) {
+    /* passages some editions add after the verse */
+    (ix.ins[b + '|' + key] || []).slice().sort(function (x, y) { return x - y; }).forEach(function (i) {
+      rows.forEach(function (row, ri) {
         var res = applyNote(i, row.ed, row.rk, base);
-        if (res && res.ins) { any = true; return words(res.ins).map(function (w, x) { return { w: w, src: { ni: res.ni, j: res.j, n: x } }; }); }
-        return [];
+        if (res && res.ins) words(res.ins).forEach(function (w, x) { tail[ri].push({ w: w, src: { ni: res.ni, j: res.j, n: x } }); });
       });
-      if (any) ins.forEach(function (a, ri) { a.push(cells[ri]); });
-      else { /* nothing shown reads it */ }
     });
-    /* the units: the stretches where any row differs, joined when they overlap or touch */
-    var spans = [];
-    ops.forEach(function (list) { list.forEach(function (o) { spans.push([o.s, o.e]); }); });
-    spans.sort(function (x, y) { return x[0] - y[0] || x[1] - y[1]; });
-    var units = [];
-    spans.forEach(function (s) { var l = units[units.length - 1]; if (l && s[0] <= l[1]) l[1] = Math.max(l[1], s[1]); else units.push([s[0], s[1]]); });
-    var cols = [], pos = 0;
-    function plain(a, e) { toks.forEach(function (t) { if (t.s >= a && t.s < e) cols.push({ same: { w: t.w, src: { i: t.i } } }); }); }
     function baseRange(out, p, q, open, close) {
       var ts = toks.filter(function (t) { return t.s >= p && t.s < q; });
       ts.forEach(function (t, x) { out.push({ w: (x === 0 && open ? open : '') + t.w + (x === ts.length - 1 && close ? close : ''), src: { i: t.i } }); });
     }
-    units.forEach(function (u) {
-      plain(pos, u[0]);
-      var bw = []; baseRange(bw, u[0], u[1], '', '');
-      var bk = keyOf(bw.map(function (o) { return o.w; }));
-      var cells = rows.map(function (row, ri) {
-        var mine = ops[ri].filter(function (o) { return o.s >= u[0] && o.e <= u[1]; }).sort(function (x, y) { return x.s - y.s; }), ws = [], at = u[0];
-        mine.forEach(function (o) {
-          if (o.s < at) return;
-          baseRange(ws, at, o.s, '', '');
-          if (o.t != null) words(o.t).forEach(function (w, x) { ws.push({ w: w, src: { ni: o.ni, j: o.j, n: o.off + x } }); });
-          else baseRange(ws, o.s, o.e, o.open, o.close);
-          at = o.e;
-        });
-        baseRange(ws, at, u[1], '', '');
-        return { w: ws, diff: keyOf(ws.map(function (o) { return o.w; })) !== bk };
+    /* each edition's whole verse, rebuilt from the main text and the notes */
+    var B = toks.map(function (t) { return { w: t.w, src: { i: t.i } }; });
+    var lists = rows.map(function (row, ri) {
+      var mine = ops[ri].slice().sort(function (x, y) { return x.s - y.s; }), out = [], at = 0;
+      mine.forEach(function (o) {
+        if (o.s < at) return;
+        baseRange(out, at, o.s, '', '');
+        if (o.t != null) words(o.t).forEach(function (w, x) { out.push({ w: w, src: { ni: o.ni, j: o.j, n: o.off + x } }); });
+        else baseRange(out, o.s, o.e, o.open, o.close);
+        at = o.e;
       });
-      cols.push({ base: bw, cells: cells });
-      pos = u[1];
+      baseRange(out, at, text.length + 1, '', '');
+      return out.concat(tail[ri]);
     });
-    plain(pos, text.length);
-    insNotes.length && ins[0].forEach(function (_, q) {
-      var cells = rows.map(function (row, ri) { var w = ins[ri][q] || []; return { w: w, diff: w.length > 0 }; });
-      cols.push({ base: [], cells: cells, added: true });
-    });
+    /* every edition lined up with the main text word by word, wherever the notes put their variants */
+    var al = lists.map(function (L) { return align(B, L); }), cols = [], g, k, n = B.length;
+    for (g = 0; g <= n; g++) {
+      var most = 0;
+      al.forEach(function (a) { if (a.ins[g].length > most) most = a.ins[g].length; });
+      for (k = 0; k < most; k++) {
+        cols.push({ base: [], added: true, cells: rows.map(function (row, ri) {
+          var at = al[ri].ins[g][k];
+          return at == null ? { w: [], diff: false, blank: true } : { w: [lists[ri][at]], diff: true };
+        }) });
+      }
+      if (g < n) {
+        cols.push({ base: [B[g]], cells: rows.map(function (row, ri) {
+          var m = al[ri].match[g];
+          if (m < 0) return { w: [], diff: true };
+          var w = lists[ri][m];
+          return { w: [w], diff: canon(w.w) !== canon(B[g].w) };
+        }) });
+      }
+    }
     /* a row is the same as the main text only when every word matches exactly (a movable nu or a bracket is a difference);
-       a column where no row differs at all goes back to being plain words */
+       a column where no row differs at all is shown as plain words */
     var words2 = function (a) { return a.map(function (o) { return o.w; }).join(' '); };
     var off = function (c, ri) { return words2(c.base || []) !== words2(c.cells[ri].w); };
     var kept = [];
     cols.forEach(function (c) {
-      if (c.same) { kept.push(c); return; }
       if (rows.some(function (r, ri) { return off(c, ri); })) kept.push(c);
-      else if (!c.added) c.base.forEach(function (o) { kept.push({ same: { w: o.w, src: o.src } }); });
+      else if (!c.added) kept.push({ same: { w: c.base[0].w, src: c.base[0].src } });
     });
     var rowSame = rows.map(function (r, ri) { return !kept.some(function (c) { return c.cells && off(c, ri); }); });
     return { cols: kept, flags: flags, b: b, key: key, rowSame: rowSame, differs: rowSame.some(function (x) { return !x; }) };
@@ -211,7 +247,7 @@
     var len = function (a) { return a.map(function (o) { return o.w; }).join(' ').length; };
     if (c.same) return c.same.w.length + 2;
     var m = len(c.base);
-    c.cells.forEach(function (x) { m = Math.max(m, len(x.w) || 7); });
+    c.cells.forEach(function (x) { m = Math.max(m, len(x.w) || 1); });
     return m + 2;
   }
   function drawVerse(box, res, rows, avail) {
@@ -239,7 +275,7 @@
             var cell = row.ed ? c.cells[row.i] : null, ws = row.ed ? cell.w : c.base;
             td.className = row.ed ? (cell.diff ? 'coll-d' : 'coll-b') : 'coll-m';
             if (ws.length) wordsInto(td, ws, res.b, res.key);
-            else td.appendChild(el('i', null, row.ed ? 'omitted' : (c.added ? 'not in the main text' : '')));
+            else if (!(cell && cell.blank)) { var dash = el('i', null, '\u2013'); dash.title = row.ed ? 'This edition has no word here' : 'The main text has no word here'; td.appendChild(dash); }
           }
           tr.appendChild(td);
         });
@@ -279,7 +315,7 @@
       return c;
     });
     head.appendChild(pick);
-    head.appendChild(el('p', 'coll-note', 'These are the editions whose texts this site may reproduce. Each is rebuilt from the main text and the notes, in lowercase without accents or punctuation. Shaded words differ from the main text; words in brackets are printed in brackets.'));
+    head.appendChild(el('p', 'coll-note', 'These are the editions whose texts this site may reproduce. Each is rebuilt from the main text and the notes, in lowercase without accents or punctuation. Shaded words differ from the main text; words in brackets are printed in brackets; a dash means no word.'));
     head.appendChild(el('p', 'coll-slide', 'Slide the table sideways to read the whole verse.'));
     panel.appendChild(head);
     var body = el('div', 'coll-body'); panel.appendChild(body);
