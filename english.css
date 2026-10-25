@@ -41,7 +41,7 @@
 /* the word popup (see greek-tip.js) */
 .gw{border-radius:2px;cursor:pointer}
 /* the word being pointed at: blue text with a thin underline, so the red shading keeps one meaning (the words a note covers) */
-.gw:hover,.gw.gw-on{color:#0d47a1;text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:3px}
+.gw:hover,.gw.gw-on{color:#0d47a1;text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:3px;background:rgba(13,71,161,.1);box-shadow:0 0 0 3px rgba(13,71,161,.1)}
 .gw:hover u.vw,.gw.gw-on u.vw{color:#0d47a1}
 .gwtip{position:fixed;z-index:60;box-sizing:border-box;width:max-content;max-width:min(340px,calc(100vw - 16px));max-height:min(70vh,420px);overflow:auto;background:var(--vellum);color:var(--ink);border:1px solid var(--rule);border-top:3px solid var(--rubric);box-shadow:0 6px 18px rgba(0,0,0,.2);padding:10px 14px 12px;font-size:.95rem;line-height:1.45;text-align:left;font-weight:400;font-style:normal}
 .gwtip[hidden]{display:none}
