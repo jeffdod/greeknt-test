@@ -835,6 +835,7 @@ function renderItem(n,idx,pfx){
     if(window.GNT_CMP&&window.GNT_TIP&&r[1]!=='txt'&&r[3][0]!=='other')GNT_CMP.attach(d,n,idx,ri);
     bracketsAt(ri+1);
   });
+  if(!QUIET&&window.GNT_COLL&&window.GNT_GR)GNT_COLL.attach(li,n,idx);
   if(n[7])li.appendChild(el('div','rd br',null)).appendChild(el('span','kd','ECM prints a split guiding line here (ECM†).'));
   var sv=SPEC[n[1]+'/'+n[0]+'/'+n[3]];
   if(sv){

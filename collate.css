@@ -1,0 +1,30 @@
+/* Collate this verse (collate.js) */
+.coll-row{margin:8px 0 0}
+.coll-btn{font:inherit;font-size:.9rem;color:var(--ink);background:transparent;border:1px solid var(--ink);border-radius:3px;padding:1px 10px;cursor:pointer}
+.coll-btn:hover{background:rgba(31,42,54,.07)}
+.coll-btn[aria-expanded="true"]{background:var(--rubric);border-color:var(--rubric);color:#f6efe6}
+.coll-btn:focus-visible{outline:2px solid var(--rubric);outline-offset:2px}
+.coll-btn:disabled{opacity:.6;cursor:default}
+.coll-panel{margin:8px 0 0;padding:10px 14px 12px;background:var(--vellum);border:1px solid var(--rule)}
+.coll-panel[hidden]{display:none}
+.coll-pick{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;font-size:.95rem}
+.coll-lab{font-weight:600}
+.coll-ck{display:inline-flex;align-items:center;gap:4px;cursor:pointer}
+.coll-ck input{margin:0}
+.coll-note{margin:6px 0 8px;font-size:.88rem;color:var(--ink-soft);line-height:1.45}
+.coll-v h4{margin:10px 0 4px;font-size:.95rem}
+.coll-scroll{overflow-x:auto;margin:0 0 8px}
+.coll-t{border-collapse:collapse;font-family:"GFS Didot","EB Garamond",serif;font-size:1.05rem;line-height:1.35}
+.coll-t th{text-align:left;font-family:"EB Garamond",serif;font-weight:600;font-size:.88rem;color:var(--ink-soft);padding:2px 10px 2px 0;white-space:nowrap;width:1%;min-width:96px}
+.coll-t td{padding:2px 8px;white-space:nowrap}
+.coll-t td.coll-s{color:#7a828f}
+.coll-t td.coll-m,.coll-t td.coll-b{background:#e6edf5;font-weight:600;border-left:2px solid var(--ink)}
+.coll-t td.coll-d{background:#f3e0a8;font-weight:600;border-left:2px solid var(--ink)}
+.coll-t td i{font-family:"EB Garamond",serif;font-size:.85rem;font-weight:400;color:var(--rubric)}
+.coll-same,.coll-none{margin:4px 0;font-size:.9rem;color:var(--ink-soft);font-style:italic}
+.coll-flag{margin:6px 0 0;font-size:.88rem;color:var(--rubric)}
+.coll-credit{margin:10px 0 0;padding-top:6px;border-top:1px dotted var(--rule);font-size:.8rem;color:var(--ink-soft);line-height:1.4}
+@media (max-width:640px){
+  .coll-panel{padding:8px 10px 10px}
+  .coll-t{font-size:1rem}
+}
