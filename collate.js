@@ -9,7 +9,7 @@
   var BIT = {}; EDS.forEach(function (e, i) { BIT[e] = 1 << i; });
   var ALL = ['SCR', 'ST', 'WH', 'PT', 'SBL', 'RPmg'];
   var KEY = 'gnt-collate-eds';
-  var CHAR = 10.4;                      /* about how wide a letter is, in pixels, at the size used for the columns */
+  var CHAR = 9.4;                       /* about how wide a letter is, in pixels, at the size used for the columns */
   var LABEL = 118;                      /* the width of the edition names at the left, in pixels */
 
   function el(t, c, x) { var e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; }
