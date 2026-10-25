@@ -185,7 +185,7 @@
     return out;
   };
   function hideUi() {
-    ['ntFilter1', 'ntFilter2'].forEach(function (id) { var e = document.getElementById(id); if (e) e.hidden = true; });
+    ['ntGroup', 'ntFilter1', 'ntFilter2'].forEach(function (id) { var e = document.getElementById(id); if (e) e.hidden = true; });
     var b = document.getElementById('ntList'); if (b) b.hidden = true;
     var all = document.querySelectorAll('.ntbtn,.nt-slot,.pinnote'), k;
     for (k = 0; k < all.length; k++) all[k].hidden = true;
@@ -193,11 +193,11 @@
   var uiShown = false;
   function showUi() {
     if (uiShown || !api.available) return; uiShown = true;
-    ['ntFilter1', 'ntFilter2'].forEach(function (id) { var e = document.getElementById(id); if (e) e.hidden = false; });
+    ['ntGroup', 'ntFilter1', 'ntFilter2'].forEach(function (id) { var e = document.getElementById(id); if (e) e.hidden = false; });
     var b = document.getElementById('ntList'); if (b) { b.hidden = false; b.addEventListener('click', function () { openPanel('list'); }); }
   }
   function updateListBtn() {
-    var b = document.getElementById('ntList'); if (b) b.textContent = M.size ? 'My notes (' + M.size + ')' : 'My notes';
+    var b = document.getElementById('ntList'); if (b) b.textContent = M.size ? 'Open my notes list (' + M.size + ')' : 'Open my notes list';
   }
 
   /* ---------- the panel: the list of notes, and the editor ---------- */
