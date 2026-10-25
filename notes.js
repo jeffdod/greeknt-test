@@ -120,9 +120,30 @@
     var d = el('div', 'mynote'), lab = el('span', 'mn-lab', rec.title ? '' : 'My note');
     if (rec.title) { var t = el('b', 'mn-title', rec.title); lab.appendChild(t); }
     d.appendChild(lab);
-    if (rec.text) d.appendChild(document.createTextNode(rec.text));
+    if (rec.text) {
+      /* a long note is folded to about six lines, with a link to show it whole */
+      var tx = el('div', 'mn-text', rec.text), tg = el('button', 'mn-more', 'Show the whole note');
+      tg.type = 'button'; tg.hidden = true; tg.setAttribute('aria-expanded', 'false');
+      tg.addEventListener('click', function () {
+        var open = d.classList.toggle('open');
+        tg.textContent = open ? 'Show less' : 'Show the whole note'; tg.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      d.appendChild(tx); d.appendChild(tg);
+    }
     host.appendChild(d);
+    window.requestAnimationFrame(function () { foldCheck(d); });
   }
+  function foldCheck(d) {
+    var tx = d.querySelector('.mn-text'), tg = d.querySelector('.mn-more');
+    if (!tx || !tg || !d.offsetParent) return;
+    var lh = parseFloat(window.getComputedStyle(tx).lineHeight) || 22, long = tx.scrollHeight > lh * 6.5;
+    d.classList.toggle('mn-long', long); tg.hidden = !long;
+  }
+  var foldTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(foldTimer);
+    foldTimer = setTimeout(function () { Array.prototype.forEach.call(document.querySelectorAll('.mynote'), foldCheck); }, 150);
+  });
   function paintCard(li) {
     var st = li._nt; if (!st) return;
     var r = res(), info = r.info(st.idx), slots = slotsOf(info), n = 0, key = r.key(st.idx);

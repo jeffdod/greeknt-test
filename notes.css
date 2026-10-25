@@ -14,6 +14,13 @@
 .mynote .mn-title{display:block;font-size:.97rem;font-style:normal;color:var(--ink);margin-bottom:1px}
 .nt-rslot .mynote{margin-left:14px}
 
+/* a long note is folded to six lines */
+.mynote .mn-text{white-space:pre-wrap}
+.mynote.mn-long:not(.open) .mn-text{max-height:calc(6 * 1.45em);overflow:hidden;-webkit-mask-image:linear-gradient(#000 65%,transparent);mask-image:linear-gradient(#000 65%,transparent)}
+.mn-more{display:block;margin:2px 0 0;padding:0;font:inherit;font-size:.88rem;color:var(--rubric);background:none;border:0;text-decoration:underline;cursor:pointer}
+.mn-more[hidden]{display:none}
+.mn-more:focus-visible{outline:2px solid var(--rubric);outline-offset:2px}
+
 /* the panel */
 html.nt-open{overflow:hidden}
 .nt-back{position:fixed;inset:0;background:rgba(20,28,38,.45);z-index:50}
