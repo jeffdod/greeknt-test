@@ -619,7 +619,9 @@
             lab.textContent = 'Reading in ';
             lab.appendChild(tg.cloneNode(true));
           });
-          d.parentNode.insertBefore(panel, d.nextSibling);
+          var after = d.nextSibling;          /* a note the reader wrote on this reading (notes.js) stays directly under the reading, above the comparison */
+          if (after && after.classList && after.classList.contains('nt-slot')) after = after.nextSibling;
+          d.parentNode.insertBefore(panel, after);
           /* A long Greek word first gets a slightly wider column (at most WIDEN px more than the standard 120px);
              if it still does not fit beside the cell number, its type is scaled down just enough. */
           var WIDEN = 12, STD = 120;

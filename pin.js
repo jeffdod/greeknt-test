@@ -60,6 +60,11 @@
     ui.go = el('button', 'pinlite', 'Go to pin'); ui.go.type = 'button';
     ui.un = el('button', 'pinlite', 'Unpin'); ui.un.type = 'button';
     row2.appendChild(ui.go); row2.appendChild(ui.un);
+    if (window.GNT_MYNOTES && GNT_MYNOTES.available) {
+      ui.note = el('button', 'pinlite pinnote', 'Note'); ui.note.type = 'button'; ui.note.title = 'Write your own note on the pinned footnote';
+      ui.note.addEventListener('click', function () { if (pin >= 0) GNT_MYNOTES.open(pin); });
+      row2.appendChild(ui.note);
+    }
     row2.appendChild(el('span', 'pinhint', 'Hold to move faster. Left and right arrow keys work too.'));
     ui.form = el('form', 'pinjump'); ui.form.hidden = true;
     var lab = el('label', null, 'Go to note '); ui.num = el('input'); ui.num.type = 'number'; ui.num.min = 1; ui.num.setAttribute('inputmode', 'numeric'); lab.appendChild(ui.num);
