@@ -30,6 +30,7 @@
 
 /* the list of results is a grid: let a card shrink to the screen, so a wide table scrolls inside its panel */
 .results>li{min-width:0}
+.coll-vn{font-weight:400;font-size:.8rem;color:var(--ink-soft)}
 @media (max-width:640px){
   .coll-panel{padding:8px 10px 10px}
   .coll-t{font-size:1rem}

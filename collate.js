@@ -99,7 +99,14 @@
       if ((r[3] || []).indexOf('other') >= 0) return null;
       if (!marks.length) return { ins: wrapR(r, ed, [r[1] === 'om.' ? '' : r[1]]).join(' '), ni: i, j: n[5].indexOf(r) + 1 };
       var parts;
-      if (r[1] === 'om.' || (r[3] || []).indexOf('omitall') >= 0) parts = marks.map(function () { return ''; });
+      if (r[1].replace(/^\s*\(\d+:\d+\)\s*/, '') === 'om.' || (r[3] || []).indexOf('omitall') >= 0) {
+        var k0 = marks[0].k;
+        if (marks.length > 1 && marks.every(function (m) { return m.k === k0; }) && String(n[4]).indexOf('…') >= 0) {
+          var lo = Math.min.apply(null, marks.map(function (m) { return m.s; })), hi = Math.max.apply(null, marks.map(function (m) { return m.e; }));
+          return { ops: [{ k: k0, s: lo, e: hi, t: '', ni: i, j: n[5].indexOf(r) + 1, off: 0 }] };
+        }
+        parts = marks.map(function () { return ''; });
+      }
       else if (marks.length === 1) parts = [r[1]];
       else if (r[1].indexOf('…') >= 0) parts = r[1].split(/\s*…\s*/);
       else {
@@ -165,10 +172,12 @@
   function collateVerse(b, key, text, rows) {
     var base = function (k) { return k === key ? text : (GNT_GRK.v[b][k] || ''); }, toks = baseTokens(text);
     var ix = index(), ids = (ix.m[b + '|' + key] || []).slice().sort(function (x, y) { return x - y; });
-    var flags = [], ops = rows.map(function () { return []; }), tail = rows.map(function () { return []; });
+    var vref = rows.map(function () { return ''; }), flags = [], ops = rows.map(function () { return []; }), tail = rows.map(function () { return []; });
     ids.forEach(function (i) {
       rows.forEach(function (row, ri) {
         var res = applyNote(i, row.ed, row.rk, base);
+        var rd = readingOf(N[i], row.ed, row.rk), vm = rd && /^\s*\[*\((\d+:\d+)\)/.exec(rd[1]);
+        if (vm && res && vm[1] !== key) vref[ri] = vm[1];
         if (!res) { var n = N[i]; if (readingOf(n, row.ed, row.rk)) { var f = n[2] + ' (' + n[3] + ')'; if (flags.indexOf(f) < 0) flags.push(f); } return; }
         (res.ops || []).forEach(function (o) { if (o.k === key) ops[ri].push(o); });
       });
@@ -177,6 +186,8 @@
     (ix.ins[b + '|' + key] || []).slice().sort(function (x, y) { return x - y; }).forEach(function (i) {
       rows.forEach(function (row, ri) {
         var res = applyNote(i, row.ed, row.rk, base);
+        var rd = res && readingOf(N[i], row.ed, row.rk), vm = rd && /^\s*\[*\((\d+:\d+)\)/.exec(rd[1]);
+        if (vm && vm[1] !== key) vref[ri] = vm[1];
         if (res && res.ins) words(res.ins).forEach(function (w, x) { tail[ri].push({ w: w, src: { ni: res.ni, j: res.j, n: x } }); });
       });
     });
@@ -228,7 +239,7 @@
       else if (!c.added) kept.push({ same: { w: c.base[0].w, src: c.base[0].src } });
     });
     var rowSame = rows.map(function (r, ri) { return !kept.some(function (c) { return c.cells && off(c, ri); }); });
-    return { cols: kept, flags: flags, b: b, key: key, rowSame: rowSame, differs: rowSame.some(function (x) { return !x; }) };
+    return { cols: kept, flags: flags, b: b, key: key, rowSame: rowSame, vref: vref, differs: rowSame.some(function (x) { return !x; }) };
   }
 
   /* ---------- drawing ---------- */
@@ -263,10 +274,10 @@
       if (li) box.appendChild(el('div', 'coll-cont', 'the verse continues below'));
       var wrap = el('div', 'coll-scroll'), t = el('table', 'coll-t');
       var all = [{ ed: null }];
-      rows.forEach(function (r, i) { if (!res.rowSame[i]) all.push({ ed: r.ed, rk: r.rk, n: r.n, i: i }); });
+      rows.forEach(function (r, i) { if (!res.rowSame[i]) all.push({ ed: r.ed, rk: r.rk, n: r.n, i: i, vr: res.vref[i] }); });
       all.forEach(function (row) {
         var tr = el('tr'), th = el('th'); th.scope = 'row';
-        if (!row.ed) th.textContent = 'Main text'; else { th.appendChild(chip(row.ed)); if (row.n) th.appendChild(document.createTextNode(' ' + row.n)); }
+        if (!row.ed) th.textContent = 'Main text'; else { th.appendChild(chip(row.ed)); if (row.n) th.appendChild(document.createTextNode(' ' + row.n)); if (row.vr) { var vn = el('span', 'coll-vn', ' (' + row.vr + ')'); vn.title = 'This edition numbers the verse it reads here ' + row.vr; th.appendChild(vn); } }
         tr.appendChild(th);
         ln.forEach(function (c) {
           var td = el('td');
