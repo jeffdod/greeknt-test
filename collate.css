@@ -10,7 +10,9 @@
 .coll-note{margin:6px 0 8px;font-size:.88rem;color:var(--ink-soft);line-height:1.45}
 .coll-v h4{margin:10px 0 4px;font-size:1rem}
 .coll-cont{margin:0 0 6px;font-size:.8rem;font-style:italic;color:var(--ink-soft);text-align:center;border-top:1px dashed var(--rule);line-height:1.2;padding-top:2px}
-.coll-scroll{overflow-x:auto;margin:0 0 8px;-webkit-overflow-scrolling:touch}
+.coll-scroll{display:flex;align-items:flex-end;overflow-x:auto;margin:0 0 8px;-webkit-overflow-scrolling:touch}
+.coll-scroll .coll-t{flex:none}
+.coll-wm{flex:none;padding:0 4px 3px 10px;font-size:1.3rem;line-height:1;color:var(--ink-soft)}
 .coll-t{width:max-content;max-width:none;border-collapse:collapse;font-family:"GFS Didot","EB Garamond",serif;font-size:1.05rem;line-height:1.35}
 .coll-t th{text-align:left;font-family:"EB Garamond",serif;font-weight:600;font-size:.88rem;color:var(--ink-soft);padding:2px 10px 2px 0;white-space:nowrap;min-width:96px;position:sticky;left:0;background:var(--vellum);z-index:1}
 .coll-t td{padding:2px 8px;white-space:nowrap}

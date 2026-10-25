@@ -225,7 +225,9 @@
         });
         t.appendChild(tr);
       });
-      wrap.appendChild(t); box.appendChild(wrap);
+      wrap.appendChild(t);
+      if (li < lines.length - 1) { var wm = el('span', 'coll-wm', '\u21B4'); wm.setAttribute('aria-hidden', 'true'); wrap.appendChild(wm); }
+      box.appendChild(wrap);
     });
   }
 
