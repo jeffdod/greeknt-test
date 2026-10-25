@@ -4,7 +4,7 @@
   'use strict';
   var KEY = 'gnt-pin';
   var DELAY = 450, STAGE = 1100, TICK = 110, SPEEDS = [1, 3, 10, 25];
-  var R = null, pin = -1, bar = null, ui = {}, hold = null;
+  var R = null, pin = -1, bar = null, ui = {}, hold = null, undoPin = -1, undoTimer = null;
 
   function res() { return R || (R = window.GNT_RES || null); }
   function el(t, c, x) { var e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; }
@@ -58,7 +58,7 @@
     row.appendChild(ui.prev); row.appendChild(ui.count); row.appendChild(ui.next);
     var row2 = el('div', 'pinrow pinrow2');
     ui.go = el('button', 'pinlite', 'Go to pin'); ui.go.type = 'button';
-    ui.un = el('button', 'pinlite', 'Unpin'); ui.un.type = 'button';
+    ui.un = el('button', 'pinlink', 'Unpin'); ui.un.type = 'button'; ui.un.title = 'Remove the pin. You can undo it right after.';
     row2.appendChild(ui.go); row2.appendChild(ui.un);
     if (window.GNT_MYNOTES && GNT_MYNOTES.available) {
       ui.note = el('button', 'pinlite pinnote', 'Note'); ui.note.type = 'button'; ui.note.title = 'Write your own note on the pinned footnote';
@@ -66,12 +66,17 @@
       row2.appendChild(ui.note);
     }
     row2.appendChild(el('span', 'pinhint', 'Hold to move faster. Left and right arrow keys work too.'));
+    var urow = el('div', 'pinrow pinundorow');
+    urow.appendChild(el('span', 'pinmsg', 'Pin removed.'));
+    ui.undo = el('button', 'pinlite', 'Undo'); ui.undo.type = 'button';
+    ui.undo.addEventListener('click', function () { var p = undoPin; clearUndo(); if (p >= 0) setPin(p); });
+    urow.appendChild(ui.undo);
     ui.form = el('form', 'pinjump'); ui.form.hidden = true;
     var lab = el('label', null, 'Go to note '); ui.num = el('input'); ui.num.type = 'number'; ui.num.min = 1; ui.num.setAttribute('inputmode', 'numeric'); lab.appendChild(ui.num);
     var ok = el('button', 'pinlite', 'Go'); ok.type = 'submit';
     var no = el('button', 'pinlite', 'Cancel'); no.type = 'button';
     ui.form.appendChild(lab); ui.form.appendChild(ok); ui.form.appendChild(no);
-    bar.appendChild(row); bar.appendChild(row2); bar.appendChild(ui.form);
+    bar.appendChild(row); bar.appendChild(row2); bar.appendChild(ui.form); bar.appendChild(urow);
     anchor.parentNode.insertBefore(bar, anchor);
 
     ui.go.addEventListener('click', goToPin);
@@ -103,7 +108,12 @@
 
   function paint(shownPos) {
     if (!bar) return;
-    if (pin < 0) { bar.hidden = true; document.body.classList.remove('pin-on'); return; }
+    if (pin < 0) {
+      var undo = undoPin >= 0;
+      bar.hidden = !undo; bar.classList.toggle('pinundo', undo); document.body.classList.toggle('pin-on', undo);
+      return;
+    }
+    bar.classList.remove('pinundo');
     bar.hidden = false; document.body.classList.add('pin-on');
     var r = res(), h = r.hits(), p = shownPos != null ? shownPos : posOf(pin);
     if (p < 0) {
@@ -122,9 +132,14 @@
     var li = itemOf(pin);
     if (li) li.scrollIntoView({ block: 'center', behavior: 'smooth' });
   }
+  /* taking the pin away is easy to do by mistake, so for a few seconds the bar offers to put it back */
+  function clearUndo() { undoPin = -1; clearTimeout(undoTimer); }
   function setPin(i) {
     stopHold(false);
-    pin = i; save(); mark(); paint();
+    var prev = pin;
+    pin = i; save(); mark(); clearUndo();
+    if (i < 0 && prev >= 0) { undoPin = prev; undoTimer = setTimeout(function () { undoPin = -1; paint(); }, 10000); }
+    paint();
     if (ui.form) ui.form.hidden = true;
   }
   function moveTo(p) {
