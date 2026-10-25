@@ -40,3 +40,10 @@
   body.pin-on{padding-bottom:150px}
   body.pin-on .jump{bottom:calc(160px + env(safe-area-inset-bottom,0px))}
 }
+@media (max-width:640px) and (display-mode:standalone){
+  /* the home-screen app reaches the curved bottom corners of the phone: keep the bar's text and links inside the comfortable area */
+  .pinbar{padding-left:max(18px,env(safe-area-inset-left));padding-right:max(18px,env(safe-area-inset-right));padding-bottom:max(30px,env(safe-area-inset-bottom))}
+  body.pin-on{padding-bottom:180px}
+  body.pin-on .jump{bottom:calc(192px + env(safe-area-inset-bottom,0px))}
+  .res.pinned{scroll-margin-bottom:200px}
+}

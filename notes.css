@@ -89,3 +89,6 @@ html.nt-open{overflow:hidden}
   .nt-reads .gk{font-size:1.05rem}
   .nt-tools{max-height:60%}
 }
+@media (max-width:640px) and (display-mode:standalone){
+  .nt-foot{padding-left:max(18px,env(safe-area-inset-left));padding-right:max(18px,env(safe-area-inset-right));padding-bottom:max(30px,env(safe-area-inset-bottom))}
+}
