@@ -9,8 +9,8 @@
   var BIT = {}; EDS.forEach(function (e, i) { BIT[e] = 1 << i; });
   var ALL = ['SCR', 'ST', 'WH', 'PT', 'SBL', 'RPmg'];
   var KEY = 'gnt-collate-eds';
-  var CHAR = 9.4;                       /* about how wide a letter is, in pixels, at the size used for the columns */
-  var LABEL = 118;                      /* the width of the edition names at the left, in pixels */
+  var CHAR = 8.8;                       /* about how wide a letter is, in pixels, at the size used for the columns */
+  var LABEL = 110;                      /* the width of the edition names at the left, in pixels */
 
   function el(t, c, x) { var e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; }
   var FAMILY = { PT: 'byz', RPmg: 'byz', SCR: 'tr', ST: 'tr' };
@@ -224,7 +224,7 @@
       lines[lines.length - 1].push(c); w += cw;
     });
     lines.forEach(function (ln, li) {
-      if (li) box.appendChild(el('div', 'coll-cont', 'the verse continues'));
+      if (li) box.appendChild(el('div', 'coll-cont', 'the verse continues below'));
       var wrap = el('div', 'coll-scroll'), t = el('table', 'coll-t');
       var all = [{ ed: null }];
       rows.forEach(function (r, i) { if (!res.rowSame[i]) all.push({ ed: r.ed, rk: r.rk, n: r.n, i: i }); });
