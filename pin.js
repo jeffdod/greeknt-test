@@ -65,9 +65,6 @@
       ui.note.addEventListener('click', function () { if (pin >= 0) GNT_MYNOTES.open(pin); });
       row2.appendChild(ui.note);
     }
-    ui.coll = el('button', 'pinlite pincoll', 'Collate'); ui.coll.type = 'button'; ui.coll.title = 'Show the verse of the pinned note as each edition reads it';
-    ui.coll.addEventListener('click', function () { if (pin >= 0 && window.GNT_COLL) GNT_COLL.open(itemOf(pin)); });
-    row2.appendChild(ui.coll);
     row2.appendChild(el('span', 'pinhint', 'Hold to move faster. Left and right arrow keys work too.'));
     var urow = el('div', 'pinrow pinundorow');
     urow.appendChild(el('span', 'pinmsg', 'Pin removed.'));

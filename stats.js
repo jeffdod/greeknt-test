@@ -10,7 +10,6 @@ var FAM={HF:'byz',PCK:'byz',PT:'byz',ECM:'crit',NA27:'crit',NA28:'crit',SBL:'cri
 var FAMNAME={byz:'Byzantine editions',crit:'Critical editions',tr:'Textus Receptus editions'};
 var FAMCOL={byz:'var(--r3)',crit:'var(--r1)',tr:'var(--r2)'};
 var EDNAME={HF:'Hodges-Farstad',PCK:'Pickering',PT:'Antoniades (Patriarchal Text)',ECM:'Editio Critica Maior',NA27:'Nestle-Aland 27',NA28:'Nestle-Aland 28',SBL:'SBL Greek New Testament',TH:'Tyndale House',WH:'Westcott-Hort',SCR:'Scrivener',ST:'Stephanus'};
-window.GNT_EDNAME=EDNAME;
 var OPTNAME={PCK:'Pickering',PT:'Antoniades Patriarchal Text',SBL:'SBL Greek NT'};
 var KINDS={same:'reads the same as the base text',brw:'has bracketed text',bronly:'only the brackets differ',spell:'different spelling',order:'different word order',omitall:'omits the base reading',omit:'omits words',add:'adds words',repl:'replaces the base text',elide:'elision',krasis:'crasis',br1:'single brackets around reading',br2:'double brackets around reading',br3:'chevrons around reading',other:'Other'};
 var $=function(id){return document.getElementById(id);};
@@ -867,7 +866,6 @@ function renderItem(n,idx,pfx){
   var cnb=el('button','encopy','Copy this note');cnb.type='button';cnb.title='Copy the reference, the main text, and each reading with its editions, as plain text';
   cnb.addEventListener('click',function(){window.GNT_copy(noteText(n,li),cnb,'Copied');});
   cph.appendChild(cpb);cph.appendChild(cnb);vt.appendChild(cph);vt.appendChild(el('p','tiphint','Point at or tap any Greek word in this note for its meaning and parsing.'));
-  if(!QUIET&&window.GNT_COLL&&window.GNT_GR)GNT_COLL.attach(li,n,idx,cph);
   if(HINTSET&&HINTSET[idx]){
     var hb=hintBlock(n,idx,pfx);li.appendChild(hb);
     /* a search that matched the hints opens them, with the words highlighted */
