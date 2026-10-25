@@ -835,7 +835,6 @@ function renderItem(n,idx,pfx){
     if(window.GNT_CMP&&window.GNT_TIP&&r[1]!=='txt'&&r[3][0]!=='other')GNT_CMP.attach(d,n,idx,ri);
     bracketsAt(ri+1);
   });
-  if(!QUIET&&window.GNT_COLL&&window.GNT_GR)GNT_COLL.attach(li,n,idx);
   if(n[7])li.appendChild(el('div','rd br',null)).appendChild(el('span','kd','ECM prints a split guiding line here (ECM†).'));
   var sv=SPEC[n[1]+'/'+n[0]+'/'+n[3]];
   if(sv){
@@ -865,6 +864,7 @@ function renderItem(n,idx,pfx){
   var cnb=el('button','encopy','Copy this note');cnb.type='button';cnb.title='Copy the reference, the main text, and each reading with its editions, as plain text';
   cnb.addEventListener('click',function(){window.GNT_copy(noteText(n,li),cnb,'Copied');});
   cph.appendChild(cpb);cph.appendChild(cnb);vt.appendChild(cph);vt.appendChild(el('p','tiphint','Point at or tap any Greek word in this note for its meaning and parsing.'));
+  if(!QUIET&&window.GNT_COLL&&window.GNT_GR)GNT_COLL.attach(li,n,idx,cph);
   if(HINTSET&&HINTSET[idx]){
     var hb=hintBlock(n,idx,pfx);li.appendChild(hb);
     /* a search that matched the hints opens them, with the words highlighted */

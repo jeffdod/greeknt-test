@@ -5,7 +5,7 @@
    are one column. Words are matched by the position the note records, never by searching for the words. */
 (function () {
   'use strict';
-  var D = window.GNT_NOTES, N = D.notes, EDS = D.eds, GR = window.GNT_GR;
+  var D = window.GNT_NOTES, N = D.notes, EDS = D.eds, BOOKS = D.books, GR = window.GNT_GR;
   var BIT = {}; EDS.forEach(function (e, i) { BIT[e] = 1 << i; });
   var ALL = ['SCR', 'ST', 'WH', 'PT', 'SBL', 'RPmg'];
   var KEY = 'gnt-collate-eds';
@@ -197,13 +197,15 @@
   }
   function drawVerse(box, res, rows, avail) {
     box.textContent = '';
-    var per = Math.max(14, Math.floor((avail - LABEL) / CHAR)), lines = [[]], w = 0;
+    /* on a narrow screen the verse stays on one line and slides sideways, with the edition names held in place */
+    var per = avail < 560 ? 1e9 : Math.max(14, Math.floor((avail - LABEL) / CHAR)), lines = [[]], w = 0;
     res.cols.forEach(function (c) {
       var cw = colWidth(c);
       if (w + cw > per && lines[lines.length - 1].length) { lines.push([]); w = 0; }
       lines[lines.length - 1].push(c); w += cw;
     });
-    lines.forEach(function (ln) {
+    lines.forEach(function (ln, li) {
+      if (li) box.appendChild(el('div', 'coll-cont', 'the verse continues'));
       var wrap = el('div', 'coll-scroll'), t = el('table', 'coll-t');
       var all = [{ ed: null }].concat(rows);
       all.forEach(function (row, ri) {
@@ -256,6 +258,7 @@
     });
     head.appendChild(pick);
     head.appendChild(el('p', 'coll-note', 'These are the editions whose texts this site may reproduce. Each is rebuilt from the main text and the notes, in lowercase without accents or punctuation. Shaded words differ from the main text; words in brackets are printed in brackets.'));
+    head.appendChild(el('p', 'coll-slide', 'Slide the table sideways to read the whole verse.'));
     panel.appendChild(head);
     var body = el('div', 'coll-body'); panel.appendChild(body);
     var foot = el('p', 'coll-credit', 'SBL: SBL Greek New Testament, © 2010 Society of Biblical Literature and Logos Bible Software, licensed under Creative Commons Attribution 4.0. Shown here without accents or punctuation. Point at a word, or tap it, for its meaning and parsing.');
@@ -263,13 +266,14 @@
     var lastW = 0;
     function draw() {
       var avail = panel.clientWidth || 320; lastW = avail;
+      panel.classList.toggle('coll-narrow', avail < 560);
       body.textContent = '';
       var rows = rowsFor(b, vs.map(function (v) { return v.key; }));
       var flags = [];
       if (!vs.length) body.appendChild(el('p', 'coll-none', 'The text of this verse is not available.'));
       vs.forEach(function (v) {
         var sec = el('div', 'coll-v');
-        if (vs.length > 1) sec.appendChild(el('h4', null, 'Verse ' + v.label));
+        sec.appendChild(el('h4', null, BOOKS[b] + ' ' + (vs.length > 1 ? v.key : n[2])));
         var res = collateVerse(b, v.key, v.text, rows);
         res.flags.forEach(function (f) { if (flags.indexOf(f) < 0) flags.push(f); });
         var holder = el('div', 'coll-lines'); sec.appendChild(holder);
@@ -290,12 +294,13 @@
   }
 
   var API = window.GNT_COLL = {
-    attach: function (li, n, idx) {
-      var row = el('div', 'coll-row');
-      var btn = el('button', 'coll-btn', /[–-]/.test(n[2]) ? 'Collate these verses' : 'Collate this verse');
+    /* host is the row of buttons under the verse (Copy verse, Copy this note); the panel opens just below the line that follows it */
+    attach: function (li, n, idx, host) {
+      var btn = el('button', 'encopy coll-btn', /[–-]/.test(n[2]) ? 'Collate these verses' : 'Collate this verse');
       btn.type = 'button'; btn.setAttribute('aria-expanded', 'false');
       btn.title = 'Show this verse as each edition reads it, one above the other';
-      row.appendChild(btn); li.appendChild(row);
+      host.appendChild(btn);
+      var row = host.nextSibling || host;
       var panel = null, ro = null;
       function show(on) {
         if (panel) panel.hidden = !on;
@@ -314,7 +319,7 @@
           clearTimeout(giveUp); btn.disabled = false;
           if (!window.GNT_GRK) { show(false); return; }
           panel = build(n, idx);
-          li.insertBefore(panel, row.nextSibling);
+          row.parentNode.insertBefore(panel, row.nextSibling);
           panel.__draw(); show(true);
           if (window.ResizeObserver) { ro = new ResizeObserver(function () { if (panel.__redraw) panel.__redraw(); }); ro.observe(panel); }
         });
