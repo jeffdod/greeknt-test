@@ -10,6 +10,7 @@ var FAM={HF:'byz',PCK:'byz',PT:'byz',ECM:'crit',NA27:'crit',NA28:'crit',SBL:'cri
 var FAMNAME={byz:'Byzantine editions',crit:'Critical editions',tr:'Textus Receptus editions'};
 var FAMCOL={byz:'var(--r3)',crit:'var(--r1)',tr:'var(--r2)'};
 var EDNAME={HF:'Hodges-Farstad',PCK:'Pickering',PT:'Antoniades (Patriarchal Text)',ECM:'Editio Critica Maior',NA27:'Nestle-Aland 27',NA28:'Nestle-Aland 28',SBL:'SBL Greek New Testament',TH:'Tyndale House',WH:'Westcott-Hort',SCR:'Scrivener',ST:'Stephanus'};
+window.GNT_EDNAME=EDNAME;
 var OPTNAME={PCK:'Pickering',PT:'Antoniades Patriarchal Text',SBL:'SBL Greek NT'};
 var KINDS={same:'reads the same as the base text',brw:'has bracketed text',bronly:'only the brackets differ',spell:'different spelling',order:'different word order',omitall:'omits the base reading',omit:'omits words',add:'adds words',repl:'replaces the base text',elide:'elision',krasis:'crasis',br1:'single brackets around reading',br2:'double brackets around reading',br3:'chevrons around reading',other:'Other'};
 var $=function(id){return document.getElementById(id);};
@@ -565,7 +566,9 @@ function myNotesFilter(){var m=window.GNT_MYNOTES;if(!m||!m.available||!$('fMine
 function myNotesSet(){var m=myNotesFilter();return m&&GNT_MYNOTES.ready?GNT_MYNOTES.matchSet(true,m.text):null;}
 function tag(e){
   if(e==='RPmg'){var t=el('span','etag f-byz','RP');t.appendChild(el('sup',null,'mg'));t.title='Robinson-Pierpont, alternate Byzantine reading';return t;}
-  return el('span','etag f-'+(FAM[e]||'crit'),e==='ECMs'?'ECM†':e);
+  var t2=el('span','etag f-'+(FAM[e]||'crit'),e==='ECMs'?'ECM†':e);
+  t2.title=e==='ECMs'?'Editio Critica Maior, with a split guiding line (ECM†)':(EDNAME[e]||e);
+  return t2;
 }
 
 /* Tags as the printed edition shows them: CT (all critical editions), CT† (ECM† with them), NA (NA27 and NA28), TR (SCR and ST).

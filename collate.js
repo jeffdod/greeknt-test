@@ -13,6 +13,14 @@
   var LABEL = 118;                      /* the width of the edition names at the left, in pixels */
 
   function el(t, c, x) { var e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; }
+  var FAMILY = { PT: 'byz', RPmg: 'byz', SCR: 'tr', ST: 'tr' };
+  var NAMES = { SCR: 'Scrivener', ST: 'Stephanus', WH: 'Westcott-Hort', PT: 'Antoniades (Patriarchal Text)', SBL: 'SBL Greek New Testament', RPmg: 'Robinson-Pierpont, alternate Byzantine reading' };
+  /* an edition's label: the same colored chip the notes use, with the name of the edition as its tooltip */
+  function chip(e) {
+    var c = el('span', 'etag f-' + (FAMILY[e] || 'crit')); edName(e, c);
+    c.title = e === 'RPmg' ? NAMES.RPmg : ((window.GNT_EDNAME && GNT_EDNAME[e]) || NAMES[e] || e);
+    return c;
+  }
   function edName(e, node) { if (e === 'RPmg') { node.appendChild(document.createTextNode('RP')); node.appendChild(el('sup', null, 'mg')); } else node.appendChild(document.createTextNode(e)); return node; }
 
   var sel = null;
@@ -173,7 +181,18 @@
       var cells = rows.map(function (row, ri) { var w = ins[ri][q] || []; return { w: w, diff: w.length > 0 }; });
       cols.push({ base: [], cells: cells, added: true });
     });
-    return { cols: cols, flags: flags, b: b, key: key, differs: cols.some(function (c) { return c.cells && c.cells.some(function (x) { return x.diff; }); }) };
+    /* a row is the same as the main text only when every word matches exactly (a movable nu or a bracket is a difference);
+       a column where no row differs at all goes back to being plain words */
+    var words2 = function (a) { return a.map(function (o) { return o.w; }).join(' '); };
+    var off = function (c, ri) { return words2(c.base || []) !== words2(c.cells[ri].w); };
+    var kept = [];
+    cols.forEach(function (c) {
+      if (c.same) { kept.push(c); return; }
+      if (rows.some(function (r, ri) { return off(c, ri); })) kept.push(c);
+      else if (!c.added) c.base.forEach(function (o) { kept.push({ same: { w: o.w, src: o.src } }); });
+    });
+    var rowSame = rows.map(function (r, ri) { return !kept.some(function (c) { return c.cells && off(c, ri); }); });
+    return { cols: kept, flags: flags, b: b, key: key, rowSame: rowSame, differs: rowSame.some(function (x) { return !x; }) };
   }
 
   /* ---------- drawing ---------- */
@@ -207,16 +226,17 @@
     lines.forEach(function (ln, li) {
       if (li) box.appendChild(el('div', 'coll-cont', 'the verse continues'));
       var wrap = el('div', 'coll-scroll'), t = el('table', 'coll-t');
-      var all = [{ ed: null }].concat(rows);
-      all.forEach(function (row, ri) {
+      var all = [{ ed: null }];
+      rows.forEach(function (r, i) { if (!res.rowSame[i]) all.push({ ed: r.ed, rk: r.rk, n: r.n, i: i }); });
+      all.forEach(function (row) {
         var tr = el('tr'), th = el('th'); th.scope = 'row';
-        if (!row.ed) th.textContent = 'Main text'; else { edName(row.ed, th); if (row.n) th.appendChild(document.createTextNode(' ' + row.n)); }
+        if (!row.ed) th.textContent = 'Main text'; else { th.appendChild(chip(row.ed)); if (row.n) th.appendChild(document.createTextNode(' ' + row.n)); }
         tr.appendChild(th);
         ln.forEach(function (c) {
           var td = el('td');
           if (c.same) { td.className = 'coll-s'; wordsInto(td, [c.same], res.b, res.key); }
           else {
-            var cell = row.ed ? c.cells[ri - 1] : null, ws = row.ed ? cell.w : c.base;
+            var cell = row.ed ? c.cells[row.i] : null, ws = row.ed ? cell.w : c.base;
             td.className = row.ed ? (cell.diff ? 'coll-d' : 'coll-b') : 'coll-m';
             if (ws.length) wordsInto(td, ws, res.b, res.key);
             else td.appendChild(el('i', null, row.ed ? 'omitted' : (c.added ? 'not in the main text' : '')));
@@ -281,6 +301,15 @@
         var holder = el('div', 'coll-lines'); sec.appendChild(holder);
         drawVerse(holder, res, rows, avail - 28);
         if (!res.differs) sec.appendChild(el('p', 'coll-same', 'The editions shown all read the main text here.'));
+        else {
+          var same = rows.filter(function (r, i) { return res.rowSame[i]; });
+          if (same.length) {
+            var sp = el('p', 'coll-same', 'These editions read the main text throughout: ');
+            same.forEach(function (r, i) { if (i) sp.appendChild(document.createTextNode(', ')); edName(r.ed, sp); if (r.n) sp.appendChild(document.createTextNode(' ' + r.n)); });
+            sp.appendChild(document.createTextNode('.'));
+            sec.appendChild(sp);
+          }
+        }
         body.appendChild(sec);
         sec.__res = res; sec.__rows = rows; sec.__holder = holder;
       });
