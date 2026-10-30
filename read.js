@@ -119,10 +119,13 @@
   }
   /* The vocabulary list for the passage being read */
   function openVocab(scroll) {
-    if (!window.GNT_VOCAB || !cur.parts.length) return;
-    GNT_VOCAB.setPassage(P.canon(cur.parts));
-    $('rdVocab').hidden = false; GNT_VOCAB.open();
-    if (scroll) $('rdVocab').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (!cur.parts.length) { say('Choose a passage to read first.'); return; }
+    if (!window.GNT_VOCAB) { say('The vocabulary list did not load. Reload the page and try again.'); return; }
+    try {
+      GNT_VOCAB.setPassage(P.canon(cur.parts));
+      $('rdVocab').hidden = false; GNT_VOCAB.open();
+      if (scroll) $('rdVocab').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) { say('The vocabulary list could not be made: ' + e.message); }
   }
 
   /* ---------- recent passages ---------- */
