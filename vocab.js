@@ -141,10 +141,39 @@
 
   /* ---------- downloads ---------- */
   function slug() { return 'vocabulary-' + model.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60); }
-  function save(name, type, content) {
-    var blob = new Blob([content], { type: type }), url = URL.createObjectURL(blob), a = document.createElement('a');
-    a.href = url; a.download = name; a.className = 'rd-hidden'; document.body.appendChild(a); a.click();
-    setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1500);
+  var touch = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var standalone = !!(navigator.standalone || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches));
+  /* Give the person a file: a download on a computer; on a phone or tablet, the share sheet and a link to open it */
+  function deliver(blob, name, done) {
+    var url = URL.createObjectURL(blob);
+    function link() {
+      clearTimeout(say.t); var s = $('vbStatus'); s.textContent = '';
+      s.appendChild(document.createTextNode(done + ' '));
+      var a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.download = name; a.textContent = 'Open ' + name; s.appendChild(a);
+    }
+    if (touch) {
+      link();
+      try {
+        var file = new File([blob], name, { type: blob.type });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) navigator.share({ files: [file], title: name }).catch(function () {});
+      } catch (e) {}
+      return;
+    }
+    var a = document.createElement('a'); a.href = url; a.download = name; a.className = 'rd-hidden'; document.body.appendChild(a); a.click();
+    setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 4000);
+    say(done);
+  }
+  function plain(m) {
+    return { title: m.title, filt: m.filt, count: num(m.rows.length) + (m.rows.length === 1 ? ' word' : ' words') + ' from ' + num(m.total) + ' in the passage.',
+      rows: m.rows.map(function (e) { return { hw: e.hw, gloss: e.gloss, kind: KINDS[e.kind], s: e.s, freq: e.freq, here: e.here,
+        forms: m.ch.forms ? e.fl.map(function (f) { return { spell: f.spell, text: m.ch.parse ? f.text : '', verses: f.verses, n: f.n }; }) : [] }; }) };
+  }
+  function makePdf(note) {
+    if (!model) return;
+    if (!window.GNT_PDF) { say('The PDF maker did not load. Reload the page and try again.'); return; }
+    say('Making the PDF\u2026');
+    window.GNT_PDF.make(plain(model)).then(function (blob) { deliver(blob, slug() + '.pdf', note || 'Your PDF is ready.'); },
+      function (e) { say('The PDF could not be made: ' + e.message); });
   }
   function formsText(e, ch) {
     return e.fl.map(function (f) { return f.spell + (ch.parse ? ' (' + f.text + ')' : '') + ' ' + f.verses.join(', ') + (f.n > 1 ? ' x' + f.n : ''); }).join('; ');
@@ -168,7 +197,7 @@
     h += '</tbody></table><p>' + num(m.rows.length) + ' words from ' + num(m.total) + ' in the passage.</p><p>The Greek New Testament According to the Byzantine Text, greeknt.org</p></body></html>';
     return h;
   }
-  function say(t) { var s = $('vbStatus'); s.textContent = t; clearTimeout(say.t); say.t = setTimeout(function () { s.textContent = ''; }, 4000); }
+  function say(t) { var s = $('vbStatus'); s.textContent = t; clearTimeout(say.t); say.t = setTimeout(function () { s.textContent = ''; }, 6000); }
 
   /* ---------- running ---------- */
   var timer = null;
@@ -213,10 +242,10 @@
     document.querySelectorAll('.vb-side input').forEach(function (c) { c.addEventListener('change', later); });
     $('vbMax').addEventListener('input', function () { $('vbCommon').checked = true; later(); });
     document.querySelectorAll('.vb-preset').forEach(function (b) { b.addEventListener('click', function () { $('vbMax').value = b.dataset.n; $('vbCommon').checked = true; make(); }); });
-    $('vbPrint').addEventListener('click', printIt);
-    $('vbPdf').addEventListener('click', function () { say('Choose \u201cSave as PDF\u201d in the print window.'); printIt(); });
-    $('vbWord').addEventListener('click', function () { if (model) { save(slug() + '.doc', 'application/msword', toWord(model)); say('Saved as a Word file.'); } });
-    $('vbCsv').addEventListener('click', function () { if (model) { save(slug() + '.csv', 'text/csv;charset=utf-8', toCsv(model)); say('Saved as a CSV file.'); } });
+    $('vbPrint').addEventListener('click', function () { if (touch || standalone) makePdf('This device cannot open a print window from here. Your PDF is ready; open it, then use the share button to print it.'); else printIt(); });
+    $('vbPdf').addEventListener('click', function () { makePdf(); });
+    $('vbWord').addEventListener('click', function () { if (model) deliver(new Blob([toWord(model)], { type: 'application/msword' }), slug() + '.doc', 'Your Word file is ready.'); });
+    $('vbCsv').addEventListener('click', function () { if (model) deliver(new Blob([toCsv(model)], { type: 'text/csv;charset=utf-8' }), slug() + '.csv', 'Your CSV file is ready.'); });
   }
   window.GNT_VOCAB = { open: open, setPassage: function (t) { $('vbRange').value = t; } };
   init();
