@@ -114,7 +114,15 @@
     var text = P.canon(parts);
     remember(text);
     if (push) { try { history.replaceState(null, '', location.pathname + '?p=' + encodeURIComponent(text).replace(/%20/g, '+').replace(/%3A/g, ':').replace(/%2C/g, ',') + (cur.view !== 'both' ? '&view=' + cur.view : '') + (cur.notes ? '&notes=1' : '')); } catch (e) {} }
+    if (!$('rdVocab').hidden) openVocab(false);
     $('rdOutSec').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  /* The vocabulary list for the passage being read */
+  function openVocab(scroll) {
+    if (!window.GNT_VOCAB || !cur.parts.length) return;
+    GNT_VOCAB.setPassage(P.canon(cur.parts));
+    $('rdVocab').hidden = false; GNT_VOCAB.open();
+    if (scroll) $('rdVocab').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   /* ---------- recent passages ---------- */
@@ -469,7 +477,7 @@
     $('rdModeSearch').addEventListener('click', function () { showMode('search'); });
     $('rdForm').addEventListener('submit', function (e) { e.preventDefault(); update(true); });
     $('rdRange').addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(function () { update(false); }, 280); });
-    document.querySelectorAll('.rd-ex').forEach(function (b) {
+    document.querySelectorAll('#rdRead .rd-ex').forEach(function (b) {
       if (b.dataset.p) return;
       b.addEventListener('click', function () { $('rdRange').value = b.textContent; update(false); $('rdRange').focus(); });
     });
@@ -485,6 +493,7 @@
       var url = location.origin + location.pathname + '?p=' + encodeURIComponent(P.canon(cur.parts)).replace(/%20/g, '+').replace(/%3A/g, ':').replace(/%2C/g, ',') + (cur.view !== 'both' ? '&view=' + cur.view : '') + (cur.notes ? '&notes=1' : '');
       copyToClipboard(url, function (ok) { say(ok ? 'Link copied.' : url); });
     });
+    $('rdVocabBtn').addEventListener('click', function () { openVocab(true); });
     buildPick();
     P.loadGreek(function (ok) {
       if (!ok) { $('rdMsg').textContent = 'The text could not be loaded. Check your connection and reload the page.'; return; }

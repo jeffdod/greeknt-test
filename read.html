@@ -26,6 +26,7 @@
 <link rel="stylesheet" href="xhero.css">
 <link rel="stylesheet" href="english.css">
 <link rel="stylesheet" href="read.css">
+<link rel="stylesheet" href="vocab.css">
 <link rel="stylesheet" href="print.css" media="print">
 </head>
 <body>
@@ -37,7 +38,6 @@
     <nav class="nav" aria-label="Sections">
       <a href="index.html">The edition</a>
       <a href="read.html" aria-current="page">Read</a>
-      <a href="vocab.html">Vocabulary</a>
       <a href="variants.html">Fifty variants</a>
       <a href="stats.html">Compare editions</a>
       <a href="search.html">Explore variants</a>
@@ -51,7 +51,6 @@
       <nav class="navmenu-list" aria-label="Menu">
         <a href="index.html">The edition</a>
         <a href="read.html" aria-current="page">Read</a>
-        <a href="vocab.html">Vocabulary</a>
         <a href="variants.html">Fifty variants</a>
         <a href="stats.html">Compare editions</a>
         <a href="search.html">Explore variants</a>
@@ -69,7 +68,7 @@
   <div class="xhero">
     <div class="wrap">
       <h1>Read</h1>
-      <p class="lede">Look up any passage and read it in Greek and English. Point at a Greek word to see its dictionary entry and parsing. Search the Greek, the English, and the notes.</p>
+      <p class="lede">Look up any passage and read it in Greek and English. Point at a Greek word to see its dictionary entry and parsing. Search the Greek, the English, and the notes. Make a vocabulary list for any passage you read.</p>
     </div>
   </div>
 
@@ -153,6 +152,7 @@
           <label class="rd-check"><input type="checkbox" id="rdNotes"> Show notes</label>
           <button type="button" class="btn" id="rdCopy">Copy</button>
           <button type="button" class="btn" id="rdShare">Share link</button>
+          <button type="button" class="btn btn-primary" id="rdVocabBtn">Vocabulary list</button>
           <span class="rd-status" id="rdStatus" role="status"></span>
         </div>
         <p class="rd-help rd-tiphelp">Point at a Greek word (or tap it) to see its dictionary entry and parsing.</p>
@@ -161,6 +161,77 @@
     </div>
   </section>
 
+
+  <section id="rdVocab" hidden>
+    <div class="wrap">
+      <h2 class="vb-head">Vocabulary list for this passage</h2>
+      <form id="vbForm" autocomplete="off">
+        <input id="vbRange" name="p" type="hidden">
+        <p class="rd-msg" id="vbMsg" role="status"></p>
+      </form>
+
+      <div class="vb-layout">
+        <aside class="vb-side" aria-label="Choose the words">
+          <fieldset>
+            <legend>Which words</legend>
+            <label><input type="checkbox" name="pos" value="noun" checked> Nouns</label>
+            <label><input type="checkbox" name="pos" value="verb" checked> Verbs</label>
+            <label><input type="checkbox" name="pos" value="adj" checked> Adjectives</label>
+            <label><input type="checkbox" name="pos" value="adv" checked> Adverbs</label>
+            <label><input type="checkbox" name="pos" value="pron"> Pronouns</label>
+            <label><input type="checkbox" name="pos" value="prep"> Prepositions</label>
+            <label><input type="checkbox" name="pos" value="conj"> Conjunctions</label>
+            <label><input type="checkbox" name="pos" value="part"> Particles</label>
+            <label><input type="checkbox" name="pos" value="art"> The article</label>
+          </fieldset>
+          <fieldset>
+            <legend>Proper names</legend>
+            <label><input type="checkbox" id="vbNames"> Include names of people and places</label>
+          </fieldset>
+          <fieldset>
+            <legend>How common</legend>
+            <label><input type="checkbox" id="vbCommon" checked> Leave out words used more than
+              <input type="number" id="vbMax" min="1" max="20000" step="1" value="50" aria-label="Number of times in the edition"> times in the edition</label>
+            <p class="vb-presets">Quick choices:
+              <button type="button" class="vb-preset" data-n="10">10</button>
+              <button type="button" class="vb-preset" data-n="25">25</button>
+              <button type="button" class="vb-preset" data-n="50">50</button>
+              <button type="button" class="vb-preset" data-n="100">100</button>
+              <button type="button" class="vb-preset" data-n="250">250</button>
+              <button type="button" class="vb-preset" data-n="500">500</button>
+              <button type="button" class="vb-preset" data-n="1000">1,000</button>
+            </p>
+          </fieldset>
+          <fieldset>
+            <legend>For verbs</legend>
+            <label><input type="checkbox" id="vbForms" checked> Show the forms used in this passage</label>
+            <label><input type="checkbox" id="vbParse" checked> Show tense, voice and mood</label>
+          </fieldset>
+          <fieldset class="vb-order">
+            <legend>Order</legend>
+            <label class="rd-chip"><input type="radio" name="order" value="appear" checked><span>As it appears</span></label>
+            <label class="rd-chip"><input type="radio" name="order" value="rare"><span>Rarest first</span></label>
+            <label class="rd-chip"><input type="radio" name="order" value="az"><span>A&ndash;Z</span></label>
+            <label class="rd-chip"><input type="radio" name="order" value="kind"><span>By kind of word</span></label>
+          </fieldset>
+        </aside>
+
+        <div class="vb-main">
+          <div class="vb-bar">
+            <p class="vb-count" id="vbCount" role="status"></p>
+            <div class="vb-btns" id="vbBtns" hidden>
+              <button type="button" class="btn" id="vbPrint">Print</button>
+              <button type="button" class="btn" id="vbPdf">PDF</button>
+              <button type="button" class="btn" id="vbWord">Word</button>
+              <button type="button" class="btn" id="vbCsv">CSV</button>
+            </div>
+          </div>
+          <p class="rd-help vb-pdfhelp" id="vbPdfHelp" hidden>PDF opens your browser&rsquo;s print window. Choose &ldquo;Save as PDF&rdquo; as the printer there. <span id="vbStatus" role="status"></span></p>
+          <article id="vbReport" class="vb-report" hidden></article>
+        </div>
+      </div>
+    </div>
+  </section>
 
 </main>
 
@@ -175,6 +246,7 @@
 <script src="greek-tip.js"></script>
 <script src="greekinput.js"></script>
 <script src="passage.js"></script>
+<script src="vocab.js"></script>
 <script src="read.js"></script>
 <script src="menu.js"></script>
 <script src="backnav.js"></script>

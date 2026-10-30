@@ -24,6 +24,12 @@
     if ('PRDIXCFKQS'.indexOf(p) >= 0 && p.length === 1) return 'pron';
     return 'part';
   }
+  /* A parsing in short form: "nominative singular masculine" becomes "nom. sg. masc." */
+  function abbr(t) {
+    var m = { nominative: 'nom.', genitive: 'gen.', dative: 'dat.', accusative: 'acc.', vocative: 'voc.', singular: 'sg.', plural: 'pl.', masculine: 'masc.', feminine: 'fem.', neuter: 'neut.', second: '2nd' };
+    t = t.replace(/(\d)(st|nd|rd) person (singular|plural)/, '$1$2 $3');
+    return t.replace(/\b(nominative|genitive|dative|accusative|vocative|singular|plural|masculine|feminine|neuter|second)\b/g, function (w) { return m[w]; });
+  }
   function num(n) { return n.toLocaleString('en-US'); }
 
   /* ---------- gathering the words ---------- */
@@ -49,7 +55,8 @@
           if (e.pos === 'verb' || cd[0].charAt(0) === 'V') {
             var spell = tok.match(GREEKLET); spell = spell ? spell.join('') : tok;
             var fk = spell + '|' + ci, f = e.forms[fk];
-            if (!f) { f = e.forms[fk] = { spell: spell, code: cd[0], text: cd[1].replace(/^Verb, /, ''), verses: [], at: e.flist.length }; e.flist.push(f); }
+            if (!f) { f = e.forms[fk] = { spell: spell, code: cd[0], text: abbr(cd[1].replace(/^Verb, /, '')), verses: [], n: 0, at: e.flist.length }; e.flist.push(f); }
+            f.n++;
             var ref = (multiBook ? P.books[v.b] + ' ' : '') + v.c + ':' + v.v;
             if (f.verses.indexOf(ref) < 0) f.verses.push(ref);
           }
@@ -63,19 +70,18 @@
   function choices() {
     var pos = {}; document.querySelectorAll('input[name="pos"]').forEach(function (c) { pos[c.value] = c.checked; });
     return {
-      pos: pos, names: $('vbNames').checked, common: $('vbCommon').checked, max: Math.max(1, +$('vbMax').value || 1000),
+      pos: pos, names: $('vbNames').checked, common: $('vbCommon').checked, max: Math.max(1, +$('vbMax').value || 50),
       forms: $('vbForms').checked, parse: $('vbParse').checked, order: document.querySelector('input[name="order"]:checked').value
     };
   }
   function filterLine(ch) {
     var on = Object.keys(PLURAL).filter(function (k) { return ch.pos[k]; }).map(function (k) { return PLURAL[k]; });
-    var bits = [];
-    bits.push(on.length === Object.keys(PLURAL).length ? 'Every kind of word' : on.length ? on.join(', ').replace(/^./, function (m) { return m.toUpperCase(); }) : 'No kinds of word');
-    bits.push(ch.names ? 'names of people and places included' : 'names of people and places left out');
-    if (ch.common) bits.push('words used more than ' + num(ch.max) + ' times in the edition left out');
+    var bits = [on.length ? on.join(', ') : 'no kinds of word'];
+    bits.push(ch.names ? 'names included' : 'no names');
+    if (ch.common) bits.push('words used ' + num(ch.max) + (ch.max === 1 ? ' time' : ' times') + ' or fewer in the edition');
     if (ch.pos.verb) bits.push(ch.forms ? (ch.parse ? 'verb forms shown with tense, voice and mood' : 'verb forms shown') : 'verb forms not shown');
-    bits.push({ appear: 'in the order they appear', rare: 'rarest words first', az: 'in alphabetical order', kind: 'grouped by kind of word' }[ch.order]);
-    return bits.join('; ') + '.';
+    bits.push({ appear: 'in order of appearance', rare: 'rarest words first', az: 'in alphabetical order', kind: 'grouped by kind of word' }[ch.order]);
+    return bits.join(' \u00b7 ') + '.';
   }
   function build(parts, ch) {
     var g = gather(parts);
@@ -94,43 +100,43 @@
       e.fl = e.pos === 'verb' || e.flist.length ? e.flist.slice().sort(function (a, b) { return a.at - b.at; }) : [];
     });
     var title = parts.map(function (p) { return p.label; }).join('; ');
-    return { title: title, filt: filterLine(ch), rows: rows, distinct: g.list.length, ch: ch };
+    return { title: title, filt: filterLine(ch), rows: rows, distinct: g.list.length, total: g.total, ch: ch };
   }
 
   /* ---------- the report on the screen ---------- */
   function renderReport(m) {
-    var box = $('vbReport'); box.textContent = '';
+    var box = $('vbReport'); box.textContent = ''; box.hidden = false;
     box.appendChild(el('h2', '', 'Vocabulary: ' + m.title));
-    box.appendChild(el('p', 'vb-filt', m.filt));
-    if (!m.rows.length) { box.appendChild(el('p', 'rd-none', 'No words match these choices. Try including more kinds of word.')); return; }
+    box.appendChild(el('p', 'vb-sub', 'The Greek New Testament, Byzantine Text \u00b7 greeknt.org'));
+    var fl = el('p', 'vb-filt'); fl.appendChild(el('b', '', 'Included: ')); fl.appendChild(document.createTextNode(m.filt)); box.appendChild(fl);
+    if (!m.rows.length) { box.appendChild(el('p', 'rd-none', 'No words match these choices. Try including more kinds of word, or a higher number.')); return; }
     var wrap = el('div', 'vb-wrap'), t = el('table', 'vb-table');
     var h = el('thead'), hr = el('tr');
-    ['Greek', 'Meaning', 'Strong’s', 'In the edition', 'Here'].forEach(function (x, i) { var th = el('th', i > 1 ? 'vb-n' : '', x); th.scope = 'col'; hr.appendChild(th); });
+    ['Greek', 'Meaning', 'Strong\u2019s', 'In the edition', 'Here'].forEach(function (x, i) { var th = el('th', i > 1 ? 'vb-n' : '', x); th.scope = 'col'; hr.appendChild(th); });
     h.appendChild(hr); t.appendChild(h);
     var tb = el('tbody');
     m.rows.forEach(function (e) {
       var tr = el('tr');
       var a = el('td', 'vb-gr', e.hw); a.lang = 'grc'; tr.appendChild(a);
       var b = el('td', 'vb-mean');
-      b.appendChild(document.createTextNode(e.gloss + ' ')); b.appendChild(el('span', 'vb-pos', KINDS[e.kind]));
+      b.appendChild(document.createTextNode(e.gloss + ' ')); b.appendChild(el('span', 'vb-pos', '(' + KINDS[e.kind] + ')'));
       if (m.ch.forms && e.fl.length) {
         var ul = el('ul', 'vb-forms');
         e.fl.forEach(function (f) {
           var li = el('li'); var sp = el('span', 'greek', f.spell); sp.lang = 'grc'; li.appendChild(sp);
-          if (m.ch.parse) li.appendChild(document.createTextNode(' ' + f.text));
-          li.appendChild(el('span', 'vb-vs', ' ' + f.verses.join(', ')));
+          li.appendChild(el('span', 'vb-vs', (m.ch.parse ? ' \u00b7 ' + f.text : '') + ' \u00b7 ' + f.verses.join(', ') + (f.n > 1 ? ' \u00d7' + f.n : '')));
           ul.appendChild(li);
         });
         b.appendChild(ul);
       }
       tr.appendChild(b);
-      tr.appendChild(el('td', 'vb-n', e.s));
+      tr.appendChild(el('td', 'vb-n', 'G' + e.s));
       tr.appendChild(el('td', 'vb-n', num(e.freq)));
       tr.appendChild(el('td', 'vb-n', num(e.here)));
       tb.appendChild(tr);
     });
     t.appendChild(tb); wrap.appendChild(t); box.appendChild(wrap);
-    box.appendChild(el('p', 'vb-foot', num(m.rows.length) + (m.rows.length === 1 ? ' word' : ' words') + ' listed, from ' + num(m.distinct) + ' different ' + (m.distinct === 1 ? 'word' : 'words') + ' in the passage.'));
+    box.appendChild(el('p', 'vb-foot', num(m.rows.length) + (m.rows.length === 1 ? ' word' : ' words') + ' from ' + num(m.total) + ' in the passage. Meanings from the Strong\u2019s dictionary, as shown on the site.'));
   }
 
   /* ---------- downloads ---------- */
@@ -141,7 +147,7 @@
     setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1500);
   }
   function formsText(e, ch) {
-    return e.fl.map(function (f) { return f.spell + (ch.parse ? ' (' + f.text + ')' : '') + ' ' + f.verses.join(', '); }).join('; ');
+    return e.fl.map(function (f) { return f.spell + (ch.parse ? ' (' + f.text + ')' : '') + ' ' + f.verses.join(', ') + (f.n > 1 ? ' x' + f.n : ''); }).join('; ');
   }
   function csvCell(s) { s = String(s); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
   function toCsv(m) {
@@ -156,47 +162,62 @@
       '<h2>' + esc('Vocabulary: ' + m.title) + '</h2><p>' + esc(m.filt) + '</p><table><thead><tr><th>Greek</th><th>Meaning</th><th class="n">Strong’s</th><th class="n">In the edition</th><th class="n">Here</th></tr></thead><tbody>';
     m.rows.forEach(function (e) {
       h += '<tr><td class="g">' + esc(e.hw) + '</td><td>' + esc(e.gloss) + ' <span class="p">' + KINDS[e.kind] + '</span>';
-      if (m.ch.forms) e.fl.forEach(function (f) { h += '<p class="f">' + esc(f.spell + (m.ch.parse ? ' ' + f.text : '') + '  ' + f.verses.join(', ')) + '</p>'; });
+      if (m.ch.forms) e.fl.forEach(function (f) { h += '<p class="f">' + esc(f.spell + (m.ch.parse ? ' ' + f.text : '') + '  ' + f.verses.join(', ') + (f.n > 1 ? ' \u00d7' + f.n : '')) + '</p>'; });
       h += '</td><td class="n">' + e.s + '</td><td class="n">' + num(e.freq) + '</td><td class="n">' + num(e.here) + '</td></tr>';
     });
-    h += '</tbody></table><p>' + num(m.rows.length) + ' words listed, from ' + num(m.distinct) + ' different words in the passage.</p><p>The Greek New Testament According to the Byzantine Text, greeknt.org</p></body></html>';
+    h += '</tbody></table><p>' + num(m.rows.length) + ' words from ' + num(m.total) + ' in the passage.</p><p>The Greek New Testament According to the Byzantine Text, greeknt.org</p></body></html>';
     return h;
   }
   function say(t) { var s = $('vbStatus'); s.textContent = t; clearTimeout(say.t); say.t = setTimeout(function () { s.textContent = ''; }, 4000); }
 
   /* ---------- running ---------- */
+  var timer = null;
+  function printIt() {
+    document.body.classList.add('vb-printing');
+    window.addEventListener('afterprint', function done() { document.body.classList.remove('vb-printing'); window.removeEventListener('afterprint', done); });
+    window.print();
+  }
   function make() {
-    var msg = $('vbMsg'); msg.textContent = ''; msg.className = 'rd-msg';
+    var msg = $('vbMsg'), count = $('vbCount'); msg.textContent = ''; msg.className = 'rd-msg';
     var txt = $('vbRange').value;
-    if (!txt.trim()) { msg.textContent = 'Type a passage, such as John 3:16-18.'; msg.className = 'rd-msg rd-bad'; return; }
-    if (!ready) { msg.textContent = 'The word data is still loading. Try again in a moment.'; return; }
+    function none(t) { model = null; $('vbReport').hidden = true; $('vbBtns').hidden = true; $('vbPdfHelp').hidden = true; count.textContent = t; }
+    if (!txt.trim()) { none('Type a passage above to see its words.'); return; }
+    if (!ready) { none('Loading the word data\u2026'); return; }
     var r = P.lookup(txt);
-    if (r.error) { msg.textContent = r.error; msg.className = 'rd-msg rd-bad'; return; }
+    if (r.error) { msg.textContent = r.error; msg.className = 'rd-msg rd-bad'; none(''); return; }
     if (r.warn) msg.textContent = r.warn;
     model = build(r.parts, choices());
     renderReport(model);
-    $('vbOutSec').hidden = false;
-    try { history.replaceState(null, '', location.pathname + '?p=' + encodeURIComponent(P.canon(r.parts)).replace(/%20/g, '+').replace(/%3A/g, ':').replace(/%2C/g, ',')); } catch (e) {}
-    $('vbOutSec').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    count.textContent = num(model.rows.length) + (model.rows.length === 1 ? ' word' : ' words') + ' from ' + num(model.total) + ' in the passage';
+    $('vbBtns').hidden = !model.rows.length; $('vbPdfHelp').hidden = !model.rows.length;
   }
-  function init() {
-    $('vbForm').addEventListener('submit', function (e) { e.preventDefault(); make(); });
-    document.querySelectorAll('.rd-ex').forEach(function (b) { b.addEventListener('click', function () { $('vbRange').value = b.textContent; $('vbRange').focus(); }); });
-    $('vbSlide').addEventListener('input', function () { $('vbMax').value = this.value; $('vbCommon').checked = true; });
-    $('vbMax').addEventListener('input', function () { $('vbSlide').value = Math.min(5000, Math.max(10, +this.value || 10)); });
-    $('vbPrint').addEventListener('click', function () { window.print(); });
-    $('vbPdf').addEventListener('click', function () { say('Choose “Save as PDF” in the print window.'); window.print(); });
-    $('vbWord').addEventListener('click', function () { if (model) { save(slug() + '.doc', 'application/msword', toWord(model)); say('Saved as a Word file.'); } });
-    $('vbCsv').addEventListener('click', function () { if (model) { save(slug() + '.csv', 'text/csv;charset=utf-8', toCsv(model)); say('Saved as a CSV file.'); } });
-    $('vbMsg').textContent = 'Loading the word data…';
+  function later() { clearTimeout(timer); timer = setTimeout(make, 250); }
+  var started = false;
+  /* Called by the Read page when the Vocabulary tab is opened: the word data loads only then */
+  function open() {
+    if (started) { make(); return; }
+    started = true;
+    $('vbCount').textContent = 'Loading the word data\u2026';
     P.loadGreek(function (ok1) {
       P.loadWords(function (ok2) {
-        if (!ok1 || !ok2) { $('vbMsg').textContent = 'The word data could not be loaded. Check your connection and reload the page.'; return; }
-        ready = true; $('vbMsg').textContent = '';
-        var q = new URLSearchParams(location.search).get('p');
-        if (q) { $('vbRange').value = q; make(); }
+        if (!ok1 || !ok2) { $('vbCount').textContent = 'The word data could not be loaded. Check your connection and reload the page.'; return; }
+        ready = true; make();
       });
     });
   }
+  function init() {
+    if (!$('vbForm')) return;
+    $('vbForm').addEventListener('submit', function (e) { e.preventDefault(); make(); });
+    $('vbRange').addEventListener('input', later);
+    document.querySelectorAll('#vbForm .rd-ex').forEach(function (b) { b.addEventListener('click', function () { $('vbRange').value = b.textContent; make(); $('vbRange').focus(); }); });
+    document.querySelectorAll('.vb-side input').forEach(function (c) { c.addEventListener('change', later); });
+    $('vbMax').addEventListener('input', function () { $('vbCommon').checked = true; later(); });
+    document.querySelectorAll('.vb-preset').forEach(function (b) { b.addEventListener('click', function () { $('vbMax').value = b.dataset.n; $('vbCommon').checked = true; make(); }); });
+    $('vbPrint').addEventListener('click', printIt);
+    $('vbPdf').addEventListener('click', function () { say('Choose \u201cSave as PDF\u201d in the print window.'); printIt(); });
+    $('vbWord').addEventListener('click', function () { if (model) { save(slug() + '.doc', 'application/msword', toWord(model)); say('Saved as a Word file.'); } });
+    $('vbCsv').addEventListener('click', function () { if (model) { save(slug() + '.csv', 'text/csv;charset=utf-8', toCsv(model)); say('Saved as a CSV file.'); } });
+  }
+  window.GNT_VOCAB = { open: open, setPassage: function (t) { $('vbRange').value = t; } };
   init();
 })();

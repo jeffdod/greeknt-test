@@ -1,5 +1,5 @@
 /* Passages: reading a typed range such as "John 3:16-18", "Mk 4", "Rom 8:28-9:5", "Matt 5:3-12; Luke 6:20-23" or "John 3:16 +2",
-   finding its verses, and loading the text, word and note data when a page needs them. Used by the Read and Vocabulary pages. */
+   finding its verses, and loading the text, word and note data when a page needs them. Used by the Read page and its vocabulary list. */
 (function () {
   'use strict';
   var P = window.GNT_PASSAGE = {};
