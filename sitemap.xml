@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://greeknt.org/</loc></url>
+  <url><loc>https://greeknt.org/read.html</loc></url>
+  <url><loc>https://greeknt.org/vocab.html</loc></url>
   <url><loc>https://greeknt.org/variants.html</loc></url>
   <url><loc>https://greeknt.org/stats.html</loc></url>
   <url><loc>https://greeknt.org/search.html</loc></url>

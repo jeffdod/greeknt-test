@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#e8e6df">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Greek NT">
+<title>Read and search · The Greek New Testament According to the Byzantine Text</title>
+<meta name="description" content="Look up any passage in the Greek New Testament with the English alongside, point at a Greek word for its dictionary entry and parsing, and search the Greek, the English, and the notes.">
+<link rel="canonical" href="https://greeknt.org/read.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Guardian Press">
+<meta property="og:title" content="Read and search the Greek New Testament">
+<meta property="og:description" content="Look up a passage, point at any Greek word, and search the Greek, the English, and the notes.">
+<meta property="og:url" content="https://greeknt.org/read.html">
+<meta property="og:image" content="https://greeknt.org/images/social-card-2.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="fonts/EBGaramond-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="explorer.css">
+<link rel="stylesheet" href="xhero.css">
+<link rel="stylesheet" href="english.css">
+<link rel="stylesheet" href="read.css">
+<link rel="stylesheet" href="print.css" media="print">
+</head>
+<body>
+<a class="skip" href="#top">Skip to main content</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="index.html"><b>Guardian</b> Press</a>
+    <nav class="nav" aria-label="Sections">
+      <a href="index.html">The edition</a>
+      <a href="read.html" aria-current="page">Read</a>
+      <a href="vocab.html">Vocabulary</a>
+      <a href="variants.html">Fifty variants</a>
+      <a href="stats.html">Compare editions</a>
+      <a href="search.html">Explore variants</a>
+      <a href="manuscripts.html">Manuscripts</a>
+      <a href="about.html">About</a>
+      <a href="errata.html">Errata</a>
+      <a class="nav-dl" href="index.html#get">Get the edition</a>
+    </nav>
+    <details class="navmenu">
+      <summary>Menu</summary>
+      <nav class="navmenu-list" aria-label="Menu">
+        <a href="index.html">The edition</a>
+        <a href="read.html" aria-current="page">Read</a>
+        <a href="vocab.html">Vocabulary</a>
+        <a href="variants.html">Fifty variants</a>
+        <a href="stats.html">Compare editions</a>
+        <a href="search.html">Explore variants</a>
+        <a href="manuscripts.html">Manuscripts</a>
+        <a href="about.html">About</a>
+        <a href="errata.html">Errata</a>
+        <a href="index.html#get">Get the edition</a>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<main id="top">
+
+  <div class="xhero">
+    <div class="wrap">
+      <h1>Read</h1>
+      <p class="lede">Look up any passage and read it in Greek and English. Point at a Greek word to see its dictionary entry and parsing. Search the Greek, the English, and the notes.</p>
+    </div>
+  </div>
+
+  <section id="lookup">
+    <div class="wrap">
+
+      <div class="rd-modes" role="group" aria-label="What to do">
+        <button type="button" class="rd-mode" id="rdModeRead" aria-pressed="true">Read a passage</button>
+        <button type="button" class="rd-mode" id="rdModeSearch" aria-pressed="false">Search the text</button>
+      </div>
+
+      <div id="rdRead">
+        <form id="rdForm" class="rd-form" autocomplete="off">
+          <label for="rdRange">Passage</label>
+          <div class="rd-row">
+            <input id="rdRange" name="p" type="text" inputmode="text" autocapitalize="off" spellcheck="false" placeholder="John 3:16-18" aria-describedby="rdHelp">
+            <button class="btn btn-primary" type="submit" id="rdGo">Show passage</button>
+          </div>
+          <p class="rd-help" id="rdHelp">You can use short book names. Separate several passages with a semicolon. Examples:
+            <button type="button" class="rd-ex">John 3:16-18</button>
+            <button type="button" class="rd-ex">Mk 4</button>
+            <button type="button" class="rd-ex">1 Cor 13</button>
+            <button type="button" class="rd-ex">Rom 8:28-9:5</button>
+            <button type="button" class="rd-ex">Matt 5:3-12; Luke 6:20-23</button>
+            <button type="button" class="rd-ex">John 3:16 +2</button>
+          </p>
+          <p class="rd-msg" id="rdMsg" role="status"></p>
+        </form>
+
+        <div id="rdCards" class="rd-cards"></div>
+
+        <div class="rd-pick" id="rdPick">
+          <h2>Or pick the verses</h2>
+          <div class="rd-pickrow">
+            <label>Book <select id="rdBook"></select></label>
+            <label>Chapter <select id="rdChap"></select></label>
+          </div>
+          <div class="rd-vgrid" id="rdVerses" role="group" aria-label="Verses"></div>
+          <p class="rd-help">Choose the first verse, then the last. Choose again to start over.</p>
+        </div>
+
+        <div class="rd-recent" id="rdRecent" hidden>
+          <h2>Recent passages</h2>
+          <p id="rdRecentList"></p>
+        </div>
+      </div>
+
+      <div id="rdSearch" hidden>
+        <form id="rdSForm" class="rd-form" autocomplete="off">
+          <label for="rdQ">Search for</label>
+          <div class="rd-row">
+            <input id="rdQ" name="q" type="text" autocapitalize="off" spellcheck="false" placeholder="ἀγαπάω, agapa/w, or love" aria-describedby="rdSHelp">
+            <button class="btn btn-primary" type="submit">Search</button>
+          </div>
+          <fieldset class="rd-chips">
+            <legend>Look in</legend>
+            <label class="rd-chip"><input type="radio" name="scope" value="auto" checked><span>Greek or English</span></label>
+            <label class="rd-chip"><input type="radio" name="scope" value="greek"><span>Greek only</span></label>
+            <label class="rd-chip"><input type="radio" name="scope" value="english"><span>English only</span></label>
+            <label class="rd-chip"><input type="radio" name="scope" value="notes"><span>Notes only</span></label>
+          </fieldset>
+          <p class="rd-help" id="rdSHelp">The search reaches into the notes as well as the text. Greek can be typed with accents, without accents, or in beta code: <span class="greek" lang="grc">ἀγαπάω</span>, <span class="greek" lang="grc">αγαπαω</span> and <code>agapa/w</code> all find the same words, in every form. Every word you type must occur in the verse. In English, a word matches words that begin with it, so <i>love</i> finds <i>loved</i>. Put a phrase in double quotation marks.</p>
+          <p class="rd-msg" id="rdSMsg" role="status"></p>
+        </form>
+        <div id="rdResults"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="rdOutSec" hidden>
+    <div class="wrap">
+      <div id="rdOut" class="rd-out view-both">
+        <div class="rd-bar">
+          <fieldset class="rd-views">
+            <legend>Show</legend>
+            <label class="rd-chip"><input type="radio" name="view" value="both" checked><span>Greek and English</span></label>
+            <label class="rd-chip"><input type="radio" name="view" value="grk"><span>Greek only</span></label>
+            <label class="rd-chip"><input type="radio" name="view" value="eng"><span>English only</span></label>
+          </fieldset>
+          <label class="rd-check"><input type="checkbox" id="rdNotes"> Show notes</label>
+          <button type="button" class="btn" id="rdCopy">Copy</button>
+          <button type="button" class="btn" id="rdShare">Share link</button>
+          <span class="rd-status" id="rdStatus" role="status"></span>
+        </div>
+        <p class="rd-help rd-tiphelp">Point at a Greek word (or tap it) to see its dictionary entry and parsing.</p>
+        <div id="rdText"></div>
+      </div>
+    </div>
+  </section>
+
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Guardian Press</span>
+    <span>The text of this edition is in the public domain.</span>
+  </div>
+</footer>
+
+<script src="english.js"></script>
+<script src="greek-tip.js"></script>
+<script src="greekinput.js"></script>
+<script src="passage.js"></script>
+<script src="read.js"></script>
+<script src="menu.js"></script>
+<script src="backnav.js"></script>
+<script src="pwa.js" defer></script>
+<script src="scrolljump.js"></script>
+<script data-goatcounter="https://greeknt.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

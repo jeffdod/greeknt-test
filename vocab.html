@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#e8e6df">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Greek NT">
+<title>Vocabulary list · The Greek New Testament According to the Byzantine Text</title>
+<meta name="description" content="Make a vocabulary list for any passage of the Greek New Testament, filtered by kind of word, with the verb forms used, to print, save as PDF, open in Word, or open in a spreadsheet.">
+<link rel="canonical" href="https://greeknt.org/vocab.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Guardian Press">
+<meta property="og:title" content="Vocabulary lists for the Greek New Testament">
+<meta property="og:description" content="Make a vocabulary list for any passage, with filters, to print or download.">
+<meta property="og:url" content="https://greeknt.org/vocab.html">
+<meta property="og:image" content="https://greeknt.org/images/social-card-2.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="fonts/EBGaramond-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="explorer.css">
+<link rel="stylesheet" href="xhero.css">
+<link rel="stylesheet" href="read.css">
+<link rel="stylesheet" href="vocab.css">
+<link rel="stylesheet" href="print.css" media="print">
+</head>
+<body>
+<a class="skip" href="#top">Skip to main content</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="index.html"><b>Guardian</b> Press</a>
+    <nav class="nav" aria-label="Sections">
+      <a href="index.html">The edition</a>
+      <a href="read.html">Read</a>
+      <a href="vocab.html" aria-current="page">Vocabulary</a>
+      <a href="variants.html">Fifty variants</a>
+      <a href="stats.html">Compare editions</a>
+      <a href="search.html">Explore variants</a>
+      <a href="manuscripts.html">Manuscripts</a>
+      <a href="about.html">About</a>
+      <a href="errata.html">Errata</a>
+      <a class="nav-dl" href="index.html#get">Get the edition</a>
+    </nav>
+    <details class="navmenu">
+      <summary>Menu</summary>
+      <nav class="navmenu-list" aria-label="Menu">
+        <a href="index.html">The edition</a>
+        <a href="read.html">Read</a>
+        <a href="vocab.html" aria-current="page">Vocabulary</a>
+        <a href="variants.html">Fifty variants</a>
+        <a href="stats.html">Compare editions</a>
+        <a href="search.html">Explore variants</a>
+        <a href="manuscripts.html">Manuscripts</a>
+        <a href="about.html">About</a>
+        <a href="errata.html">Errata</a>
+        <a href="index.html#get">Get the edition</a>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<main id="top">
+
+  <div class="xhero">
+    <div class="wrap">
+      <h1>Vocabulary</h1>
+      <p class="lede">Choose a passage and make a list of its Greek words, with meanings, Strong’s numbers, and how often each is used. Filter the list, then print it or save it.</p>
+    </div>
+  </div>
+
+  <section id="vocab">
+    <div class="wrap">
+
+      <form id="vbForm" class="rd-form vb-form" autocomplete="off">
+        <label for="vbRange">Passage</label>
+        <div class="rd-row">
+          <input id="vbRange" name="p" type="text" autocapitalize="off" spellcheck="false" placeholder="John 3:16-18" aria-describedby="vbHelp">
+        </div>
+        <p class="rd-help" id="vbHelp">Use the same short forms as the Read page. Separate several passages with a semicolon. Examples:
+          <button type="button" class="rd-ex">John 3:16-18</button>
+          <button type="button" class="rd-ex">Phil 2:5-11</button>
+          <button type="button" class="rd-ex">1 John 4:7-12</button>
+          <button type="button" class="rd-ex">Matt 5:3-12; Luke 6:20-23</button>
+        </p>
+
+        <div class="vb-filters">
+          <fieldset>
+            <legend>Words to include</legend>
+            <label><input type="checkbox" name="pos" value="noun" checked> Nouns</label>
+            <label><input type="checkbox" name="pos" value="verb" checked> Verbs</label>
+            <label><input type="checkbox" name="pos" value="adj" checked> Adjectives</label>
+            <label><input type="checkbox" name="pos" value="adv" checked> Adverbs</label>
+            <label><input type="checkbox" name="pos" value="pron" checked> Pronouns</label>
+            <label><input type="checkbox" name="pos" value="prep" checked> Prepositions</label>
+            <label><input type="checkbox" name="pos" value="conj" checked> Conjunctions</label>
+            <label><input type="checkbox" name="pos" value="part" checked> Particles</label>
+            <label><input type="checkbox" name="pos" value="art"> The article</label>
+            <label class="vb-sep"><input type="checkbox" id="vbNames" checked> Names of people and places</label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Leave out common words</legend>
+            <label><input type="checkbox" id="vbCommon"> Leave out words used more than
+              <input type="number" id="vbMax" min="10" max="20000" step="10" value="1000" aria-label="Number of times in the edition"> times in the edition</label>
+            <input type="range" id="vbSlide" min="10" max="5000" step="10" value="1000" aria-label="Number of times in the edition, slider">
+            <p class="rd-help">Words such as <span class="greek" lang="grc">καί</span> and <span class="greek" lang="grc">ὁ</span> are used thousands of times. A lower number leaves out more of them.</p>
+          </fieldset>
+
+          <fieldset>
+            <legend>Verbs</legend>
+            <label><input type="checkbox" id="vbForms" checked> Show the forms used in this passage</label>
+            <label><input type="checkbox" id="vbParse" checked> Show tense, voice and mood</label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Order</legend>
+            <label><input type="radio" name="order" value="appear" checked> As it appears in the passage</label>
+            <label><input type="radio" name="order" value="rare"> Rarest words first</label>
+            <label><input type="radio" name="order" value="az"> Alphabetical</label>
+            <label><input type="radio" name="order" value="kind"> By kind of word</label>
+          </fieldset>
+        </div>
+
+        <p class="rd-msg" id="vbMsg" role="status"></p>
+        <button class="btn btn-primary" type="submit">Make the list</button>
+      </form>
+
+    </div>
+  </section>
+
+  <section id="vbOutSec" hidden>
+    <div class="wrap">
+      <div class="vb-bar">
+        <button type="button" class="btn" id="vbPrint">Print</button>
+        <button type="button" class="btn" id="vbPdf">PDF</button>
+        <button type="button" class="btn" id="vbWord">Word</button>
+        <button type="button" class="btn" id="vbCsv">CSV</button>
+        <span class="rd-status" id="vbStatus" role="status"></span>
+      </div>
+      <p class="rd-help vb-pdfhelp">PDF opens your browser&rsquo;s print window. Choose &ldquo;Save as PDF&rdquo; as the printer there. Word opens in Word and similar programs. CSV opens in a spreadsheet.</p>
+      <article id="vbReport" class="vb-report"></article>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Guardian Press</span>
+    <span>The text of this edition is in the public domain.</span>
+  </div>
+</footer>
+
+<script src="greek-tip.js"></script>
+<script src="passage.js"></script>
+<script src="vocab.js"></script>
+<script src="menu.js"></script>
+<script src="backnav.js"></script>
+<script src="pwa.js" defer></script>
+<script src="scrolljump.js"></script>
+<script data-goatcounter="https://greeknt.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

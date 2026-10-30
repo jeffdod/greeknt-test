@@ -1,0 +1,42 @@
+/* Vocabulary page */
+.vb-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));gap:22px 30px;margin:24px 0 18px;max-width:62rem}
+.vb-filters fieldset{border:1px solid var(--rule);background:var(--vellum);padding:12px 18px 16px;margin:0;min-width:0}
+.vb-filters legend{font-weight:600;padding:0 6px}
+.vb-filters label{display:block;margin:5px 0;font-weight:400}
+.vb-filters .vb-sep{margin-top:12px;padding-top:10px;border-top:1px dotted var(--rule)}
+.vb-filters input[type="number"]{width:5.5em;font:inherit;padding:.15em .4em;background:#fff8;border:1px solid var(--rule);border-radius:3px;color:inherit}
+.vb-filters input[type="range"]{width:100%;margin:8px 0 0;accent-color:var(--rubric)}
+.vb-filters input[type="checkbox"],.vb-filters input[type="radio"]{accent-color:var(--rubric)}
+.vb-form .btn{margin-top:6px}
+
+#vbOutSec{padding-top:8px}
+.vb-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:12px 0;border-top:1px solid var(--rule)}
+.vb-pdfhelp{margin:0 0 18px}
+.vb-report h2{font-size:1.6rem;margin:0 0 6px}
+.vb-filt{margin:0 0 18px;color:var(--ink-soft);max-width:60rem}
+.vb-wrap{overflow-x:auto}
+.vb-table{border-collapse:collapse;width:100%;max-width:62rem;background:var(--vellum);border:1px solid var(--rule)}
+.vb-table th{text-align:left;font-weight:600;padding:9px 14px;border-bottom:2px solid var(--ink);white-space:nowrap}
+.vb-table td{padding:9px 14px;border-bottom:1px solid var(--rule);vertical-align:top}
+.vb-table .vb-n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.vb-gr{font-size:1.3rem;white-space:nowrap}
+.vb-pos{color:var(--ink-soft);font-style:italic;font-size:.95rem}
+.vb-forms{list-style:none;margin:6px 0 0;padding:0 0 0 14px;border-left:2px solid var(--gilt);font-size:.97rem;line-height:1.5}
+.vb-forms .greek{font-size:1.08rem}
+.vb-vs{color:var(--ink-soft)}
+.vb-foot{margin:12px 0 0;color:var(--ink-soft)}
+
+@media (max-width:760px){
+  .vb-table th,.vb-table td{padding:8px 8px}
+  .vb-gr{white-space:normal}
+}
+
+@media print{
+  .topbar,.skip,.xhero,footer,#vocab,.vb-bar,.vb-pdfhelp,.scrolljump,.navmenu{display:none!important}
+  body{background:#fff}
+  #vbOutSec,#vbOutSec .wrap{padding:0;margin:0;max-width:none}
+  .vb-table{background:#fff;border:0;max-width:none}
+  .vb-table thead{display:table-header-group}
+  .vb-table tr{break-inside:avoid}
+  .vb-table td,.vb-table th{border-color:#888}
+}

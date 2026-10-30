@@ -37,7 +37,7 @@ p{margin:0 0 1em}
 .topbar .wrap{display:flex;align-items:center;gap:24px;height:60px}
 .brand{font-variant:small-caps;letter-spacing:.06em;font-size:1.15rem;text-decoration:none;color:var(--ink);white-space:nowrap}
 .brand b{color:var(--rubric);font-weight:500}
-.nav{display:flex;gap:16px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+.nav{display:flex;gap:16px;margin-left:auto}
 .nav::-webkit-scrollbar{display:none}
 .nav a{color:var(--ink-soft);text-decoration:none;font-size:.97rem;white-space:nowrap}
 .nav a:hover{color:var(--rubric)}
@@ -47,7 +47,7 @@ p{margin:0 0 1em}
 .navmenu summary::before{content:"";width:16px;height:2px;background:currentColor;box-shadow:0 -5px 0 currentColor,0 5px 0 currentColor;flex:none}
 .navmenu summary::-webkit-details-marker{display:none}
 .navmenu[open] summary{background:var(--rubric);border-color:var(--rubric);color:#f6efe6}
-.navmenu-list{position:absolute;right:0;top:calc(100% + 12px);min-width:220px;background:#f4f1ea;border:1px solid var(--rule);box-shadow:0 8px 24px rgba(30,40,55,.18);padding:6px 0;display:flex;flex-direction:column}
+.navmenu-list{max-height:calc(100vh - 90px);overflow-y:auto;position:absolute;right:0;top:calc(100% + 12px);min-width:220px;background:#f4f1ea;border:1px solid var(--rule);box-shadow:0 8px 24px rgba(30,40,55,.18);padding:6px 0;display:flex;flex-direction:column}
 .navmenu-list a{padding:.65em 1.2em;color:var(--ink);text-decoration:none;font-size:1.05rem}
 .navmenu-list a:hover{background:rgba(138,42,30,.07);color:var(--rubric)}
 
@@ -237,8 +237,8 @@ details.fifty[open] summary::before{content:"−"}
 /* The longer "Compare editions" link needs a little more room in the top bar */
 .nav{gap:11px}
 
-@media (max-width:1250px){.nav a[href="#samples"]{display:none}}
-@media (max-width:1130px){.nav a[href="#explore"]{display:none}}
+.nav a[href="#samples"],.nav a[href="#explore"]{display:none}
+@media (max-width:1240px){.nav a[href="#inside"]{display:none}}
 @media (max-width:1060px){.nav a[href="#grid"]{display:none}}
 @media (max-width:1060px){.nav a[href="#timeline"]{display:none}}
 @media (max-width:860px){.nav{display:none}.navmenu{display:block}}
@@ -268,5 +268,5 @@ details.fifty[open] summary::before{content:"−"}
   .panel .card{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border-left:0;padding:16px 20px 22px}
 }
 @media (max-width:860px) and (prefers-reduced-motion:reduce){.panel,.panel.open{transition:none}}
-@media (max-width:940px){.nav{display:none}.navmenu{display:block}}
+@media (max-width:1000px){.nav{display:none}.navmenu{display:block}}
 @media (max-width:1130px){.nav{gap:10px}.nav a{font-size:.93rem}}
