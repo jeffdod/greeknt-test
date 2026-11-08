@@ -102,15 +102,33 @@
     return out;
   };
 
+  /* Put English text into parent. The words Boyd puts in square brackets (words with no Greek behind them) are shown in italics,
+     without the brackets. rg is a list of [start, end] stretches (counted in the text as stored) to highlight as search hits. */
   function put(parent, text, rg) {
-    var at = 0;
-    rg.forEach(function (r) {
-      if (r[0] > at) parent.appendChild(document.createTextNode(text.slice(at, r[0])));
-      var m = document.createElement('mark'); m.className = 'hit'; m.textContent = text.slice(r[0], r[1]); parent.appendChild(m);
-      at = r[1];
-    });
-    if (at < text.length) parent.appendChild(document.createTextNode(text.slice(at)));
+    var n = text.length, hide = [], ital = [], hit = [], i;
+    var re = /\[([^\]]*)\]/g, m;
+    while ((m = re.exec(text))) {
+      hide[m.index] = true; hide[m.index + m[0].length - 1] = true;
+      for (i = m.index + 1; i < m.index + m[0].length - 1; i++) ital[i] = true;
+    }
+    (rg || []).forEach(function (r) { for (i = r[0]; i < r[1]; i++) hit[i] = true; });
+    var buf = '', st = null;
+    function flush() {
+      if (!buf) return;
+      var node = document.createTextNode(buf);
+      if (st[1]) { var mk = document.createElement('mark'); mk.className = 'hit'; mk.appendChild(node); node = mk; }
+      if (st[0]) { var em = document.createElement('em'); em.className = 'ensup'; em.appendChild(node); node = em; }
+      parent.appendChild(node); buf = '';
+    }
+    for (i = 0; i < n; i++) {
+      if (hide[i]) continue;
+      var f = [!!ital[i], !!hit[i]];
+      if (st && (st[0] !== f[0] || st[1] !== f[1])) flush();
+      st = f; buf += text.charAt(i);
+    }
+    flush();
   }
+  EN.fill = put;
 
   /* Put the English of a passage into parent. Long passages show the first two verses, with a button for the rest.
      "pieces" are search words to highlight. Returns the number of verses (0 when there is none). */

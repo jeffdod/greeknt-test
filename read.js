@@ -88,7 +88,7 @@
       part.verses.forEach(function (v) {
         var row = el('div', 'rd-v');
         var g = el('div', 'rd-g'); g.lang = 'grc'; g.appendChild(verseNum(v, multi)); greekVerse(g, v); row.appendChild(g);
-        var e = el('div', 'rd-e'); e.appendChild(verseNum(v, multi)); e.appendChild(document.createTextNode(englishOf(v))); row.appendChild(e);
+        var e = el('div', 'rd-e'); e.appendChild(verseNum(v, multi)); GNT_EN.fill(e, englishOf(v), null); row.appendChild(e);
         var nk = el('div', 'rd-notes'); nk.dataset.nk = v.b + '|' + v.key; row.appendChild(nk);
         sec.appendChild(row);
       });
@@ -184,7 +184,7 @@
     });
     var v = part.verses[0];
     var g = el('p', 'rd-prev greek'); g.lang = 'grc'; g.appendChild(verseNum(v, part.verses.length > 1)); g.appendChild(document.createTextNode(greekOf(v))); c.appendChild(g);
-    var e = el('p', 'rd-prev'); e.appendChild(verseNum(v, part.verses.length > 1)); e.appendChild(document.createTextNode(englishOf(v) || '')); c.appendChild(e);
+    var e = el('p', 'rd-prev'); e.appendChild(verseNum(v, part.verses.length > 1)); GNT_EN.fill(e, englishOf(v), null); c.appendChild(e);
     var b = el('button', 'btn btn-primary', 'Read'); b.type = 'button';
     b.addEventListener('click', function () { showPassage([part], true); });
     c.appendChild(b);
@@ -326,14 +326,14 @@
     });
     return out;
   }
-  function searchEnglishVerses(terms) {
+  function searchEnglishVerses(pieces) {
     var out = [];
     P.books.forEach(function (bn, b) {
       var a = window.GNT_ASV[b]; if (!a) return;
       P.keys(b).forEach(function (p) {
         var tx = a[p[2]]; if (!tx) return;
-        var rg = englishRanges(tx, terms);
-        if (rg) out.push({ b: b, c: p[0], v: p[1], key: p[2], ranges: mergeRanges(rg) });
+        if (!EN.matches(' ' + EN.norm(tx) + ' ', pieces)) return;
+        out.push({ b: b, c: p[0], v: p[1], key: p[2], ranges: EN.ranges(tx, pieces) });
       });
     });
     return out;
@@ -375,7 +375,7 @@
     var head = el('p', 'rd-hithead'); head.appendChild(refButton(v)); box.appendChild(head);
     var g = el('p', 'rd-hg'); g.lang = 'grc'; greekVerse(g, v, greekHits); box.appendChild(g);
     var e = el('p', 'rd-he');
-    if (ranges) markText(e, englishOf(v), ranges); else e.textContent = englishOf(v);
+    GNT_EN.fill(e, englishOf(v), ranges || null);
     box.appendChild(e);
     return box;
   }
@@ -418,7 +418,7 @@
     } else {
       terms = englishQuery(q);
       if (!terms.length) { msg.textContent = 'Type a word or phrase to search for.'; return; }
-      if (withText) items = searchEnglishVerses(terms);
+      if (withText) items = searchEnglishVerses(EN.pieces(q));
       if (withNotes) noteItems = searchNotesEnglish(terms);
       info = 'Searching the English for ' + terms.join(', ') + '.';
     }
@@ -445,7 +445,7 @@
         head.appendChild(el('span', 'rd-tag', 'in the notes')); head.appendChild(document.createTextNode(' page ' + n[0]));
         box.appendChild(head);
         if (v) { var g = el('p', 'rd-hg'); g.lang = 'grc'; greekVerse(g, v, null); box.appendChild(g);
-          var e = el('p', 'rd-he'); e.textContent = englishOf(v); box.appendChild(e); }
+          var e = el('p', 'rd-he'); GNT_EN.fill(e, englishOf(v), null); box.appendChild(e); }
         var mark = null;
         if (lang === 'greek') mark = function (parent, text) {
           var re = /\S+/g, m, at = 0;
